@@ -9,7 +9,7 @@ v2 = unit_array.Value(1.0, 1, 1, 3, meter, km)
 v2 + v1
 v3 = v1 * v2
 v4 = v1+v2
-v5 = unit_array.Value(3.4, 1.0, 1, second, second)
+v5 = unit_array.Value(3.4, 1, 1, 0, second, second)
 v6 = v1 - v2
 
 x1 = unit_array.Value(1, 254, 1, -4, meter, inch)
