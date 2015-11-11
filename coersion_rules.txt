@@ -1,0 +1,39 @@
+
+
+		float, Value, complex, Complex, ndarray,   ValueArray
+float		 N/A   Value*   N/A    Complex*   N/A	   ValueArray*
+		 N/A   Value	N/A    Complex    N/A        Value
+
+Value		Value  Value*  Complex Complex*  ValueArray  ValueArray*
+		Value* Value*  Complex Complex   Value*	     Value*
+
+complex		N/A    Complex   N/A   Complex*  N/A	      ValueArray*
+		N/A    Complex   N/A   Complex	 N/A	      Complex
+
+
+Complex	      Complex  Complex Complex  Complex*  ValueArray  ValueArray*
+	      Complex* Complex* Complex* Complex* Complex*    Complex*
+
+ndarray	      N/A      Value*	N/A	 Complex* N/A	      ValueArray*
+	      ValueArray VA    N/A	 ValueArr N/A	      ValueArray 
+
+ValueArray    Value	Value* Complex	 Complex* ValueArray  ValueArray*
+	      ValueArray ..........................................
+
+
+Array/VA always change to value VA
+complex -> Complex
+Float/Value -> Complex if other is complex
+
+Value operator can't fail on ndarray, or we don't get to switch to ValueArray
+
+promote_to_value/complex: handle arrays
+
+
+if (either_complex):
+   promote_to_complex()
+   call_complex_func()
+promote_to_value():
+if (either array):
+   call_array_func()
+call_value_func()

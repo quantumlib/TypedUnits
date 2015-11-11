@@ -1,0 +1,32 @@
+
+
+typedef struct {
+    PyObject_HEAD
+    double value;
+    int exponent;
+    int unit_powers[SI_BASE_NR];
+} ValueObject;
+
+python unit field:
+factor: rational factor of unit to SI base units (always 1 for 'lex' units)
+is_angle: bool
+is_dimensionless: bool: all powers = 0 + lex_names empty
+names: dict of {unit_name: rational power} -- items that go in unit name (can be base like m or derived like kN).
+lex_names: dict of {name: rational power} -- items that go in in name, but are not SI equivalent
+si_powers
+_name: composite name ('inch/m' or the like)
+
+
+"factor" is redundant for non-primative units: it is equivalent to:
+prod([_unit_table[name].factor for name in names.values + lex_names.values ])
+
+si_powers is redundant for non-primative units, equal to the sum of si_powers for every unit in names.
+
+_name is an optimzation: it is generated from names and lex_names on demand, but cached for performance
+
+is_angle, is_dimensionless are redundant, they are calculated from si_powers and lex_names.
+
+
+multiply units: add si_powers.  Traverse names and lex names, combining same-name elements and adding their powers.  
+
+add units: check for compatibility (same si_powers, same lex_unit powers).  Find the unit with the smallor factor (i.e., 's' vs 'ns', pick 'ns').  Convert both values to the lesser, and then add.
