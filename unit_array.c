@@ -24,8 +24,14 @@ typedef struct {
 UnitArray *dimensionless=0;
 
 typedef struct {
+    long long numer;
+    long long denom;
+    int exp_10;
+} factor_t;
+
+typedef struct {
     PyObject_HEAD
-    double value;
+    PyObject *value;
     long long numer, denom;
     int exp_10;
     UnitArray *base_units;
@@ -104,22 +110,36 @@ unit_array_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static PyObject *
-unit_array_repr(UnitArray *obj)
+unit_array_str(UnitArray *obj)
 {
-    // Repr length: 2 braces + 1 null + N*(name + 6 + len(number)) - 2
-    // repr format:
-    // {'s': 1, 'km': 2}
-    int i;
     PyObject *result;
     PyObject *tmp;
+    char *name, *prefix;
+    int i, first=1;
 
     if(obj->ob_size == 0) {
-	result = PyString_FromString("{}");
+	result = PyString_FromString("");
 	return result;
     }
-    result = PyString_FromString("{");
-    for(i=0; i<obj->ob_size-1; i++) {
-	tmp = PyString_FromFormat("\"%s\": %d/%d, ", PyString_AsString(obj->data[i].name), obj->data[i].numer, obj->data[i].denom);
+    result = PyString_FromString("");
+    if(!result)
+	return 0;
+
+    for(i=0; i<obj->ob_size; i++) {
+	if (obj->data[i].numer < 0)
+	    continue;
+	if(first)
+	    prefix = "";
+	else
+	    prefix = "*";
+	first = 0;
+	name = PyString_AsString(obj->data[i].name);
+	if (obj->data[i].numer == 1 && obj->data[i].denom == 1)
+	    tmp = PyString_FromFormat("%s%s", prefix, name);
+	else if(obj->data[i].denom == 1)
+	    tmp = PyString_FromFormat("%s%s^%d", prefix, name, obj->data[i].numer);
+	else
+	    tmp = PyString_FromFormat("%s%s^(%d/%d)", prefix, name, obj->data[i].numer, obj->data[i].denom);
 	if(!tmp) {
 	    Py_DECREF(result);
 	    return 0;
@@ -128,12 +148,45 @@ unit_array_repr(UnitArray *obj)
 	if(!result)
 	    return 0;
     }
-    tmp = PyString_FromFormat("\"%s\": %d/%d}", PyString_AsString(obj->data[i].name), obj->data[i].numer, obj->data[i].denom);
-    if(!tmp) {
-	Py_DECREF(result);
-	return 0;
+
+    for(i=0; i<obj->ob_size; i++) {
+	if (obj->data[i].numer > 0)
+	    continue;
+	if (first)
+	    prefix = "1/";
+	else
+	    prefix = "/";
+	first = 0;
+
+	name = PyString_AsString(obj->data[i].name);
+	if (obj->data[i].numer == -1 && obj->data[i].denom == 1)
+	    tmp = PyString_FromFormat("%s%s", prefix, name);
+	else if(obj->data[i].denom == 1)
+	    tmp = PyString_FromFormat("%s%s^%d", prefix, name, -obj->data[i].numer);
+	else
+	    tmp = PyString_FromFormat("%s%s^(%d/%d)", prefix, name, -obj->data[i].numer, obj->data[i].denom);
+	if(!tmp) {
+	    Py_DECREF(result);
+	    return 0;
+	}
+	PyString_ConcatAndDel(&result, tmp);
+	if(!result)
+	    return 0;
     }
-    PyString_ConcatAndDel(&result, tmp);
+    return result;
+}
+
+static PyObject *
+unit_array_repr(UnitArray *obj)
+{
+    PyObject *str_rep;
+    PyObject *result;
+
+    str_rep = unit_array_str(obj);
+    if(!str_rep)
+	return 0;
+    result = PyString_FromFormat("UnitArray(\"%s\")", PyString_AsString(str_rep));
+    Py_DECREF(str_rep);
     return result;
 }
 
@@ -376,7 +429,7 @@ static PyTypeObject UnitArrayType = {
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */
     0,                         /*tp_call*/
-    0,                         /*tp_str*/
+    (reprfunc)unit_array_str,  /*tp_str*/
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
@@ -401,46 +454,67 @@ static PyTypeObject UnitArrayType = {
     unit_array_new             /* tp_new */
 };
 
+static ValueObject *
+value_create(PyObject *data, long long numer, long long denom, int exp_10, UnitArray *base_units, UnitArray *display_units)
+{
+    double tmp;
+    PyObject *val;
+    ValueObject *result;
+    PyTypeObject *target_type;
+
+    if (PyFloat_Check(data) || PyComplex_Check(data)) {
+	val = data;
+	Py_INCREF(val);
+	target_type = &ValueType;
+    } else {
+	tmp = PyFloat_AsDouble(data);
+	if (tmp==-1 && PyErr_Occurred())
+	    return 0;
+	val = PyFloat_FromDouble(tmp);
+	target_type = &ValueType;
+    }
+    result = (ValueObject *)ValueType.tp_alloc(target_type, 0);
+    if (!result) {
+	Py_DECREF(val);
+	return 0;
+    }
+    result->value = val;
+    result->numer = numer;
+    result->denom = denom;
+    result->exp_10 = exp_10;
+    result->base_units = base_units;
+    result->display_units = display_units;
+    Py_INCREF(result->base_units);
+    Py_INCREF(result->display_units);
+    return result;
+}
+
 /*
  * Used by binary operators for coercion.  If the given object is a
  * Value, call Py_INCREF and return it.  Otherwise, convert to float,
  * and construct a temporary object with refcount 1 and dimensionless
- * units and return that.  On failure, returns zero, so make sure to
- * use Py_XDECREF on it.
+ * units.
  */
 static ValueObject *
 value_wrap(PyObject *obj)
 {
-    double val;
     ValueObject *result;
 
     if (PyObject_IsInstance(obj, (PyObject *)&ValueType)) {
 	Py_INCREF(obj);
 	return (ValueObject *)obj;
     }
-    val = PyFloat_AsDouble(obj);
-    if(PyErr_Occurred())
-	return 0;
-    result = (ValueObject *)ValueType.tp_alloc(&ValueType, 0);
-    if (!result)
-	return 0;
-    result->value = val;
-    result->numer = 1;
-    result->denom = 1;
-    result->exp_10 = 0;
-    result->base_units = dimensionless;
-    Py_INCREF(result->base_units);
-    result->display_units = dimensionless;
-    Py_INCREF(result->display_units);
+    result = value_create(obj, 1, 1, 0, dimensionless, dimensionless);
     return result;
 }
 
+/*
+ * Python interface to value_create.
+ */
 static PyObject *
 value_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    double value=0.0;
-    //double factor_base=1.0;
-    //int factor_exp10=0;
+    PyObject *value=0;
     long long numer, denom;
     int exp_10;
     int rv;
@@ -449,7 +523,7 @@ value_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
     //char *kwlist[] = {"value", "factor", "exp10", "base_units", "display_units", 0};
     char *kwlist[] = {"value", "numer", "denom", "exp10", "base_units", "display_units", 0};
 
-    rv = PyArg_ParseTupleAndKeywords(args, kwds, "d|LLiOO", kwlist, 
+    rv = PyArg_ParseTupleAndKeywords(args, kwds, "O|LLiOO", kwlist, 
 				     &value, &numer, &denom, &exp_10, &base_units, &display_units);
     if (!rv) 
 	return 0;
@@ -457,25 +531,17 @@ value_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 	PyErr_SetString(PyExc_TypeError, "Base names and display names must be UnitArray objects");
 	return 0;
     }
-    obj = (ValueObject *)type->tp_alloc(type, 0);
-    if (!obj)
-	return 0;
-    obj->value = value;
-    obj->numer = numer;
-    obj->denom = denom;
-    obj->exp_10 = exp_10;
-    obj->base_units = base_units;
-    Py_INCREF(obj->base_units);
-    obj->display_units = display_units;
-    Py_INCREF(obj->display_units);
+    obj = value_create(value, numer, denom, exp_10, base_units, display_units);
     return (PyObject *)obj;
 }
 
 static void
 value_dealloc(ValueObject *obj)
 {
+    Py_XDECREF(obj->value);
     Py_XDECREF(obj->base_units);
     Py_XDECREF(obj->display_units);
+    obj->ob_type->tp_free((PyObject *)obj);
 }
 
 /* This returns a clone of an old object with refcount 1, which can be modified
@@ -490,6 +556,7 @@ value_clone(ValueObject *obj)
     if (!result)
 	return 0;
     result->value = obj->value;
+    Py_INCREF(result->value);
     result->numer = obj->numer;
     result->denom = obj->denom;
     result->exp_10 = obj->exp_10;
@@ -505,10 +572,18 @@ ValueObject *
 value_neg(ValueObject *obj)
 {
     ValueObject *result;
+    PyObject *tmp;
     result = value_clone(obj);
+    return result;
     if (!result)
 	return 0;
-    result->value = -result->value;
+    tmp = PyNumber_Negative((PyObject *)obj->value);
+    if(!tmp) {
+	Py_DECREF(result);
+	return 0;
+    }
+    Py_DECREF(result->value);
+    result->value = tmp;
     return result;
 }
 
@@ -521,19 +596,27 @@ value_pos(PyObject *obj)
 }
 
 static
-PyObject *
+ValueObject *
 value_abs(ValueObject *obj)
 {
-    if (obj->value < 0)
-	return (PyObject *)value_neg(obj);
-    return value_pos((PyObject *)obj);
+    ValueObject *new_obj = value_clone(obj);
+    PyObject *new_val = PyNumber_Absolute(obj->value);
+    if (new_val && new_obj) {
+	Py_DECREF(new_obj->value);
+	new_obj->value = new_val;
+	return new_obj;
+    } else {
+	Py_XDECREF(new_val);
+	Py_XDECREF(new_obj);
+	return 0;
+    }
 }
 
 static
 int
 value_nz(ValueObject *obj)
 {
-    return obj->value != 0;
+    return PyObject_IsTrue(obj->value);
 }
 
 static
@@ -546,54 +629,96 @@ gcd(long long a, long long b)
 
 static
 PyObject *
+ax_plus_b(PyObject *a, double x, PyObject *b)
+{
+    PyObject *factor, *prod, *sum;
+
+    factor = PyFloat_FromDouble(x);
+    if(!factor)
+	return 0;
+    prod = PyNumber_Multiply(factor, a);
+    if (!prod) {
+	Py_DECREF(factor);
+	return 0;
+    }
+    sum = PyNumber_Add(prod, b);
+    Py_DECREF(prod);
+    Py_DECREF(factor);
+    return sum;
+}
+
+static
+double
+exp10_int(int x)
+{
+    int i, invert;
+    double result= 1.0;
+    invert = x<0;
+    if (invert)
+	x = -x;
+    for (i=0; i<x; i++)
+	result = result * 10.0;
+    if (invert)
+	result = 1.0/result;
+    return result;
+}
+static
+PyObject *
 value_add(PyObject *a, PyObject *b)
 {
-    ValueObject *left, *right, *result, *example;
-    double factor_l=1.0, factor_r=1.0;
+    ValueObject *left=0, *right=0, *result=0, *example=0;
+    PyObject *new_value=0;
+    double factor_l, factor_r;
 
     left = value_wrap(a);
     right = value_wrap(b);
     if(!left || !right) {
 	goto fail;
     }
+
     if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
 	PyErr_SetString(PyExc_ValueError, "UnitArray __add__ requires equivalent units");
 	goto fail;
     }
 
-    factor_l = left->numer * 1.0 / left->denom * exp10(left->exp_10);
-    factor_r = right->numer * 1.0 / right->denom * exp10(right->exp_10);
+    factor_l = left->numer * 1.0 / left->denom * exp10_int(left->exp_10);
+    factor_r = right->numer * 1.0 / right->denom * exp10_int(right->exp_10);
+
     if (factor_l < factor_r) {
+	factor_r = (1.0 * right->numer * left->denom) / (1.0 * left->numer * right->denom) * exp10_int(right->exp_10-left->exp_10);
+	new_value = ax_plus_b(right->value, factor_r, left->value);
 	example = left;
-	factor_l = 1.0;
-	factor_r = (1.0 * right->numer * left->denom) / (1.0 * left->numer * right->denom) * exp10(right->exp_10-left->exp_10);
     } 
     else {
+	factor_l = (1.0 * left->numer * right->denom) / (1.0 * right->numer * left->denom) * exp10_int(left->exp_10-right->exp_10);
+	new_value = ax_plus_b(left->value, factor_l, right->value);
 	example = right;
-	factor_l = (1.0 * left->numer * right->denom) / (1.0 * right->numer * left->denom) * exp10(left->exp_10-right->exp_10);
-	factor_r = 1.0;
     }
 
-    result = (ValueObject *)ValueType.tp_alloc(&ValueType, 0);
+    if(!new_value)
+	goto fail;
+
+    result = value_wrap(new_value);
     if (!result)
 	goto fail;
     
-    result->value = left->value*factor_l + right->value*factor_r;
     result->numer = example->numer;
     result->denom = example->denom;
     result->exp_10 = example->exp_10;
+    Py_DECREF(result->base_units);
     result->base_units = example->base_units;
     Py_INCREF(result->base_units);
+    Py_DECREF(result->display_units);
     result->display_units = example->display_units;
     Py_INCREF(result->display_units);
 
     Py_XDECREF(left);
     Py_XDECREF(right);
-
     return (PyObject *)result;
  fail:
     if (!PyErr_Occurred())
 	PyErr_SetString(PyExc_MemoryError, "value_add failed");
+    Py_XDECREF(new_value);
     Py_XDECREF(left);
     Py_XDECREF(right);
     return 0;
@@ -625,11 +750,15 @@ value_mul(PyObject *a, PyObject *b)
     if (!left || !right) {
 	Py_XDECREF(left);
 	Py_XDECREF(right);
+	return 0;
     }
     result = (ValueObject *)ValueType.tp_alloc(&ValueType, 0);
-    if (!result)
+    if (!result) {
+	Py_DECREF(left);
+	Py_DECREF(right);
 	return 0;
-    result->value = left->value*right->value;
+    }
+    result->value = PyNumber_Multiply(left->value, right->value);
     gcd1 = gcd(left->numer, right->denom);
     gcd2 = gcd(right->numer, left->denom);
     result->numer = (left->numer/gcd1) * (right->numer/gcd2);
@@ -639,10 +768,8 @@ value_mul(PyObject *a, PyObject *b)
     result->display_units = (UnitArray *)PyNumber_Multiply((PyObject *)left->display_units, (PyObject *)right->display_units);
     Py_XDECREF(left);
     Py_XDECREF(right);
-    if (!result->numer || !result->denom || !result->base_units || !result->display_units) {
+    if (!result->numer || !result->denom || !result->base_units || !result->display_units || !result->value) {
 	PyErr_SetString(PyExc_MemoryError, "value __mul__ unable to create result");
-	Py_XDECREF(result->base_units);
-	Py_XDECREF(result->display_units);
 	Py_XDECREF(result);
 	return 0;
     }
@@ -670,7 +797,7 @@ value_div(PyObject *a, PyObject *b)
     }
     gcd1 = gcd(left->numer, right->numer);
     gcd2 = gcd(right->denom, left->denom);
-    result->value = left->value/right->value;
+    result->value = PyNumber_Divide(left->value, right->value);
     result->numer = (left->numer/gcd1) * (right->denom/gcd2);
     result->denom = (left->denom/gcd2) * (right->numer/gcd1);
     
@@ -679,11 +806,9 @@ value_div(PyObject *a, PyObject *b)
     result->display_units = (UnitArray *)PyNumber_Divide((PyObject *)left->display_units, (PyObject *)right->display_units);
     Py_XDECREF(left);
     Py_XDECREF(right);
-    if (!result->base_units || !result->display_units) {
+    if (!result->base_units || !result->display_units || !result->value) {
 	PyErr_SetString(PyExc_MemoryError, "value __div__ unable to create result");
-	Py_XDECREF(result->base_units);
-	Py_XDECREF(result->display_units);
-	Py_XDECREF(result);
+	Py_XDECREF(result); /* Result gets freed, and we rely on that to clean up value and units member */
 	return 0;
     }
     return (PyObject *) result;
@@ -747,7 +872,7 @@ value_pow(PyObject *a, PyObject *b, PyObject *c)
     if(!result)
 	return 0;
 
-    result->value = pow(left->value, pow_sign * pow_numer*1.0/pow_denom);
+    result->value = PyNumber_Power(left->value, b, Py_None);
     result->numer = iroot(left->numer, pow_denom);
     printf("numer after root: %lld\n", result->numer);
     result->numer = ipow(result->numer, pow_numer);
@@ -783,7 +908,13 @@ static PyNumberMethods ValueNumberMethods = {
     value_pos,      	/* nb_positive */
     (unaryfunc)value_abs,      	/* nb_absolute */
     (inquiry)value_nz,	       	/* nb_nonzero (Used by PyObject_IsTrue */
-    0,				/* nb_invert */
+    0,0,0,0,0,0,       		/* nb_* bitwise */
+    0,				/* nb_coerce */
+    0,0,0,0,0,			/* nb_* coercions (int, long, float, oct, hex) */
+    0,0,0,0,0,0,0,0,0,0,0,	/* nb_inplace_* */
+    0,				/* nb_floor_divide */
+    value_div,	       		/* nb_true_divide */
+    0, 0			/* nb_inplace_*_divide */
 };
 
 static
@@ -813,30 +944,11 @@ value_richcompare(PyObject *a, PyObject *b, int op)
 	 return 0;
      }
      diff = (ValueObject *)value_sub((PyObject *)left, (PyObject *)right);
-     switch (op) {
-     case Py_LT:
-	 rv = diff->value < 0;
-	 break;
-     case Py_LE:
-	 rv = diff->value <= 0;
-	 break;
-     case Py_EQ:
-	 rv = diff->value == 0;
-	 break;
-     case Py_NE:
-	 rv = diff->value != 0;
-	 break;
-     case Py_GE:
-	 rv = diff->value >= 0;
-	 break;
-     case Py_GT:
-	 rv = diff->value > 0;
-	 break;
-     default:
-	Py_XDECREF(diff);
-	PyErr_SetString(PyExc_RuntimeError, "Rich compare called with invalid operator");
-	return 0;
-     }
+     if (!diff)
+	 return 0;
+
+     rv = PyObject_RichCompareBool(diff->value, PyFloat_FromDouble(0.0), op);
+
      Py_XDECREF(diff);
      if (rv)
 	 Py_RETURN_TRUE;
@@ -845,17 +957,41 @@ value_richcompare(PyObject *a, PyObject *b, int op)
 
 static
 PyObject *
+value_str(ValueObject *obj)
+{
+    PyObject *result;
+    PyObject *unit_repr_s;
+    PyObject *value_repr_s;
+
+    value_repr_s = PyObject_Str(obj->value);
+    unit_repr_s = unit_array_str(obj->display_units);
+    if(!unit_repr_s || !value_repr_s) {
+	Py_XDECREF(unit_repr_s);
+	Py_XDECREF(value_repr_s);
+	return 0;
+    }
+    result = PyString_FromFormat("%s %s", PyString_AsString(value_repr_s), PyString_AsString(unit_repr_s));
+    Py_XDECREF(value_repr_s);
+    Py_XDECREF(unit_repr_s);
+    return result;
+}
+
+static PyObject *
 value_repr(ValueObject *obj)
 {
     PyObject *result;
     PyObject *unit_repr_s;
-    char value_repr_s[20];
+    PyObject *value_repr_s;
 
-    unit_repr_s=unit_array_repr(obj->display_units);
-    if(!unit_repr_s)
+    value_repr_s = PyObject_Repr(obj->value);
+    unit_repr_s = unit_array_str(obj->display_units);
+    if(!unit_repr_s || !value_repr_s) {
+	Py_XDECREF(unit_repr_s);
+	Py_XDECREF(value_repr_s);
 	return 0;
-    snprintf(value_repr_s, 20, "%g", obj->value);
-    result = PyString_FromFormat("%s %s", value_repr_s, PyString_AsString(unit_repr_s));
+    }
+    result = PyString_FromFormat("Value(%s, \"%s\")", PyString_AsString(value_repr_s), PyString_AsString(unit_repr_s));
+    Py_XDECREF(value_repr_s);
     Py_XDECREF(unit_repr_s);
     return result;
 }
@@ -894,14 +1030,44 @@ value_test_int_mul(PyObject *self, PyObject *args)
     return result;
 }
 
+ValueObject *
+value_in_base_units(ValueObject *self, PyObject *ignore)
+{
+    PyObject *new_value;
+    double factor;
+    PyObject *factor_obj;
+
+    factor = self->numer * exp10_int(self->exp_10) / self->denom;
+    factor_obj = PyFloat_FromDouble(factor);
+    if (!factor_obj) 
+	return 0;
+
+    new_value = PyNumber_Multiply(self->value, factor_obj);
+    Py_DECREF(factor_obj);
+    if (!new_value)
+	return 0;
+
+    return value_create(new_value, 1, 1, 0, self->base_units, self->base_units);
+}
+
+PyObject *
+value_is_dimensionless(ValueObject *self, PyObject *ignore)
+{
+    if(self->base_units->ob_size == 0)
+	Py_RETURN_TRUE;
+    Py_RETURN_FALSE;
+}
+
 static PyMethodDef Value_methods[] = {
     {"test_long_mul", value_test_long_mul, METH_VARARGS, "test long multiplication"},
     {"test_int_mul", value_test_int_mul, METH_VARARGS, "test int multiplication"},
+    {"inBaseUnits", (PyCFunction)value_in_base_units, METH_NOARGS, "@returns: the same quantity converted to base units,  i.e. SI units in most cases"},
+    {"isDimensionless", (PyCFunction)value_is_dimensionless, METH_NOARGS, "returns true if the value is dimensionless"},
     {0}
 };
 
 static PyMemberDef Value_members[] = {
-    {"value", T_DOUBLE, offsetof(ValueObject, value), READONLY, "Floating point value"},
+    {"value", T_OBJECT_EX, offsetof(ValueObject, value), READONLY, "Floating point value"},
     {"base_units", T_OBJECT_EX, offsetof(ValueObject, base_units), READONLY, "Units in base units"},
     {"display_units", T_OBJECT_EX, offsetof(ValueObject, display_units), READONLY, "Units for display"},
     {"numer", T_LONGLONG, offsetof(ValueObject, numer), READONLY, "Fractional part of ratio between base and display units"},
@@ -913,20 +1079,20 @@ static PyTypeObject ValueType = {
     PyObject_HEAD_INIT(NULL) 
     0,			       /* ob_size */
     "Value",		       /* tp_name */
-    sizeof(ValueObject),         /*tp_basicsize*/
-    0,          /*tp_itemsize*/
+    sizeof(ValueObject),       /*tp_basicsize*/
+    0,                         /*tp_itemsize*/
     (destructor)value_dealloc, /*tp_dealloc*/
     0,                         /*tp_print*/
     0,                         /*tp_getattr*/
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
-    (reprfunc)value_repr, /*tp_repr*/
-    &ValueNumberMethods,    /*tp_as_number*/
+    (reprfunc)value_repr,      /*tp_repr*/
+    &ValueNumberMethods,       /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     0,                         /*tp_as_mapping*/
     0,                         /*tp_hash */
     0,                         /*tp_call*/
-    0,                         /*tp_str*/
+    (reprfunc)value_str,       /*tp_str*/
     0,                         /*tp_getattro*/
     0,                         /*tp_setattro*/
     0,                         /*tp_as_buffer*/
@@ -934,12 +1100,12 @@ static PyTypeObject ValueType = {
     "Unit Array object",        /* tp_doc */
     0,		               /* tp_traverse */
     0,		               /* tp_clear */
-    value_richcompare,	                       /* tp_richcompare */
+    value_richcompare,	       /* tp_richcompare */
     0,		               /* tp_weaklistoffset */
     0,		               /* tp_iter */
     0,		               /* tp_iternext */
-    Value_methods,		               /* tp_methods */
-    Value_members,	                       /* tp_members */
+    Value_methods,             /* tp_methods */
+    Value_members,	       /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
@@ -948,7 +1114,7 @@ static PyTypeObject ValueType = {
     0,                         /* tp_dictoffset */
     0,                         /* tp_init */
     0,                         /* tp_alloc */
-    value_new             /* tp_new */
+    value_new                  /* tp_new */
 };
 
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
