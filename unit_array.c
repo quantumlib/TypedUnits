@@ -459,8 +459,17 @@ value_create(PyObject *data, long long numer, long long denom, int exp_10, UnitA
 {
     double tmp;
     PyObject *val;
+    long long common_factor;
     ValueObject *result;
     PyTypeObject *target_type;
+
+    if (!(numer > 0 && denom > 0)) {
+	PyErr_SetString(PyExc_ValueError, "Numerator and denominator must both be positive integers");
+	return 0;
+    }
+    common_factor = gcd(numer, denom);
+    numer = numer / common_factor;
+    denom = denom / common_factor;
 
     if (PyFloat_Check(data) || PyComplex_Check(data)) {
 	val = data;
@@ -508,15 +517,25 @@ value_wrap(PyObject *obj)
     return result;
 }
 
+
+static PyObject *
+value_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+{
+    PyObject *meth;
+    meth = PyObject_GetAttrString((PyObject *)type, "_create");
+    if (!meth)
+	return 0;
+    return PyObject_Call(meth, args, kwds);
+}
 /*
  * Python interface to value_create.
  */
 static PyObject *
-value_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
+value_new_raw(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyObject *value=0;
-    long long numer, denom;
-    int exp_10;
+    long long numer=1, denom=1;
+    int exp_10=0;
     int rv;
     UnitArray *base_units=dimensionless, *display_units=dimensionless;
     ValueObject *obj;
@@ -895,7 +914,6 @@ value_pow(PyObject *a, PyObject *b, PyObject *c)
     return (PyObject *)result;
 }
 
-
 static PyNumberMethods ValueNumberMethods = {
     value_add,			/* nb_add */
     value_sub,			/* nb_subtract */
@@ -1058,11 +1076,43 @@ value_is_dimensionless(ValueObject *self, PyObject *ignore)
     Py_RETURN_FALSE;
 }
 
+PyObject *
+value_getitem(PyObject *self, PyObject *key)
+{
+    return PyObject_CallMethod(self, "_convert", "O", key);
+}
+
+PyObject *
+value_set_py_func(PyTypeObject *t, PyObject *args)
+{
+    int rv;
+    PyObject *f1, *f2, *f3, *f4;
+    PyObject *name;
+    rv = PyArg_ParseTuple(args, "OOOO", &f1, &f2, &f3, &f4);
+    if(!rv)
+	return 0;
+    
+    name = PyString_FromString("_create");
+    PyObject_SetItem(t->tp_dict, name, f1);
+    Py_DECREF(name);
+    name = PyString_FromString("_convert");
+    PyObject_SetItem(t->tp_dict, name, f2);
+    Py_DECREF(name);
+    name = PyString_FromString("inUnitsOf");
+    PyObject_SetItem(t->tp_dict, name, f3);
+    Py_DECREF(name);
+    name = PyString_FromString("unit");
+    PyObject_SetItem(t->tp_dict, name, f4);
+    Py_DECREF(name);
+    Py_RETURN_NONE;
+}
 static PyMethodDef Value_methods[] = {
     {"test_long_mul", value_test_long_mul, METH_VARARGS, "test long multiplication"},
     {"test_int_mul", value_test_int_mul, METH_VARARGS, "test int multiplication"},
     {"inBaseUnits", (PyCFunction)value_in_base_units, METH_NOARGS, "@returns: the same quantity converted to base units,  i.e. SI units in most cases"},
     {"isDimensionless", (PyCFunction)value_is_dimensionless, METH_NOARGS, "returns true if the value is dimensionless"},
+    {"_new_raw", (PyCFunction)value_new_raw, METH_VARARGS | METH_KEYWORDS | METH_CLASS, "Create value unit from factor and UnitArray objects"},
+    {"_set_py_func", (PyCFunction)value_set_py_func, METH_VARARGS | METH_CLASS, "Internal method: setup proxy object for python calls"},
     {0}
 };
 
@@ -1074,6 +1124,12 @@ static PyMemberDef Value_members[] = {
     {"denom", T_LONGLONG, offsetof(ValueObject, denom), READONLY, "Fractional part of ratio between base and display units"},
     {"exp10", T_INT, offsetof(ValueObject, exp_10), READONLY, "Power of 10 ratio between base and display units"},
     {NULL}};
+
+static PyMappingMethods ValueMappingMethods = {
+    0,			/* mp_length */
+    value_getitem,	/* mp_subscript */
+    0			/* mp_ass_subscript */
+};
 
 static PyTypeObject ValueType = {
     PyObject_HEAD_INIT(NULL) 
@@ -1089,7 +1145,7 @@ static PyTypeObject ValueType = {
     (reprfunc)value_repr,      /*tp_repr*/
     &ValueNumberMethods,       /*tp_as_number*/
     0,                         /*tp_as_sequence*/
-    0,                         /*tp_as_mapping*/
+    &ValueMappingMethods,      /*tp_as_mapping*/
     0,                         /*tp_hash */
     0,                         /*tp_call*/
     (reprfunc)value_str,       /*tp_str*/

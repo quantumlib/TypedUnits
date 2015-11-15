@@ -48,7 +48,7 @@ class Unit(object):
         if base_name not in cls._cache:
             print "base_name not in unit dictionary, adding as extension unit"
             base_unit = unit_array.UnitArray(base_name)
-            cls._cache[base_name] = Value(1, 1, 1, 0, base_unit, base_unit)
+            cls._cache[base_name] = Unit._new_from_value(Value._new_raw(1, 1, 1, 0, base_unit, base_unit))
         else:
             print "power of existing unit %s: %s" % (base_name, cls._cache[base_name])
         print "calculating unit power: %s %d*%d/%d" % (base_name, sign, numer, denom)
@@ -63,7 +63,7 @@ class Unit(object):
         numer = numer * base_unit._value.numer
         denom = denom * base_unit._value.denom
         exp10 = exp10 + base_unit._value.exp10
-        val = Value(1, numer, denom, exp10, base_unit._value.base_units, unit_array.UnitArray(name))
+        val = Value._new_raw(1, numer, denom, exp10, base_unit._value.base_units, unit_array.UnitArray(name))
         result = cls._new_from_value(val)
         cls._cache[name] = result
         return result
@@ -73,7 +73,7 @@ class Unit(object):
         if name in cls._cache:
             raise RuntimeError("Trying to create unit that already exists")
         ua = unit_array.UnitArray(name)
-        val = Value(1, 1, 1, 0, ua, ua)
+        val = Value._new_raw(1, 1, 1, 0, ua, ua)
         result = cls._new_from_value(val)
         cls._cache[name] = result
         return result
@@ -140,7 +140,16 @@ class Unit(object):
 
     def __ne__(self, other):
         return not (self == other)
-    
+
+    # The next four methods are called from the C implementation
+    # of Value() to implement the parts of the API that interact
+    # with Unit objects (in particular, the cache of known unit
+    # instances)-- unit conversion and new object creation.  They
+    # are class methods instead of regular members because we
+    # allow the use of strings in place of unit objects.  Rather than
+    # force the C code to check and construct a unit object we do that
+    # here.
+
     def conversionFactorTo(self, other):
         if not isinstance(other, Unit):
             raise TypeError("conversionFactorTo called on non-unit")
@@ -164,4 +173,33 @@ class Unit(object):
     def isAngle(self):
         return self._value.base_units == self._cache['rad'].base_units
 
-Unit._cache[''] = Unit._new_from_value(Value(1,1,1,0, unit_array.DimensionlessUnit, unit_array.DimensionlessUnit))
+@classmethod
+def _value_create(cls, self, unit):
+    """This is called by Value to implement Value(number, unit)"""
+    unit = Unit(unit)
+    return self * unit._value
+
+def _value_getitem(self, unit):
+    """This is called by Value to implement __getitem__"""
+    unit = Unit(unit)
+    if (unit._value.base_units != self.base_units):
+        raise TypeError("incompabile units '%s', '%s'" % (unit.name, other.name))
+    ratio = self / unit._value
+    return ratio.inBaseUnits().value
+
+def _value_in_units(self, unit):
+    """This is called by Value to implement inUnitsOf()."""
+    unit = Unit(unit)
+    return _value_getitem(self, unit) * unit._value
+
+@property
+def _value_unit(self):
+    """This is called by Value to implement the .unit property"""
+    return Unit._new_from_value(self/self.value)
+
+Value._set_py_func(_value_create, _value_getitem, _value_in_units, _value_unit)
+
+Unit._cache[''] = Unit._new_from_value(Value._new_raw(1,1,1,0, unit_array.DimensionlessUnit, unit_array.DimensionlessUnit))
+m = Unit._new_base_unit('m')
+km = Unit._new_derived_unit('km', 1, 1, 3, 'm')
+
