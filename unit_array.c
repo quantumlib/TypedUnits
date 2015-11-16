@@ -332,7 +332,6 @@ rational_power(PyObject *a, long *numer, long *denom)
 	return 1;
     }
     d = PyFloat_AsDouble(a);
-    printf("rational power from %f\n", d);
     if (d==-1.0 && PyErr_Occurred()) 
 	return 0;
     x = round(12*d);
@@ -354,7 +353,6 @@ unit_array_pow_frac(UnitArray *obj, int numer, int denom)
     UnitArray *result;
     int idx;
 
-    printf("unit array fractional power: %d / %d\n", numer, denom);
     result =  (UnitArray *)(&UnitArrayType)->tp_alloc(&UnitArrayType, obj->ob_size);
     result->ob_size = obj->ob_size;
     for (idx=0; idx<obj->ob_size; idx++) {
@@ -839,7 +837,6 @@ long long ipow(long long x, int y)
     double tmp;
 
     tmp = pow(x, y);
-    printf("%d power of %lld: %lld\n", y, x, (long long) tmp);
     return (long long) tmp;
 }
 
@@ -852,7 +849,6 @@ long long iroot(long long x, int y)
 	printf("%d root of %lld not an integer\n", y, x);
 	return 0;
     }
-    printf("%d root of %lld: %lld\n", y, x, tmp);
     return tmp;
 }
 
@@ -880,7 +876,6 @@ value_pow(PyObject *a, PyObject *b, PyObject *c)
 	pow_numer = -pow_numer;
 	pow_sign = -1;
     }
-    printf("Doing rational power: %d * %ld/%ld\n", pow_sign, pow_numer, pow_denom);
 
     if ((left->exp_10 * pow_numer) % pow_denom) {
 	PyErr_SetString(PyExc_RuntimeError, "Unable to take root of specifified unit\n");
@@ -893,9 +888,7 @@ value_pow(PyObject *a, PyObject *b, PyObject *c)
 
     result->value = PyNumber_Power(left->value, b, Py_None);
     result->numer = iroot(left->numer, pow_denom);
-    printf("numer after root: %lld\n", result->numer);
     result->numer = ipow(result->numer, pow_numer);
-    printf("numer after raising: %lld\n", result->numer);
     result->denom = iroot(left->denom, pow_denom);
     result->denom = ipow(result->denom, pow_numer);
     result->exp_10 = left->exp_10 * pow_sign * pow_numer / pow_denom;

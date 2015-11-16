@@ -4,15 +4,6 @@ import unit_array
 from unit_array import Value
 import unit_grammar
 
-"""
-import fast_units
-fast_units.Unit._new_base_unit('m')
-fast_units.Unit._new_derived_unit('km', 1, 1, 3, 'm')
-fast_units.Unit('km*m')
-
-"""
-
-
 
 class Unit(object):
     _cache = {}
@@ -46,14 +37,9 @@ class Unit(object):
         if neg:
             sign = -sign
         if base_name not in cls._cache:
-            print "base_name not in unit dictionary, adding as extension unit"
             base_unit = unit_array.UnitArray(base_name)
             cls._cache[base_name] = Unit._new_from_value(Value._new_raw(1, 1, 1, 0, base_unit, base_unit))
-        else:
-            print "power of existing unit %s: %s" % (base_name, cls._cache[base_name])
-        print "calculating unit power: %s %d*%d/%d" % (base_name, sign, numer, denom)
         element = cls._cache[base_name]**(1.0*sign*numer/denom)
-        print "element: ", element
         return element
 
     @classmethod
@@ -81,15 +67,12 @@ class Unit(object):
     @classmethod
     def parse_unit_str(cls, name):
         parsed = unit_grammar.unit.parseString(name)
-        print parsed
         result = Unit('')
           
         for item in parsed.posexp:
-            print result
             element = cls._unit_from_parse_item(item, 0)
             result = result * element
         for item in parsed.negexp:
-            print result
             result = result * cls._unit_from_parse_item(item, -1)
         return result
             
@@ -111,7 +94,6 @@ class Unit(object):
         return other/self._value
 
     def __pow__(self, other):
-        print "unit power: %s [%s]" % (other, type(other))
         return Unit._new_from_value(self._value**other)
 
     def __copy__(self):
@@ -141,15 +123,6 @@ class Unit(object):
     def __ne__(self, other):
         return not (self == other)
 
-    # The next four methods are called from the C implementation
-    # of Value() to implement the parts of the API that interact
-    # with Unit objects (in particular, the cache of known unit
-    # instances)-- unit conversion and new object creation.  They
-    # are class methods instead of regular members because we
-    # allow the use of strings in place of unit objects.  Rather than
-    # force the C code to check and construct a unit object we do that
-    # here.
-
     def conversionFactorTo(self, other):
         if not isinstance(other, Unit):
             raise TypeError("conversionFactorTo called on non-unit")
@@ -172,6 +145,15 @@ class Unit(object):
 
     def isAngle(self):
         return self._value.base_units == self._cache['rad'].base_units
+
+# The next four methods are called from the C implementation
+# of Value() to implement the parts of the API that interact
+# with Unit objects (in particular, the cache of known unit
+# instances)-- unit conversion and new object creation.  
+# It is not allowed to directly modify C PyTypeObjects from python
+# so we need a helper method to set these, which is done in
+# Value._set_py_func
+
 
 @classmethod
 def _value_create(cls, self, unit):
@@ -199,7 +181,47 @@ def _value_unit(self):
 
 Value._set_py_func(_value_create, _value_getitem, _value_in_units, _value_unit)
 
-Unit._cache[''] = Unit._new_from_value(Value._new_raw(1,1,1,0, unit_array.DimensionlessUnit, unit_array.DimensionlessUnit))
-m = Unit._new_base_unit('m')
-km = Unit._new_derived_unit('km', 1, 1, 3, 'm')
 
+Unit._cache[''] = Unit._new_from_value(Value._new_raw(1,1,1,0, unit_array.DimensionlessUnit, unit_array.DimensionlessUnit))
+
+SI_PREFIX_SHORT = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y']
+SI_PREFIX_LONG = ['yotta', 'zetta', 'exa', 'peta', 'tera', 'giga', 'mega', 'kilo', 'hecto', 'deka', 'deci', 'centi', 'milli', 'micro', 'nano', 'pico', 'femto', 'atto', 'zepto', 'yocto']
+SI_PREFIX_POWER = [ 24,  21,  18,  15,  12,   9,  6,   3,   2,   1,   -1,  -2,  -3,  -6,  -9,  -12, -15, -18, -21, -24]
+SI_BASE_UNITS = ['m', 'kg', 's', 'A', 'K', 'mol', 'cd', 'rad', 'sr']
+SI_BASE_UNIT_FULL = ['meter', 'kilogram', 'second', 'ampere', 'kelvin', 'mole', 'candela', 'radian', 'steradian']
+
+for name, long_name in zip(SI_BASE_UNITS, SI_BASE_UNIT_FULL):
+    Unit._new_base_unit(name)
+    Unit._new_derived_unit(long_name, 1, 1, 0, name)
+    
+    if (name == 'kg'):
+        Unit._new_derived_unit('g', 1, 1, -3, name)
+        Unit._new_derived_unit('gram', 1, 1, -3, name)
+        name = 'g'
+        long_name = 'gram'
+
+    for short_prefix, long_prefix, power in zip(SI_PREFIX_SHORT, SI_PREFIX_LONG, SI_PREFIX_POWER):
+        if (name == 'g' and short_prefix == 'k'):
+            continue
+        Unit._new_derived_unit(short_prefix+name, 1, 1, power, name)
+        Unit._new_derived_unit(long_prefix+long_name, 1, 1, power, name)
+
+SI_DERIVED_UNITS = [
+    ('Hz', 'hertz', '1/s', 1, 1, 0, True),
+    ('N', 'newton', 'kg*m/s^2', 1, 1, 0, True),
+    ('Pa', 'pascal', 'N/m^2', 1, 1, 0, True),
+    ('J', 'joule', 'N*m', 1, 1, 0, True),
+    ('W', 'watt', 'J/s', 1, 1, 0, True),
+    ('C', 'coulomb', 'A*s', 1, 1, 0, True),
+    ('V', 'volt', 'W/A', 1, 1, 0, True)
+    ]
+
+for (short_name, long_name, base, numer, denom, exp10, prefixable) in SI_DERIVED_UNITS:
+    Unit._new_derived_unit(short_name, numer, denom, exp10, base)
+    Unit._new_derived_unit(long_name, numer, denom, exp10, base)
+    for short_prefix, long_prefix, power in zip(SI_PREFIX_SHORT, SI_PREFIX_LONG, SI_PREFIX_POWER):
+        Unit._new_derived_unit(short_prefix+short_name, 1, 1, power+exp10, base)
+        Unit._new_derived_unit(long_prefix+long_name, 1, 1, power+exp10, base)
+
+for k,v in Unit._cache.items():
+    globals()[k] = v
