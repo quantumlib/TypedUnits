@@ -4,8 +4,13 @@ import unit_array
 from unit_array import Value
 import unit_grammar
 
-
 class Unit(object):
+    """Unit database.
+
+    Values defined in unit_array do not actually store a unti object, the unit names and powers
+    are stored within the value object itself.  However, when constructing new values or converting
+    betwee units, we need a database of known units.
+    """
     _cache = {}
     #__array_priority__ = 15
     __slots__ = ['_value']
@@ -18,6 +23,9 @@ class Unit(object):
         else:
             return cls.parse_unit_str(name)
 
+    # The following methods are internal constructors used to generate new unit instances
+    # to separate that out from the main __new__ method which users will use to construct
+    # objects from strings.
     @classmethod
     def _new_from_value(cls, val):
         if not isinstance(val, unit_array.Value):
@@ -75,7 +83,12 @@ class Unit(object):
         for item in parsed.negexp:
             result = result * cls._unit_from_parse_item(item, -1)
         return result
-            
+
+    # Unit arithmetic is used in two ways: to build compound units
+    # or to build new Value instances by multiplying a scalar by
+    # a unit object.  Since a "Unit" just has an internal value,
+    # representing its units, the later just gets delegated to 
+    # Value arithmetic.
     def __mul__(self, other):
         if isinstance(other, Unit):
             return Unit._new_from_value(other._value * self._value)
@@ -97,6 +110,8 @@ class Unit(object):
         return Unit._new_from_value(self._value**other)
 
     def __copy__(self):
+        """Units are immutable, so __copy__ just returns self.
+        """
         return self
 
     def __deepcopy__(self, memo):
@@ -106,9 +121,6 @@ class Unit(object):
     def name(self):
         return str(self)
 
-    def base_unit(self):
-        tmp = self._.value.inBaseUnits()
-        
     def __repr__(self):
         return "<Unit '%s'>" % (str(self._value.display_units),)
 
@@ -223,5 +235,6 @@ for (short_name, long_name, base, numer, denom, exp10, prefixable) in SI_DERIVED
         Unit._new_derived_unit(short_prefix+short_name, 1, 1, power+exp10, base)
         Unit._new_derived_unit(long_prefix+long_name, 1, 1, power+exp10, base)
 
+# Make all the unit objects module variables.
 for k,v in Unit._cache.items():
     globals()[k] = v
