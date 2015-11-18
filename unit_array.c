@@ -1,8 +1,9 @@
 #include <Python.h>
 #include <structmember.h>
+#define NPY_NO_DEPRECATED_API NPY_1_7_API_VERSION
+#include <numpy/arrayobject.h>
 #include <stdio.h>
 #include <string.h>
-
 /*
  * Unit dictionary type.  This is the guts of the unit implementaiton,
  * and fills the same purpose as the NumberDict class used in the
@@ -23,11 +24,27 @@ typedef struct {
 
 UnitArray *dimensionless=0;
 
+/* factor_t will be used to implement units who ratio doesn't 
+   fit the standard numer/denom * 10^exp10 format.  For instance,
+   physical quantity based units like eV have experimentally determined
+   values while the radian -> degree ratio is irrational. factor_t
+   solves that by giving "numer=0" a special meaning, that the
+   denominator contains a floating point ratio.  exp10 is still used
+   to allow units like MeV to be represented cleanly.
+  
 typedef struct {
     long long numer;
-    long long denom;
+    union {
+	long long denom;
+	double ratio;
+    };
     int exp_10;
 } factor_t;
+*/
+
+/* 
+ * C representation of a value
+ */
 
 typedef struct {
     PyObject_HEAD
@@ -36,7 +53,7 @@ typedef struct {
     int exp_10;
     UnitArray *base_units;
     UnitArray *display_units;
-} ValueObject;
+} WithUnitObject;
 
 
 static PyObject *
@@ -50,7 +67,12 @@ unit_array_mul(PyObject *a, PyObject *b);
 static PyObject *
 unit_array_div(PyObject *a, PyObject *b);
 static PyTypeObject UnitArrayType;
+static PyTypeObject WithUnitType;
 static PyTypeObject ValueType;
+static PyTypeObject ComplexType;
+static PyTypeObject ValueArrayType;
+
+static PyObject *value_str(WithUnitObject *obj);
 
 static void
 least_terms(int *a, int *b)
@@ -372,7 +394,7 @@ unit_array_pow(PyObject *a, PyObject *b, PyObject *c)
     long numer, denom;
 
     if (c != Py_None) {
-	PyErr_SetString(PyExc_ValueError, "Value power does not support third argument");
+	PyErr_SetString(PyExc_ValueError, "WithUnit power does not support third argument");
 	return 0;
     }
 
@@ -452,13 +474,19 @@ static PyTypeObject UnitArrayType = {
     unit_array_new             /* tp_new */
 };
 
-static ValueObject *
+/* This is the only method that creates new value objects.  It is
+ * responsible for maintaining invariants like the unit factor being
+ * in lowest terms and making sure that value is an appropriate type.
+ * If we decide to use separate types for Value, Complex, and ValueArray
+ * this function will figure out the right type.
+ */
+static WithUnitObject *
 value_create(PyObject *data, long long numer, long long denom, int exp_10, UnitArray *base_units, UnitArray *display_units)
 {
     double tmp;
     PyObject *val;
     long long common_factor;
-    ValueObject *result;
+    WithUnitObject *result;
     PyTypeObject *target_type;
 
     if (!(numer > 0 && denom > 0)) {
@@ -466,13 +494,23 @@ value_create(PyObject *data, long long numer, long long denom, int exp_10, UnitA
 	return 0;
     }
     common_factor = gcd(numer, denom);
-    numer = numer / common_factor;
-    denom = denom / common_factor;
+    if (common_factor > 1) {
+	numer = numer / common_factor;
+	denom = denom / common_factor;
+    }
 
-    if (PyFloat_Check(data) || PyComplex_Check(data)) {
+    if (PyFloat_Check(data)) {
 	val = data;
-	Py_INCREF(val);
 	target_type = &ValueType;
+	Py_INCREF(val);
+    } else if (PyComplex_Check(data)) {
+	val = data;
+	target_type = &ComplexType;
+	Py_INCREF(val);
+    } else if (PyArray_Check(data)) {
+	val = data;
+	target_type = &UnitArrayType;
+	Py_INCREF(val);
     } else {
 	tmp = PyFloat_AsDouble(data);
 	if (tmp==-1 && PyErr_Occurred())
@@ -480,7 +518,7 @@ value_create(PyObject *data, long long numer, long long denom, int exp_10, UnitA
 	val = PyFloat_FromDouble(tmp);
 	target_type = &ValueType;
     }
-    result = (ValueObject *)ValueType.tp_alloc(target_type, 0);
+    result = (WithUnitObject *)WithUnitType.tp_alloc(target_type, 0);
     if (!result) {
 	Py_DECREF(val);
 	return 0;
@@ -502,14 +540,14 @@ value_create(PyObject *data, long long numer, long long denom, int exp_10, UnitA
  * and construct a temporary object with refcount 1 and dimensionless
  * units.
  */
-static ValueObject *
+static WithUnitObject *
 value_wrap(PyObject *obj)
 {
-    ValueObject *result;
+    WithUnitObject *result;
 
-    if (PyObject_IsInstance(obj, (PyObject *)&ValueType)) {
+    if (PyObject_IsInstance(obj, (PyObject *)&WithUnitType)) {
 	Py_INCREF(obj);
-	return (ValueObject *)obj;
+	return (WithUnitObject *)obj;
     }
     result = value_create(obj, 1, 1, 0, dimensionless, dimensionless);
     return result;
@@ -520,10 +558,14 @@ static PyObject *
 value_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
     PyObject *meth;
+    PyObject *result;
+
     meth = PyObject_GetAttrString((PyObject *)type, "_create");
     if (!meth)
 	return 0;
-    return PyObject_Call(meth, args, kwds);
+    result = PyObject_Call(meth, args, kwds);
+    Py_DECREF(meth);
+    return result;
 }
 /*
  * Python interface to value_create.
@@ -536,7 +578,7 @@ value_new_raw(PyTypeObject *type, PyObject *args, PyObject *kwds)
     int exp_10=0;
     int rv;
     UnitArray *base_units=dimensionless, *display_units=dimensionless;
-    ValueObject *obj;
+    WithUnitObject *obj;
     //char *kwlist[] = {"value", "factor", "exp10", "base_units", "display_units", 0};
     char *kwlist[] = {"value", "numer", "denom", "exp10", "base_units", "display_units", 0};
 
@@ -553,54 +595,26 @@ value_new_raw(PyTypeObject *type, PyObject *args, PyObject *kwds)
 }
 
 static void
-value_dealloc(ValueObject *obj)
+value_dealloc(WithUnitObject *obj)
 {
-    Py_XDECREF(obj->value);
+    Py_CLEAR(obj->value);
     Py_XDECREF(obj->base_units);
     Py_XDECREF(obj->display_units);
     obj->ob_type->tp_free((PyObject *)obj);
 }
 
-/* This returns a clone of an old object with refcount 1, which can be modified
-without compromising the immutable nature of Values. */
 static
-ValueObject *
-value_clone(ValueObject *obj)
+WithUnitObject *
+value_neg(WithUnitObject *obj)
 {
-    ValueObject *result;
-
-    result = (ValueObject *)obj->ob_type->tp_alloc(obj->ob_type, 0);  
-    if (!result)
-	return 0;
-    result->value = obj->value;
-    Py_INCREF(result->value);
-    result->numer = obj->numer;
-    result->denom = obj->denom;
-    result->exp_10 = obj->exp_10;
-    result->base_units = obj->base_units;
-    Py_INCREF(result->base_units);
-    result->display_units = obj->display_units;
-    Py_INCREF(result->display_units);
-    return result;
-}
-
-static
-ValueObject *
-value_neg(ValueObject *obj)
-{
-    ValueObject *result;
+    WithUnitObject *result=0;
     PyObject *tmp;
-    result = value_clone(obj);
-    return result;
-    if (!result)
-	return 0;
+
     tmp = PyNumber_Negative((PyObject *)obj->value);
-    if(!tmp) {
-	Py_DECREF(result);
-	return 0;
-    }
-    Py_DECREF(result->value);
-    result->value = tmp;
+
+    if (tmp)
+	result = value_create(tmp, obj->numer, obj->denom, obj->exp_10, obj->base_units, obj->display_units);
+    Py_XDECREF(tmp);
     return result;
 }
 
@@ -613,25 +627,20 @@ value_pos(PyObject *obj)
 }
 
 static
-ValueObject *
-value_abs(ValueObject *obj)
+WithUnitObject *
+value_abs(WithUnitObject *obj)
 {
-    ValueObject *new_obj = value_clone(obj);
+    WithUnitObject *new_obj=0;
     PyObject *new_val = PyNumber_Absolute(obj->value);
-    if (new_val && new_obj) {
-	Py_DECREF(new_obj->value);
-	new_obj->value = new_val;
-	return new_obj;
-    } else {
-	Py_XDECREF(new_val);
-	Py_XDECREF(new_obj);
-	return 0;
-    }
+    if(new_val)
+	new_obj = value_create(new_val, obj->numer, obj->denom, obj->exp_10, obj->base_units, obj->display_units);
+    Py_XDECREF(new_val);
+    return new_obj;
 }
 
 static
 int
-value_nz(ValueObject *obj)
+value_nz(WithUnitObject *obj)
 {
     return PyObject_IsTrue(obj->value);
 }
@@ -679,11 +688,24 @@ exp10_int(int x)
 	result = 1.0/result;
     return result;
 }
+
+/* The following are the basic arithmetic operators, +, -, *, and /.
+ *
+ * These operatiosn try to avoid unnecessary inexact math operations.
+ * The unit proefactor is stored as an exact ratio.  The goal is that
+ * if you have some program written using implicit units (whatever
+ * they are), and you convert it to use explicit units, you should get
+ * exactly the same result which wouldn't happen if we converted
+ * internally to SI base units.  In addition when mixed-unit addition
+ * converts to the lowest common denominator, we pick the "smaller"
+ * unit.  1 ns + 1 s will be converted to 1000000001.0 ns regardless
+ * of the operand order.
+ */
 static
 PyObject *
 value_add(PyObject *a, PyObject *b)
 {
-    ValueObject *left=0, *right=0, *result=0, *example=0;
+    WithUnitObject *left=0, *right=0, *result=0, *example=0;
     PyObject *new_value=0;
     double factor_l, factor_r;
 
@@ -694,7 +716,7 @@ value_add(PyObject *a, PyObject *b)
     }
 
     if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
-	PyErr_SetString(PyExc_ValueError, "UnitArray __add__ requires equivalent units");
+	PyErr_SetString(PyExc_ValueError, "WithUnit __add__ requires equivalent units");
 	goto fail;
     }
 
@@ -741,6 +763,11 @@ value_add(PyObject *a, PyObject *b)
     return 0;
 }
 
+/*
+ * value_sub just converts to addition.  There is possibly some
+ * performance to be gained here by avoiding creating an extra
+ * temporary.
+ */
 static 
 PyObject *
 value_sub(PyObject *a, PyObject *b)
@@ -755,12 +782,20 @@ value_sub(PyObject *a, PyObject *b)
     return result;
 }
 
+/* 
+ * Value_mul and value_div have the same structure, but they are
+ * different enough that we don't bother factoring the common code.
+ */
 static 
 PyObject *
 value_mul(PyObject *a, PyObject *b)
 {
-    ValueObject *left, *right, *result;
+    WithUnitObject *left, *right, *result;
     long long gcd1, gcd2;
+    PyObject *val;
+    long long numer, denom;
+    int exp_10;
+    UnitArray *base_units, *display_units;
 
     left = value_wrap(a);
     right = value_wrap(b);
@@ -769,27 +804,24 @@ value_mul(PyObject *a, PyObject *b)
 	Py_XDECREF(right);
 	return 0;
     }
-    result = (ValueObject *)ValueType.tp_alloc(&ValueType, 0);
-    if (!result) {
-	Py_DECREF(left);
-	Py_DECREF(right);
-	return 0;
-    }
-    result->value = PyNumber_Multiply(left->value, right->value);
+    val = PyNumber_Multiply(left->value, right->value);
     gcd1 = gcd(left->numer, right->denom);
     gcd2 = gcd(right->numer, left->denom);
-    result->numer = (left->numer/gcd1) * (right->numer/gcd2);
-    result->denom = (left->denom/gcd2) * (right->denom/gcd1);
-    result->exp_10 = left->exp_10 + right->exp_10;
-    result->base_units = (UnitArray *)PyNumber_Multiply((PyObject *)left->base_units, (PyObject *)right->base_units);
-    result->display_units = (UnitArray *)PyNumber_Multiply((PyObject *)left->display_units, (PyObject *)right->display_units);
+    numer = (left->numer/gcd1) * (right->numer/gcd2);
+    denom = (left->denom/gcd2) * (right->denom/gcd1);
+    exp_10 = left->exp_10 + right->exp_10;
+    base_units = (UnitArray *)PyNumber_Multiply((PyObject *)left->base_units, (PyObject *)right->base_units);
+    display_units = (UnitArray *)PyNumber_Multiply((PyObject *)left->display_units, (PyObject *)right->display_units);
+    if (val && base_units && display_units)
+	result = value_create(val, numer, denom, exp_10, base_units, display_units);
+    else
+	result = 0;
+    Py_XDECREF(val);
     Py_XDECREF(left);
     Py_XDECREF(right);
-    if (!result->numer || !result->denom || !result->base_units || !result->display_units || !result->value) {
-	PyErr_SetString(PyExc_MemoryError, "value __mul__ unable to create result");
-	Py_XDECREF(result);
-	return 0;
-    }
+    Py_XDECREF(base_units);
+    Py_XDECREF(display_units);
+
     return (PyObject *) result;
 }
 
@@ -797,8 +829,12 @@ static
 PyObject *
 value_div(PyObject *a, PyObject *b)
 {
-    ValueObject *left, *right, *result;
+    WithUnitObject *left, *right, *result=0;
     long long gcd1, gcd2;
+    PyObject *val;
+    long long numer, denom;
+    int exp_10;
+    UnitArray *base_units, *display_units;
 
     left = value_wrap(a);
     right = value_wrap(b);
@@ -806,31 +842,105 @@ value_div(PyObject *a, PyObject *b)
 	Py_XDECREF(left);
 	Py_XDECREF(right);
     }
-    result = (ValueObject *)ValueType.tp_alloc(&ValueType, 0);
-    if (!result) {
-	Py_XDECREF(left);
-	Py_XDECREF(right);
-	return 0;
-    }
     gcd1 = gcd(left->numer, right->numer);
     gcd2 = gcd(right->denom, left->denom);
-    result->value = PyNumber_Divide(left->value, right->value);
-    result->numer = (left->numer/gcd1) * (right->denom/gcd2);
-    result->denom = (left->denom/gcd2) * (right->numer/gcd1);
-    
-    result->exp_10 = left->exp_10 - right->exp_10;
-    result->base_units = (UnitArray *)PyNumber_Divide((PyObject *)left->base_units, (PyObject *)right->base_units);
-    result->display_units = (UnitArray *)PyNumber_Divide((PyObject *)left->display_units, (PyObject *)right->display_units);
+
+    val = PyNumber_Divide(left->value, right->value);
+    numer = (left->numer/gcd1) * (right->denom/gcd2);
+    denom = (left->denom/gcd2) * (right->numer/gcd1);
+    exp_10 = left->exp_10 - right->exp_10;
+    base_units = (UnitArray *)PyNumber_Divide((PyObject *)left->base_units, (PyObject *)right->base_units);
+    display_units = (UnitArray *)PyNumber_Divide((PyObject *)left->display_units, (PyObject *)right->display_units);
+
+    if(val && base_units && display_units)
+	result = value_create(val, numer, denom, exp_10, base_units, display_units);
+
     Py_XDECREF(left);
     Py_XDECREF(right);
-    if (!result->base_units || !result->display_units || !result->value) {
-	PyErr_SetString(PyExc_MemoryError, "value __div__ unable to create result");
-	Py_XDECREF(result); /* Result gets freed, and we rely on that to clean up value and units member */
-	return 0;
-    }
+    Py_XDECREF(val);
+    Py_XDECREF(base_units);
+    Py_XDECREF(display_units);
+
     return (PyObject *) result;
 }
 
+static
+PyObject *
+value_divmod(PyObject *a, PyObject *b)
+{
+    WithUnitObject *left=0, *right=0;
+    PyObject *scaled_left=0;
+    PyObject *divmod_result=0;
+    WithUnitObject *remainder=0;
+    PyObject *factor_obj=0;
+    double factor;
+
+    left = value_wrap(a);
+    right = value_wrap(b);
+    if(!left || !right)
+	goto fail;
+    if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
+	PyErr_SetString(PyExc_ValueError, "WithUnit __divmod__ requires equivalent units");
+	goto fail;
+    }
+    
+    factor = 1.0* left->numer * right->denom * exp10_int(left->exp_10-right->exp_10) / (left->denom * right->numer);
+    factor_obj = PyFloat_FromDouble(factor);
+    if(!factor_obj) goto fail;
+    scaled_left = PyNumber_Multiply((PyObject *)left->value, factor_obj);
+    if (!scaled_left) goto fail;
+    divmod_result = PyNumber_Divmod(scaled_left, right->value);
+    if (!divmod_result) goto fail;
+    remainder = value_create(PyTuple_GetItem(divmod_result, 1), right->numer, right->denom, right->exp_10, right->base_units, right->display_units);
+    if(!remainder) goto fail;
+    
+    PyTuple_SetItem(divmod_result, 1, (PyObject *)remainder); 
+
+    Py_DECREF(factor_obj);
+    Py_DECREF(scaled_left);
+    Py_DECREF(left);
+    Py_DECREF(right);
+    return divmod_result;
+ fail: 
+    Py_XDECREF(factor_obj);
+    Py_XDECREF(scaled_left);
+    Py_DECREF(left);
+    Py_XDECREF(right);
+    Py_XDECREF(divmod_result);
+    return 0;
+}
+
+static
+PyObject *
+value_floordiv(PyObject *a, PyObject *b)
+{
+    PyObject *divmod_result, *result;
+    divmod_result = value_divmod(a, b);
+    if (!divmod_result)
+	return 0;
+    result = PyTuple_GetItem(divmod_result, 0);
+    Py_INCREF(result);
+    Py_DECREF(divmod_result);
+    return result;
+}
+
+static
+PyObject *
+value_mod(PyObject *a, PyObject *b)
+{
+    PyObject *divmod_result, *result;
+    divmod_result = value_divmod(a, b);
+    if (!divmod_result)
+	return 0;
+    result = PyTuple_GetItem(divmod_result, 1);
+    Py_INCREF(result);
+    Py_DECREF(divmod_result);
+    return result;
+
+}
+/*
+ * Helper functions for calculating rational powers.
+ */
 static
 long long ipow(long long x, int y)
 {
@@ -852,23 +962,33 @@ long long iroot(long long x, int y)
     return tmp;
 }
 
+/* 
+ * We allow calculating small rational powers, including the 2nd, 3rd,
+ * and 4th roots.  This works even if you use a floating point exponent,
+ * as long as it is "close enough".
+ */
+
 static
 PyObject *
 value_pow(PyObject *a, PyObject *b, PyObject *c)
 {
-    ValueObject *left, *result;
+    WithUnitObject *left, *result;
     long pow_numer, pow_denom;
     int pow_sign=1;
+    PyObject *val;
+    long long numer, denom;
+    int exp_10;
+    UnitArray *base_units, *display_units;
 
     if (c != Py_None) {
-	PyErr_SetString(PyExc_ValueError, "Value power does not support third argument");
+	PyErr_SetString(PyExc_ValueError, "WithUnit power does not support third argument");
 	return 0;
     }
-    if (!PyObject_IsInstance(a, (PyObject *)&ValueType)) {
+    if (!PyObject_IsInstance(a, (PyObject *)&WithUnitType)) {
 	PyErr_SetString(PyExc_TypeError, "Can only raise value type to integer power");
 	return 0;
     }
-    left = (ValueObject *)a;
+    left = (WithUnitObject *)a;
     if (!rational_power(b, &pow_numer, &pow_denom))
 	return 0;
 
@@ -882,48 +1002,47 @@ value_pow(PyObject *a, PyObject *b, PyObject *c)
 	return 0;
     }
 
-    result = (ValueObject *)ValueType.tp_alloc(&ValueType, 0);
-    if(!result)
-	return 0;
+    val = PyNumber_Power(left->value, b, Py_None);
+    numer = iroot(left->numer, pow_denom);
+    numer = ipow(numer, pow_numer);
+    denom = iroot(left->denom, pow_denom);
+    denom = ipow(denom, pow_numer);
+    exp_10 = left->exp_10 * pow_sign * pow_numer / pow_denom;
 
-    result->value = PyNumber_Power(left->value, b, Py_None);
-    result->numer = iroot(left->numer, pow_denom);
-    result->numer = ipow(result->numer, pow_numer);
-    result->denom = iroot(left->denom, pow_denom);
-    result->denom = ipow(result->denom, pow_numer);
-    result->exp_10 = left->exp_10 * pow_sign * pow_numer / pow_denom;
     if (pow_sign == -1) {
-	long long tmp = result->numer;
-	result->numer = result->denom;
-	result->denom = tmp;
+	long long tmp = numer;
+	numer = denom;
+	denom = tmp;
     }
-    result->base_units = unit_array_pow_frac(left->base_units, pow_sign * pow_numer, pow_denom);
-    result->display_units = unit_array_pow_frac(left->display_units, pow_sign * pow_numer, pow_denom);
-    if (!result->base_units || !result->display_units || !result->numer || !result->denom) {
-	PyErr_SetString(PyExc_RuntimeError, "Unable to take power");
-	Py_XDECREF(result);
-	return 0;
-    }
+    base_units = unit_array_pow_frac(left->base_units, pow_sign * pow_numer, pow_denom);
+    display_units = unit_array_pow_frac(left->display_units, pow_sign * pow_numer, pow_denom);
+    if (val && base_units && display_units)
+	result = value_create(val, numer, denom, exp_10, base_units, display_units);
+    else
+	result = 0;
+    Py_XDECREF(val);
+    Py_XDECREF(base_units);
+    Py_XDECREF(display_units);
     return (PyObject *)result;
 }
 
-static PyNumberMethods ValueNumberMethods = {
+static PyNumberMethods WithUnitNumberMethods = {
     value_add,			/* nb_add */
     value_sub,			/* nb_subtract */
-    value_mul,		/* nb_multiply */
+    value_mul,			/* nb_multiply */
     value_div,			/* nb_divide */
-    0,				/* nb_remainder */
-    0,				/* nb_divmod */
-    value_pow,	       	/* nb_power */
+    value_mod,		       	/* nb_remainder */
+    value_divmod,	       	/* nb_divmod */
+    value_pow,			/* nb_power */
     (unaryfunc)value_neg,     	/* nb_negative */
-    value_pos,      	/* nb_positive */
+    value_pos,			/* nb_positive */
     (unaryfunc)value_abs,      	/* nb_absolute */
     (inquiry)value_nz,	       	/* nb_nonzero (Used by PyObject_IsTrue */
     0,0,0,0,0,0,       		/* nb_* bitwise */
     0,				/* nb_coerce */
     0,0,0,0,0,			/* nb_* coercions (int, long, float, oct, hex) */
     0,0,0,0,0,0,0,0,0,0,0,	/* nb_inplace_* */
-    0,				/* nb_floor_divide */
+    value_floordiv,		/* nb_floor_divide */
     value_div,	       		/* nb_true_divide */
     0, 0			/* nb_inplace_*_divide */
 };
@@ -932,17 +1051,18 @@ static
 PyObject *
 value_richcompare(PyObject *a, PyObject *b, int op)
 {
-    ValueObject *left, *right, *diff;
-    int rv;
+    WithUnitObject *left, *right, *diff;
+    PyObject *rv;
+    PyObject *zero;
 
     left = value_wrap(a);
     right = value_wrap(b);
 
      if (!left || !right) {
-	Py_XDECREF(left);
-	Py_XDECREF(right);
-	Py_INCREF(Py_NotImplemented);
-	return Py_NotImplemented;
+	 Py_XDECREF(left);
+	 Py_XDECREF(right);
+	 Py_INCREF(Py_NotImplemented);
+	 return Py_NotImplemented;
      }
      if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
 	 Py_XDECREF(left);
@@ -954,21 +1074,20 @@ value_richcompare(PyObject *a, PyObject *b, int op)
 	 PyErr_SetString(PyExc_ValueError, "UnitArray comparison requires equivalent units");
 	 return 0;
      }
-     diff = (ValueObject *)value_sub((PyObject *)left, (PyObject *)right);
+     diff = (WithUnitObject *)value_sub((PyObject *)left, (PyObject *)right);
      if (!diff)
 	 return 0;
 
-     rv = PyObject_RichCompareBool(diff->value, PyFloat_FromDouble(0.0), op);
-
+     zero = PyFloat_FromDouble(0.0);
+     rv = PyObject_RichCompare(diff->value, zero, op);
      Py_XDECREF(diff);
-     if (rv)
-	 Py_RETURN_TRUE;
-     Py_RETURN_FALSE;
+     Py_XDECREF(zero);
+     return rv;
 }
 
 static
 PyObject *
-value_str(ValueObject *obj)
+value_str(WithUnitObject *obj)
 {
     PyObject *result;
     PyObject *unit_repr_s;
@@ -988,65 +1107,32 @@ value_str(ValueObject *obj)
 }
 
 static PyObject *
-value_repr(ValueObject *obj)
+value_repr(WithUnitObject *obj)
 {
     PyObject *result;
     PyObject *unit_repr_s;
     PyObject *value_repr_s;
 
-    value_repr_s = PyObject_Repr(obj->value);
+    value_repr_s = PyObject_Str(obj->value);
     unit_repr_s = unit_array_str(obj->display_units);
     if(!unit_repr_s || !value_repr_s) {
 	Py_XDECREF(unit_repr_s);
 	Py_XDECREF(value_repr_s);
 	return 0;
     }
-    result = PyString_FromFormat("Value(%s, \"%s\")", PyString_AsString(value_repr_s), PyString_AsString(unit_repr_s));
-    Py_XDECREF(value_repr_s);
-    Py_XDECREF(unit_repr_s);
+    result = PyString_FromFormat("%s(%s, \"%s\")", obj->ob_type->tp_name, PyString_AsString(value_repr_s), PyString_AsString(unit_repr_s));
+    Py_DECREF(value_repr_s);
+    Py_DECREF(unit_repr_s);
     return result;
 }
 
-static PyObject *
-value_test_long_mul(PyObject *self, PyObject *args)
-{
-    PyObject *a, *b, *out;
-    int rv, i;
-    rv = PyArg_ParseTuple(args, "OO", &a, &b);
-    if (!rv)
-	return 0;
-    for(i=0; i<1000; i++) {
-	out = PyNumber_Add(a, b);
-	Py_XDECREF(out);
-    }
-    Py_RETURN_NONE;
-}
-
-static PyObject *
-value_test_int_mul(PyObject *self, PyObject *args)
-{
-    PyObject *a, *b, *result;
-    int rv, i;
-    long x1, x2;
-
-    rv = PyArg_ParseTuple(args, "OO", &a, &b);
-    if(!rv)
-	return 0;
-    x1 = PyInt_AsLong(a);
-    x2 = x1;
-    for(i=0; i<1000; i++) {
-	x2 = x1 * x2;
-    }
-    result = PyInt_FromLong(x2);
-    return result;
-}
-
-ValueObject *
-value_in_base_units(ValueObject *self, PyObject *ignore)
+WithUnitObject *
+value_in_base_units(WithUnitObject *self, PyObject *ignore)
 {
     PyObject *new_value;
     double factor;
     PyObject *factor_obj;
+    WithUnitObject *result;
 
     factor = self->numer * exp10_int(self->exp_10) / self->denom;
     factor_obj = PyFloat_FromDouble(factor);
@@ -1058,11 +1144,13 @@ value_in_base_units(ValueObject *self, PyObject *ignore)
     if (!new_value)
 	return 0;
 
-    return value_create(new_value, 1, 1, 0, self->base_units, self->base_units);
+    result = value_create(new_value, 1, 1, 0, self->base_units, self->base_units);
+    Py_DECREF(new_value);
+    return result;
 }
 
 PyObject *
-value_is_dimensionless(ValueObject *self, PyObject *ignore)
+value_is_dimensionless(WithUnitObject *self, PyObject *ignore)
 {
     if(self->base_units->ob_size == 0)
 	Py_RETURN_TRUE;
@@ -1099,9 +1187,8 @@ value_set_py_func(PyTypeObject *t, PyObject *args)
     Py_DECREF(name);
     Py_RETURN_NONE;
 }
-static PyMethodDef Value_methods[] = {
-    {"test_long_mul", value_test_long_mul, METH_VARARGS, "test long multiplication"},
-    {"test_int_mul", value_test_int_mul, METH_VARARGS, "test int multiplication"},
+
+static PyMethodDef WithUnit_methods[] = {
     {"inBaseUnits", (PyCFunction)value_in_base_units, METH_NOARGS, "@returns: the same quantity converted to base units,  i.e. SI units in most cases"},
     {"isDimensionless", (PyCFunction)value_is_dimensionless, METH_NOARGS, "returns true if the value is dimensionless"},
     {"_new_raw", (PyCFunction)value_new_raw, METH_VARARGS | METH_KEYWORDS | METH_CLASS, "Create value unit from factor and UnitArray objects"},
@@ -1109,26 +1196,26 @@ static PyMethodDef Value_methods[] = {
     {0}
 };
 
-static PyMemberDef Value_members[] = {
-    {"value", T_OBJECT_EX, offsetof(ValueObject, value), READONLY, "Floating point value"},
-    {"base_units", T_OBJECT_EX, offsetof(ValueObject, base_units), READONLY, "Units in base units"},
-    {"display_units", T_OBJECT_EX, offsetof(ValueObject, display_units), READONLY, "Units for display"},
-    {"numer", T_LONGLONG, offsetof(ValueObject, numer), READONLY, "Fractional part of ratio between base and display units"},
-    {"denom", T_LONGLONG, offsetof(ValueObject, denom), READONLY, "Fractional part of ratio between base and display units"},
-    {"exp10", T_INT, offsetof(ValueObject, exp_10), READONLY, "Power of 10 ratio between base and display units"},
+static PyMemberDef WithUnit_members[] = {
+    {"value", T_OBJECT_EX, offsetof(WithUnitObject, value), READONLY, "Floating point value"},
+    {"base_units", T_OBJECT_EX, offsetof(WithUnitObject, base_units), READONLY, "Units in base units"},
+    {"display_units", T_OBJECT_EX, offsetof(WithUnitObject, display_units), READONLY, "Units for display"},
+    {"numer", T_LONGLONG, offsetof(WithUnitObject, numer), READONLY, "Fractional part of ratio between base and display units"},
+    {"denom", T_LONGLONG, offsetof(WithUnitObject, denom), READONLY, "Fractional part of ratio between base and display units"},
+    {"exp10", T_INT, offsetof(WithUnitObject, exp_10), READONLY, "Power of 10 ratio between base and display units"},
     {NULL}};
 
-static PyMappingMethods ValueMappingMethods = {
+static PyMappingMethods WithUnitMappingMethods = {
     0,			/* mp_length */
     value_getitem,	/* mp_subscript */
     0			/* mp_ass_subscript */
 };
 
-static PyTypeObject ValueType = {
+static PyTypeObject WithUnitType = {
     PyObject_HEAD_INIT(NULL) 
     0,			       /* ob_size */
-    "Value",		       /* tp_name */
-    sizeof(ValueObject),       /*tp_basicsize*/
+    "WithUnit",		       /* tp_name */
+    sizeof(WithUnitObject),       /*tp_basicsize*/
     0,                         /*tp_itemsize*/
     (destructor)value_dealloc, /*tp_dealloc*/
     0,                         /*tp_print*/
@@ -1136,9 +1223,9 @@ static PyTypeObject ValueType = {
     0,                         /*tp_setattr*/
     0,                         /*tp_compare*/
     (reprfunc)value_repr,      /*tp_repr*/
-    &ValueNumberMethods,       /*tp_as_number*/
+    &WithUnitNumberMethods,       /*tp_as_number*/
     0,                         /*tp_as_sequence*/
-    &ValueMappingMethods,      /*tp_as_mapping*/
+    &WithUnitMappingMethods,      /*tp_as_mapping*/
     0,                         /*tp_hash */
     0,                         /*tp_call*/
     (reprfunc)value_str,       /*tp_str*/
@@ -1153,8 +1240,8 @@ static PyTypeObject ValueType = {
     0,		               /* tp_weaklistoffset */
     0,		               /* tp_iter */
     0,		               /* tp_iternext */
-    Value_methods,             /* tp_methods */
-    Value_members,	       /* tp_members */
+    WithUnit_methods,             /* tp_methods */
+    WithUnit_members,	       /* tp_members */
     0,                         /* tp_getset */
     0,                         /* tp_base */
     0,                         /* tp_dict */
@@ -1166,27 +1253,69 @@ static PyTypeObject ValueType = {
     value_new                  /* tp_new */
 };
 
+static PyTypeObject ValueType = {
+    PyObject_HEAD_INIT(NULL) 
+    0,			       /* ob_size */
+    "Value",		       /* tp_name */
+    sizeof(WithUnitObject),       /*tp_basicsize*/
+    0                         /*tp_itemsize*/
+};
+
+static PyTypeObject ComplexType = {
+    PyObject_HEAD_INIT(NULL) 
+    0,			       /* ob_size */
+    "Complex",		       /* tp_name */
+    sizeof(WithUnitObject),       /*tp_basicsize*/
+    0                         /*tp_itemsize*/
+};
+
+static PyTypeObject ValueArrayType = {
+    PyObject_HEAD_INIT(NULL) 
+    0,			          /* ob_size */
+    "ValueArray",		  /* tp_name */
+    sizeof(WithUnitObject),       /*tp_basicsize*/
+    0                             /*tp_itemsize*/
+};
+
+
 #ifndef PyMODINIT_FUNC	/* declarations for DLL import/export */
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
 initunit_array(void) 
 {
-    PyObject* m;
-
-    //    ValueType.tp_methods = Value_methods;
-    //    ValueType.tp_as_number = &ValueNumberMethods;
-
+    PyObject *m, *obj;
     if (PyType_Ready(&UnitArrayType) < 0)
 	return;
+    if (PyType_Ready(&WithUnitType) < 0)
+	return;
+    ValueType.tp_base = &WithUnitType;
+    ValueType.tp_flags = Py_TPFLAGS_DEFAULT|Py_TPFLAGS_CHECKTYPES;
+    ComplexType.tp_base = &WithUnitType;
+    ComplexType.tp_flags = Py_TPFLAGS_DEFAULT|Py_TPFLAGS_CHECKTYPES;
+    ValueArrayType.tp_base = &WithUnitType;
+    ValueArrayType.tp_flags = Py_TPFLAGS_DEFAULT|Py_TPFLAGS_CHECKTYPES;
+
     if (PyType_Ready(&ValueType) < 0)
 	return;
+    if (PyType_Ready(&ComplexType) < 0)
+	return;
+    if (PyType_Ready(&ValueArrayType) < 0)
+	return;
+
+    obj = PyString_FromString("__array_priority__");
+    PyObject_SetItem(WithUnitType.tp_dict, obj, PyInt_FromLong(15));
+    Py_XDECREF(obj);
     m = Py_InitModule3("unit_array", 0, "Module that creates unit arrays");
     Py_INCREF(&UnitArrayType);
-    Py_INCREF(&ValueType);
+    Py_INCREF(&WithUnitType);
     dimensionless = (UnitArray *)UnitArrayType.tp_alloc(&UnitArrayType, 0);
     dimensionless->ob_size = 0;
+    import_array()
     PyModule_AddObject(m, "UnitArray", (PyObject *)&UnitArrayType);
+    PyModule_AddObject(m, "WithUnit", (PyObject *)&WithUnitType);
     PyModule_AddObject(m, "Value", (PyObject *)&ValueType);
+    PyModule_AddObject(m, "Complex", (PyObject *)&ComplexType);
+    PyModule_AddObject(m, "ValueArray", (PyObject *)&ValueArrayType);
     PyModule_AddObject(m, "DimensionlessUnit", (PyObject *)dimensionless);
 }

@@ -1,18 +1,18 @@
 #!/usr/bin/env python
 
 import unit_array
-from unit_array import Value
-import unit_grammar
+from unit_array import WithUnit, Value, Complex
+import unit_grammar as unit_grammar
 
 class Unit(object):
     """Unit database.
 
-    Values defined in unit_array do not actually store a unti object, the unit names and powers
+    Values defined in unit_array do not actually store a unit object, the unit names and powers
     are stored within the value object itself.  However, when constructing new values or converting
     betwee units, we need a database of known units.
     """
     _cache = {}
-    #__array_priority__ = 15
+    __array_priority__ = 15
     __slots__ = ['_value']
 
     def __new__(cls, name):
@@ -28,7 +28,7 @@ class Unit(object):
     # objects from strings.
     @classmethod
     def _new_from_value(cls, val):
-        if not isinstance(val, unit_array.Value):
+        if not isinstance(val, unit_array.WithUnit):
             raise RuntimeError("Need Value type to create unit")
         if val.value != 1.0:
             raise RuntimeError("Cannot create unit from a value not of unit magnitude")
@@ -46,7 +46,7 @@ class Unit(object):
             sign = -sign
         if base_name not in cls._cache:
             base_unit = unit_array.UnitArray(base_name)
-            cls._cache[base_name] = Unit._new_from_value(Value._new_raw(1, 1, 1, 0, base_unit, base_unit))
+            cls._cache[base_name] = Unit._new_from_value(WithUnit._new_raw(1, 1, 1, 0, base_unit, base_unit))
         element = cls._cache[base_name]**(1.0*sign*numer/denom)
         return element
 
@@ -57,7 +57,7 @@ class Unit(object):
         numer = numer * base_unit._value.numer
         denom = denom * base_unit._value.denom
         exp10 = exp10 + base_unit._value.exp10
-        val = Value._new_raw(1, numer, denom, exp10, base_unit._value.base_units, unit_array.UnitArray(name))
+        val = WithUnit._new_raw(1, numer, denom, exp10, base_unit._value.base_units, unit_array.UnitArray(name))
         result = cls._new_from_value(val)
         cls._cache[name] = result
         return result
@@ -67,7 +67,7 @@ class Unit(object):
         if name in cls._cache:
             raise RuntimeError("Trying to create unit that already exists")
         ua = unit_array.UnitArray(name)
-        val = Value._new_raw(1, 1, 1, 0, ua, ua)
+        val = WithUnit._new_raw(1, 1, 1, 0, ua, ua)
         result = cls._new_from_value(val)
         cls._cache[name] = result
         return result
@@ -169,12 +169,12 @@ class Unit(object):
 
 @classmethod
 def _value_create(cls, self, unit):
-    """This is called by Value to implement Value(number, unit)"""
+    """This is called by Value to implement WithUnit(number, unit)"""
     unit = Unit(unit)
     return self * unit._value
 
 def _value_getitem(self, unit):
-    """This is called by Value to implement __getitem__"""
+    """This is called by WithUnit to implement __getitem__"""
     unit = Unit(unit)
     if (unit._value.base_units != self.base_units):
         raise TypeError("incompabile units '%s', '%s'" % (unit.name, other.name))
@@ -189,12 +189,13 @@ def _value_in_units(self, unit):
 @property
 def _value_unit(self):
     """This is called by Value to implement the .unit property"""
-    return Unit._new_from_value(self/self.value)
+    v = WithUnit._new_raw(1, self.numer, self.denom, self.exp10, self.base_units, self.display_units)
+    return Unit._new_from_value(v)
 
-Value._set_py_func(_value_create, _value_getitem, _value_in_units, _value_unit)
+WithUnit._set_py_func(_value_create, _value_getitem, _value_in_units, _value_unit)
 
 
-Unit._cache[''] = Unit._new_from_value(Value._new_raw(1,1,1,0, unit_array.DimensionlessUnit, unit_array.DimensionlessUnit))
+Unit._cache[''] = Unit._new_from_value(WithUnit._new_raw(1,1,1,0, unit_array.DimensionlessUnit, unit_array.DimensionlessUnit))
 
 SI_PREFIX_SHORT = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y']
 SI_PREFIX_LONG = ['yotta', 'zetta', 'exa', 'peta', 'tera', 'giga', 'mega', 'kilo', 'hecto', 'deka', 'deci', 'centi', 'milli', 'micro', 'nano', 'pico', 'femto', 'atto', 'zepto', 'yocto']
