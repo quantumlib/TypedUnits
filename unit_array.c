@@ -22,8 +22,8 @@ typedef struct {
     UnitName data[0];
 } UnitArray;
 
-UnitArray *dimensionless=0;
-
+static UnitArray *dimensionless=0;
+static int alloc_count=0;
 /* factor_t will be used to implement units who ratio doesn't 
    fit the standard numer/denom * 10^exp10 format.  For instance,
    physical quantity based units like eV have experimentally determined
@@ -56,16 +56,12 @@ typedef struct {
 } WithUnitObject;
 
 
-static PyObject *
-unit_array_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
-static PyObject *
-unit_array_repr(UnitArray *obj);
-static PyObject *
-unit_array_op(UnitArray *left, UnitArray *right, int sign_r);
-static PyObject *
-unit_array_mul(PyObject *a, PyObject *b);
-static PyObject *
-unit_array_div(PyObject *a, PyObject *b);
+static PyObject *unit_array_new(PyTypeObject *type, PyObject *args, PyObject *kwds);
+static PyObject *unit_array_repr(UnitArray *obj);
+static PyObject *unit_array_op(UnitArray *left, UnitArray *right, int sign_r);
+static PyObject *unit_array_mul(PyObject *a, PyObject *b);
+static PyObject *unit_array_div(PyObject *a, PyObject *b);
+
 static PyTypeObject UnitArrayType;
 static PyTypeObject WithUnitType;
 static PyTypeObject ValueType;
@@ -509,7 +505,7 @@ value_create(PyObject *data, long long numer, long long denom, int exp_10, UnitA
 	Py_INCREF(val);
     } else if (PyArray_Check(data)) {
 	val = data;
-	target_type = &UnitArrayType;
+	target_type = &ValueArrayType;
 	Py_INCREF(val);
     } else {
 	tmp = PyFloat_AsDouble(data);
@@ -519,6 +515,7 @@ value_create(PyObject *data, long long numer, long long denom, int exp_10, UnitA
 	target_type = &ValueType;
     }
     result = (WithUnitObject *)WithUnitType.tp_alloc(target_type, 0);
+    printf("Allocated unit object, net allocations %d\n", ++alloc_count);
     if (!result) {
 	Py_DECREF(val);
 	return 0;
@@ -597,6 +594,7 @@ value_new_raw(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 value_dealloc(WithUnitObject *obj)
 {
+    printf("deallocating object, net allocation count %d\n", --alloc_count);
     Py_CLEAR(obj->value);
     Py_XDECREF(obj->base_units);
     Py_XDECREF(obj->display_units);
@@ -779,6 +777,7 @@ value_sub(PyObject *a, PyObject *b)
 	return Py_NotImplemented;
     }
     result = PyNumber_Add(a, right);
+    Py_DECREF(right);
     return result;
 }
 
@@ -1065,8 +1064,8 @@ value_richcompare(PyObject *a, PyObject *b, int op)
 	 return Py_NotImplemented;
      }
      if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
-	 Py_XDECREF(left);
-	 Py_XDECREF(right);
+	 Py_DECREF(left);
+	 Py_DECREF(right);
 	 if (op == Py_EQ)
 	     Py_RETURN_FALSE;
 	 if (op == Py_NE)
@@ -1075,6 +1074,8 @@ value_richcompare(PyObject *a, PyObject *b, int op)
 	 return 0;
      }
      diff = (WithUnitObject *)value_sub((PyObject *)left, (PyObject *)right);
+     Py_DECREF(left);
+     Py_DECREF(right);
      if (!diff)
 	 return 0;
 
@@ -1168,23 +1169,14 @@ value_set_py_func(PyTypeObject *t, PyObject *args)
 {
     int rv;
     PyObject *f1, *f2, *f3, *f4;
-    PyObject *name;
     rv = PyArg_ParseTuple(args, "OOOO", &f1, &f2, &f3, &f4);
     if(!rv)
 	return 0;
     
-    name = PyString_FromString("_create");
-    PyObject_SetItem(t->tp_dict, name, f1);
-    Py_DECREF(name);
-    name = PyString_FromString("_convert");
-    PyObject_SetItem(t->tp_dict, name, f2);
-    Py_DECREF(name);
-    name = PyString_FromString("inUnitsOf");
-    PyObject_SetItem(t->tp_dict, name, f3);
-    Py_DECREF(name);
-    name = PyString_FromString("unit");
-    PyObject_SetItem(t->tp_dict, name, f4);
-    Py_DECREF(name);
+    PyDict_SetItemString(t->tp_dict, "_create", f1);
+    PyDict_SetItemString(t->tp_dict, "_convert", f2);
+    PyDict_SetItemString(t->tp_dict, "inUnitsOf", f3);
+    PyDict_SetItemString(t->tp_dict, "unit", f4);
     Py_RETURN_NONE;
 }
 
@@ -1284,7 +1276,7 @@ static PyTypeObject ValueArrayType = {
 PyMODINIT_FUNC
 initunit_array(void) 
 {
-    PyObject *m, *obj;
+    PyObject *m;
     if (PyType_Ready(&UnitArrayType) < 0)
 	return;
     if (PyType_Ready(&WithUnitType) < 0)
@@ -1303,12 +1295,14 @@ initunit_array(void)
     if (PyType_Ready(&ValueArrayType) < 0)
 	return;
 
-    obj = PyString_FromString("__array_priority__");
-    PyObject_SetItem(WithUnitType.tp_dict, obj, PyInt_FromLong(15));
-    Py_XDECREF(obj);
+    PyDict_SetItemString(WithUnitType.tp_dict, "__array_priority__", PyInt_FromLong(15));
     m = Py_InitModule3("unit_array", 0, "Module that creates unit arrays");
     Py_INCREF(&UnitArrayType);
     Py_INCREF(&WithUnitType);
+    Py_INCREF(&ValueType);
+    Py_INCREF(&ComplexType);
+    Py_INCREF(&ValueArrayType);
+
     dimensionless = (UnitArray *)UnitArrayType.tp_alloc(&UnitArrayType, 0);
     dimensionless->ob_size = 0;
     import_array()

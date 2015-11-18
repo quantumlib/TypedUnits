@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import unit_array
-from unit_array import WithUnit, Value, Complex
+from unit_array import WithUnit, Value, Complex, ValueArray
 import unit_grammar as unit_grammar
 
+_unit_cache = {}
 class Unit(object):
     """Unit database.
 
@@ -11,15 +12,14 @@ class Unit(object):
     are stored within the value object itself.  However, when constructing new values or converting
     betwee units, we need a database of known units.
     """
-    _cache = {}
     __array_priority__ = 15
     __slots__ = ['_value']
 
     def __new__(cls, name):
         if isinstance(name, Unit):
             return name
-        if name in cls._cache:
-            return cls._cache[name]
+        if name in _unit_cache:
+            return _unit_cache[name]
         else:
             return cls.parse_unit_str(name)
 
@@ -44,10 +44,10 @@ class Unit(object):
         sign = -1 if item.neg else 1
         if neg:
             sign = -sign
-        if base_name not in cls._cache:
+        if base_name not in _unit_cache:
             base_unit = unit_array.UnitArray(base_name)
-            cls._cache[base_name] = Unit._new_from_value(WithUnit._new_raw(1, 1, 1, 0, base_unit, base_unit))
-        element = cls._cache[base_name]**(1.0*sign*numer/denom)
+            _unit_cache[base_name] = Unit._new_from_value(WithUnit._new_raw(1, 1, 1, 0, base_unit, base_unit))
+        element = _unit_cache[base_name]**(1.0*sign*numer/denom)
         return element
 
     @classmethod
@@ -59,17 +59,17 @@ class Unit(object):
         exp10 = exp10 + base_unit._value.exp10
         val = WithUnit._new_raw(1, numer, denom, exp10, base_unit._value.base_units, unit_array.UnitArray(name))
         result = cls._new_from_value(val)
-        cls._cache[name] = result
+        _unit_cache[name] = result
         return result
 
     @classmethod
     def _new_base_unit(cls, name):
-        if name in cls._cache:
+        if name in _unit_cache:
             raise RuntimeError("Trying to create unit that already exists")
         ua = unit_array.UnitArray(name)
         val = WithUnit._new_raw(1, 1, 1, 0, ua, ua)
         result = cls._new_from_value(val)
-        cls._cache[name] = result
+        _unit_cache[name] = result
         return result
 
     @classmethod
@@ -156,7 +156,7 @@ class Unit(object):
         return self._value.isDimensionless()
 
     def isAngle(self):
-        return self._value.base_units == self._cache['rad'].base_units
+        return self._value.base_units == _unit_cache['rad'].base_units
 
 # The next four methods are called from the C implementation
 # of Value() to implement the parts of the API that interact
@@ -177,7 +177,7 @@ def _value_getitem(self, unit):
     """This is called by WithUnit to implement __getitem__"""
     unit = Unit(unit)
     if (unit._value.base_units != self.base_units):
-        raise TypeError("incompabile units '%s', '%s'" % (unit.name, other.name))
+        raise TypeError("incompabile units '%s', '%s'" % (unit.name, self.unit.name))
     ratio = self / unit._value
     return ratio.inBaseUnits().value
 
@@ -195,7 +195,7 @@ def _value_unit(self):
 WithUnit._set_py_func(_value_create, _value_getitem, _value_in_units, _value_unit)
 
 
-Unit._cache[''] = Unit._new_from_value(WithUnit._new_raw(1,1,1,0, unit_array.DimensionlessUnit, unit_array.DimensionlessUnit))
+_unit_cache[''] = Unit._new_from_value(WithUnit._new_raw(1,1,1,0, unit_array.DimensionlessUnit, unit_array.DimensionlessUnit))
 
 SI_PREFIX_SHORT = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y']
 SI_PREFIX_LONG = ['yotta', 'zetta', 'exa', 'peta', 'tera', 'giga', 'mega', 'kilo', 'hecto', 'deka', 'deci', 'centi', 'milli', 'micro', 'nano', 'pico', 'femto', 'atto', 'zepto', 'yocto']
@@ -226,7 +226,17 @@ SI_DERIVED_UNITS = [
     ('J', 'joule', 'N*m', 1, 1, 0, True),
     ('W', 'watt', 'J/s', 1, 1, 0, True),
     ('C', 'coulomb', 'A*s', 1, 1, 0, True),
-    ('V', 'volt', 'W/A', 1, 1, 0, True)
+    ('V', 'volt', 'W/A', 1, 1, 0, True),
+    ('F', 'farad', 'J/C', 1, 1, 0, True),
+    ('Ohm', 'ohm', 'V/A', 1, 1, 0, True),
+    ('S', 'siemens', 'A/V', 1, 1, 0, True),
+    ('W', 'weber', 'V*s', 1, 1, 0, True),
+    ('T', 'tesla', 'Wb/m^2', 1, 1, 0, True),
+    ('Gauss', 'gauss', 'T', 1, 1, -5, True),
+    ('H', 'henry', 'Wb/A', 1, 1, 0, True),
+    ('lm', 'lumen', 'cd*sr', 1, 1, 0, True),
+    ('lx', 'lux', 'lm/m^2', 1, 1, 0, True),
+    ('Bq', 'becqurel', 'Hz', 1, 1, 0, True)
     ]
 
 for (short_name, long_name, base, numer, denom, exp10, prefixable) in SI_DERIVED_UNITS:
@@ -237,5 +247,5 @@ for (short_name, long_name, base, numer, denom, exp10, prefixable) in SI_DERIVED
         Unit._new_derived_unit(long_prefix+long_name, 1, 1, power+exp10, base)
 
 # Make all the unit objects module variables.
-for k,v in Unit._cache.items():
+for k,v in _unit_cache.items():
     globals()[k] = v
