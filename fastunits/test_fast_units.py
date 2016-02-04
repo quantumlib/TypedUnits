@@ -2,7 +2,7 @@
 
 import unittest
 import fast_units as U
-from fast_units import Value, Unit, Complex, ValueArray
+from fastunits import Value, Unit, Complex, ValueArray
 import numpy as np
 
 class FastUnitsTests(unittest.TestCase):
