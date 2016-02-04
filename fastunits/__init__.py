@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import unit_array
-from unit_array import WithUnit, Value, Complex, ValueArray
-import unit_grammar as unit_grammar
+import fastunits.unitarray as unitarray
+from fastunits.unitarray import WithUnit, Value, Complex, ValueArray
+import fastunits.unit_grammar as unit_grammar
 
 _unit_cache = {}
 class Unit(object):
@@ -28,7 +28,7 @@ class Unit(object):
     # objects from strings.
     @classmethod
     def _new_from_value(cls, val):
-        if not isinstance(val, unit_array.WithUnit):
+        if not isinstance(val, unitarray.WithUnit):
             raise RuntimeError("Need Value type to create unit")
         if val.value != 1.0:
             raise RuntimeError("Cannot create unit from a value not of unit magnitude")
@@ -45,7 +45,7 @@ class Unit(object):
         if neg:
             sign = -sign
         if base_name not in _unit_cache:
-            base_unit = unit_array.UnitArray(base_name)
+            base_unit = unitarray.UnitArray(base_name)
             _unit_cache[base_name] = Unit._new_from_value(WithUnit._new_raw(1, 1, 1, 0, base_unit, base_unit))
         element = _unit_cache[base_name]**(1.0*sign*numer/denom)
         return element
@@ -57,7 +57,7 @@ class Unit(object):
         numer = numer * base_unit._value.numer
         denom = denom * base_unit._value.denom
         exp10 = exp10 + base_unit._value.exp10
-        val = WithUnit._new_raw(1, numer, denom, exp10, base_unit._value.base_units, unit_array.UnitArray(name))
+        val = WithUnit._new_raw(1, numer, denom, exp10, base_unit._value.base_units, unitarray.UnitArray(name))
         result = cls._new_from_value(val)
         _unit_cache[name] = result
         return result
@@ -66,7 +66,7 @@ class Unit(object):
     def _new_base_unit(cls, name):
         if name in _unit_cache:
             raise RuntimeError("Trying to create unit that already exists")
-        ua = unit_array.UnitArray(name)
+        ua = unitarray.UnitArray(name)
         val = WithUnit._new_raw(1, 1, 1, 0, ua, ua)
         result = cls._new_from_value(val)
         _unit_cache[name] = result
@@ -195,7 +195,7 @@ def _value_unit(self):
 WithUnit._set_py_func(_value_create, _value_getitem, _value_in_units, _value_unit)
 
 
-_unit_cache[''] = Unit._new_from_value(WithUnit._new_raw(1,1,1,0, unit_array.DimensionlessUnit, unit_array.DimensionlessUnit))
+_unit_cache[''] = Unit._new_from_value(WithUnit._new_raw(1,1,1,0, unitarray.DimensionlessUnit, unitarray.DimensionlessUnit))
 
 SI_PREFIX_SHORT = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y']
 SI_PREFIX_LONG = ['yotta', 'zetta', 'exa', 'peta', 'tera', 'giga', 'mega', 'kilo', 'hecto', 'deka', 'deci', 'centi', 'milli', 'micro', 'nano', 'pico', 'femto', 'atto', 'zepto', 'yocto']

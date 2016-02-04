@@ -1272,7 +1272,7 @@ static PyTypeObject ValueArrayType = {
 #define PyMODINIT_FUNC void
 #endif
 PyMODINIT_FUNC
-initunit_array(void) 
+initunitarray(void) 
 {
     PyObject *m;
     if (PyType_Ready(&UnitArrayType) < 0)
@@ -1294,7 +1294,7 @@ initunit_array(void)
 	return;
 
     PyDict_SetItemString(WithUnitType.tp_dict, "__array_priority__", PyInt_FromLong(15));
-    m = Py_InitModule3("unit_array", 0, "Module that creates unit arrays");
+    m = Py_InitModule3("unitarray", 0, "Module that creates unit arrays");
     Py_INCREF(&UnitArrayType);
     Py_INCREF(&WithUnitType);
     Py_INCREF(&ValueType);
