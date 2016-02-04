@@ -1126,6 +1126,13 @@ value_repr(WithUnitObject *obj)
 }
 
 WithUnitObject *
+value_copy(WithUnitObjecet *self, PyObject *ignore)
+{
+	Py_INCREF(self);
+	return self;
+}
+
+WithUnitObject *
 value_in_base_units(WithUnitObject *self, PyObject *ignore)
 {
     PyObject *new_value;
@@ -1183,6 +1190,8 @@ static PyMethodDef WithUnit_methods[] = {
     {"isDimensionless", (PyCFunction)value_is_dimensionless, METH_NOARGS, "returns true if the value is dimensionless"},
     {"_new_raw", (PyCFunction)value_new_raw, METH_VARARGS | METH_KEYWORDS | METH_CLASS, "Create value unit from factor and UnitArray objects"},
     {"_set_py_func", (PyCFunction)value_set_py_func, METH_VARARGS | METH_CLASS, "Internal method: setup proxy object for python calls"},
+    {"__copy__", (PyCFunction)value_copy, METH_NOARGS, "Copy function"},
+    {"__deepcopy__", (PyCFunction)value_copy, METH_VARARGS, "Copy function"},
     {0}
 };
 
