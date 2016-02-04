@@ -1126,7 +1126,7 @@ value_repr(WithUnitObject *obj)
 }
 
 WithUnitObject *
-value_copy(WithUnitObjecet *self, PyObject *ignore)
+value_copy(WithUnitObject *self, PyObject *ignore)
 {
 	Py_INCREF(self);
 	return self;
