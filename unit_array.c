@@ -23,7 +23,7 @@ typedef struct {
 } UnitArray;
 
 static UnitArray *dimensionless=0;
-static int alloc_count=0;
+
 /* factor_t will be used to implement units who ratio doesn't 
    fit the standard numer/denom * 10^exp10 format.  For instance,
    physical quantity based units like eV have experimentally determined
@@ -352,7 +352,7 @@ rational_power(PyObject *a, long *numer, long *denom)
     d = PyFloat_AsDouble(a);
     if (d==-1.0 && PyErr_Occurred()) 
 	return 0;
-    x = round(12*d);
+    x = floor(12*d + 0.5);
     if ( fabs(12*d - x) < 1e-5 ) {
 	long tmp = gcd(x, 12);
 	*numer = x/tmp;
@@ -515,7 +515,6 @@ value_create(PyObject *data, long long numer, long long denom, int exp_10, UnitA
 	target_type = &ValueType;
     }
     result = (WithUnitObject *)WithUnitType.tp_alloc(target_type, 0);
-    printf("Allocated unit object, net allocations %d\n", ++alloc_count);
     if (!result) {
 	Py_DECREF(val);
 	return 0;
@@ -594,7 +593,6 @@ value_new_raw(PyTypeObject *type, PyObject *args, PyObject *kwds)
 static void
 value_dealloc(WithUnitObject *obj)
 {
-    printf("deallocating object, net allocation count %d\n", --alloc_count);
     Py_CLEAR(obj->value);
     Py_XDECREF(obj->base_units);
     Py_XDECREF(obj->display_units);
