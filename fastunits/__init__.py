@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from __future__ import division
 import fastunits.unitarray as unitarray
 from fastunits.unitarray import WithUnit, Value, Complex, ValueArray
 import fastunits.unit_grammar as unit_grammar
@@ -92,7 +92,8 @@ class Unit(object):
     def __mul__(self, other):
         if isinstance(other, Unit):
             return Unit._new_from_value(other._value * self._value)
-        return self._value * other
+        result = other * self._value
+        return result
 
     __rmul__ = __mul__
     
@@ -104,7 +105,8 @@ class Unit(object):
     def __rdiv__(self, other):
         if isinstance(other, Unit):
             return Unit._new_from_value(other._value/self._value)
-        return other/self._value
+        result = other/self._value
+        return result
 
     def __pow__(self, other):
         return Unit._new_from_value(self._value**other)

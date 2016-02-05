@@ -217,6 +217,7 @@ unit_array_richcompare(PyObject *a, PyObject *b, int op)
 
     if(!PyObject_IsInstance(a, (PyObject *)&UnitArrayType) || !PyObject_IsInstance(b, (PyObject *)&UnitArrayType)) {
 	Py_INCREF(Py_NotImplemented);
+	PyErr_Clear();
 	return Py_NotImplemented;
     }
     if (op != Py_EQ && op != Py_NE) {
@@ -247,6 +248,7 @@ unit_array_div(PyObject *a, PyObject *b)
 {
     if(!PyObject_IsInstance(a, (PyObject *)&UnitArrayType) || ! PyObject_IsInstance(b, (PyObject *)&UnitArrayType)) {
 	Py_INCREF(Py_NotImplemented);
+	PyErr_Clear();
 	return Py_NotImplemented;
     }
     return unit_array_op((UnitArray *) a, (UnitArray *)b, -1);
@@ -257,6 +259,7 @@ unit_array_mul(PyObject *a, PyObject *b)
 {
     if(!PyObject_IsInstance(a, (PyObject *)&UnitArrayType) || ! PyObject_IsInstance(b, (PyObject *)&UnitArrayType)) {
 	Py_INCREF(Py_NotImplemented);
+	PyErr_Clear();
 	return Py_NotImplemented;
     }
     return unit_array_op((UnitArray *) a, (UnitArray *)b, 1);
@@ -708,7 +711,11 @@ value_add(PyObject *a, PyObject *b)
     left = value_wrap(a);
     right = value_wrap(b);
     if(!left || !right) {
-	goto fail;
+	PyErr_Clear();
+	Py_XDECREF(left);
+	Py_XDECREF(right);
+	Py_INCREF(Py_NotImplemented);
+	return Py_NotImplemented;
     }
 
     if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
@@ -772,6 +779,7 @@ value_sub(PyObject *a, PyObject *b)
     right = PyNumber_Negative(b);
     if (!right) {
 	Py_INCREF(Py_NotImplemented);
+	PyErr_Clear();
 	return Py_NotImplemented;
     }
     result = PyNumber_Add(a, right);
@@ -800,9 +808,10 @@ value_mul(PyObject *a, PyObject *b)
 	Py_XDECREF(left);
 	Py_XDECREF(right);
 	Py_INCREF(Py_NotImplemented);
+	PyErr_Clear();
 	return Py_NotImplemented;
     }
-    val = PyNumber_Multiply(left->value, right->value);
+    val = PyNumber_Multiply(right->value, left->value);
     gcd1 = gcd(left->numer, right->denom);
     gcd2 = gcd(right->numer, left->denom);
     numer = (left->numer/gcd1) * (right->numer/gcd2);
@@ -810,16 +819,16 @@ value_mul(PyObject *a, PyObject *b)
     exp_10 = left->exp_10 + right->exp_10;
     base_units = (UnitArray *)PyNumber_Multiply((PyObject *)left->base_units, (PyObject *)right->base_units);
     display_units = (UnitArray *)PyNumber_Multiply((PyObject *)left->display_units, (PyObject *)right->display_units);
-    if (val && base_units && display_units)
+    if (val && base_units && display_units) {
 	result = value_create(val, numer, denom, exp_10, base_units, display_units);
-    else
+    } else {
 	result = 0;
+    }
     Py_XDECREF(val);
     Py_XDECREF(left);
     Py_XDECREF(right);
     Py_XDECREF(base_units);
     Py_XDECREF(display_units);
-
     return (PyObject *) result;
 }
 
@@ -839,6 +848,7 @@ value_div(PyObject *a, PyObject *b)
     if (!left || !right) {
 	Py_XDECREF(left);
 	Py_XDECREF(right);
+	PyErr_Clear();
 	Py_INCREF(Py_NotImplemented);
 	return Py_NotImplemented;
     }
@@ -846,6 +856,7 @@ value_div(PyObject *a, PyObject *b)
     gcd2 = gcd(right->denom, left->denom);
 
     val = PyNumber_Divide(left->value, right->value);
+
     numer = (left->numer/gcd1) * (right->denom/gcd2);
     denom = (left->denom/gcd2) * (right->numer/gcd1);
     exp_10 = left->exp_10 - right->exp_10;
@@ -877,8 +888,13 @@ value_divmod(PyObject *a, PyObject *b)
 
     left = value_wrap(a);
     right = value_wrap(b);
-    if(!left || !right)
-	goto fail;
+    if(!left || !right) {
+	Py_XDECREF(left);
+	Py_XDECREF(right);
+	Py_INCREF(Py_NotImplemented);
+	PyErr_Clear();
+	return Py_NotImplemented;
+    }
     if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
 	PyErr_SetString(PyExc_ValueError, "WithUnit __divmod__ requires equivalent units");
 	goto fail;
@@ -1026,7 +1042,7 @@ value_pow(PyObject *a, PyObject *b, PyObject *c)
     return (PyObject *)result;
 }
 
-PyObject *
+static PyObject *
 value_float(PyObject *obj)
 {
     WithUnitObject *self = (WithUnitObject *)obj;
@@ -1037,7 +1053,7 @@ value_float(PyObject *obj)
     return PyNumber_Float(self->value);
 }
 
-PyObject *
+static PyObject *
 value_complex(WithUnitObject *self, PyObject *ignore)
 {
     Py_complex c;
@@ -1051,14 +1067,14 @@ value_complex(WithUnitObject *self, PyObject *ignore)
     return PyComplex_FromCComplex(c);
 }
 
-PyObject *
+static PyObject *
 value_array(WithUnitObject *self, PyObject *ignore)
 {
     if(self->base_units->ob_size != 0) {
 	PyErr_SetString(PyExc_TypeError, "Can only convert dimensionless to plain ndarray");
 	return 0;
     }
-    Py_INCREF((PyObject *)self);
+    Py_INCREF((PyObject *)self->value);
     return PyArray_EnsureArray(self->value);
 }
 
@@ -1100,6 +1116,7 @@ value_richcompare(PyObject *a, PyObject *b, int op)
 	 Py_XDECREF(left);
 	 Py_XDECREF(right);
 	 Py_INCREF(Py_NotImplemented);
+	 PyErr_Clear();
 	 return Py_NotImplemented;
      }
      if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
@@ -1166,14 +1183,14 @@ value_repr(WithUnitObject *obj)
     return result;
 }
 
-WithUnitObject *
+static WithUnitObject *
 value_copy(WithUnitObject *self, PyObject *ignore)
 {
 	Py_INCREF(self);
 	return self;
 }
 
-WithUnitObject *
+static WithUnitObject *
 value_in_base_units(WithUnitObject *self, PyObject *ignore)
 {
     PyObject *new_value;
@@ -1196,7 +1213,7 @@ value_in_base_units(WithUnitObject *self, PyObject *ignore)
     return result;
 }
 
-PyObject *
+static PyObject *
 value_is_dimensionless(WithUnitObject *self, PyObject *ignore)
 {
     if(self->base_units->ob_size == 0)
@@ -1235,11 +1252,11 @@ value_setitem(WithUnitObject *self, PyObject *key, PyObject *val)
     WithUnitObject *right=0;
     PyObject *bare_val=0;
     PyObject *factor_num=0;
-    int result;
+    int result=0;
     
     right = value_wrap(val);
     if (!right)
-	return 0;
+	goto fail;
     
     if(!PyObject_RichCompareBool((PyObject *)self->base_units, (PyObject *)right->base_units, Py_EQ)) {
 	PyErr_SetString(PyExc_ValueError, "WithUnit __setitem__ requires equivalent units");
@@ -1252,22 +1269,15 @@ value_setitem(WithUnitObject *self, PyObject *key, PyObject *val)
 
     bare_val = PyNumber_Multiply(right->value, factor_num);
     if (!bare_val) goto fail;
-    result = PyObject_SetItem(self->value, key, val);
-    
-    Py_XDECREF(right);
-    Py_XDECREF(factor_num);
-    Py_XDECREF(bare_val);
-    return result;
+    result = PyObject_SetItem(self->value, key, bare_val);
  fail:
     Py_XDECREF(right);
     Py_XDECREF(factor_num);
     Py_XDECREF(bare_val);
-    if (!PyErr_Occurred())
-	PyErr_SetString(PyExc_MemoryError, "value_getitem failed");
-    return 0;
+    return result;
 }
 
-PyObject *
+static PyObject *
 value_set_py_func(PyTypeObject *t, PyObject *args)
 {
     int rv;
@@ -1307,7 +1317,7 @@ static PyMemberDef WithUnit_members[] = {
 static PyMappingMethods WithUnitMappingMethods = {
     0,			/* mp_length */
     (binaryfunc)value_getitem,	/* mp_subscript */
-    0 /*(objobjargproc)value_setitem */     	/* mp_ass_subscript */
+    (objobjargproc)value_setitem,     	/* mp_ass_subscript */
 };
 
 static PyTypeObject WithUnitType = {
