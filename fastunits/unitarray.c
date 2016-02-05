@@ -540,7 +540,7 @@ static WithUnitObject *
 value_wrap(PyObject *obj)
 {
     WithUnitObject *result;
-
+    
     if (PyObject_IsInstance(obj, (PyObject *)&WithUnitType)) {
 	Py_INCREF(obj);
 	return (WithUnitObject *)obj;
@@ -799,7 +799,8 @@ value_mul(PyObject *a, PyObject *b)
     if (!left || !right) {
 	Py_XDECREF(left);
 	Py_XDECREF(right);
-	return 0;
+	Py_INCREF(Py_NotImplemented);
+	return Py_NotImplemented;
     }
     val = PyNumber_Multiply(left->value, right->value);
     gcd1 = gcd(left->numer, right->denom);
@@ -838,6 +839,8 @@ value_div(PyObject *a, PyObject *b)
     if (!left || !right) {
 	Py_XDECREF(left);
 	Py_XDECREF(right);
+	Py_INCREF(Py_NotImplemented);
+	return Py_NotImplemented;
     }
     gcd1 = gcd(left->numer, right->numer);
     gcd2 = gcd(right->denom, left->denom);
@@ -1023,6 +1026,42 @@ value_pow(PyObject *a, PyObject *b, PyObject *c)
     return (PyObject *)result;
 }
 
+PyObject *
+value_float(PyObject *obj)
+{
+    WithUnitObject *self = (WithUnitObject *)obj;
+    if(self->base_units->ob_size != 0) {
+	PyErr_SetString(PyExc_TypeError, "Can only convert dimensionless to float");
+	return 0;
+    }
+    return PyNumber_Float(self->value);
+}
+
+PyObject *
+value_complex(WithUnitObject *self, PyObject *ignore)
+{
+    Py_complex c;
+    if(self->base_units->ob_size != 0) {
+	PyErr_SetString(PyExc_TypeError, "Can only convert dimensionless to complex");
+	return 0;
+    }
+    c = PyComplex_AsCComplex(self->value);
+    if (c.real == -1 && PyErr_Occurred())
+	return 0;
+    return PyComplex_FromCComplex(c);
+}
+
+PyObject *
+value_array(WithUnitObject *self, PyObject *ignore)
+{
+    if(self->base_units->ob_size != 0) {
+	PyErr_SetString(PyExc_TypeError, "Can only convert dimensionless to plain ndarray");
+	return 0;
+    }
+    Py_INCREF((PyObject *)self);
+    return PyArray_EnsureArray(self->value);
+}
+
 static PyNumberMethods WithUnitNumberMethods = {
     value_add,			/* nb_add */
     value_sub,			/* nb_subtract */
@@ -1037,7 +1076,9 @@ static PyNumberMethods WithUnitNumberMethods = {
     (inquiry)value_nz,	       	/* nb_nonzero (Used by PyObject_IsTrue */
     0,0,0,0,0,0,       		/* nb_* bitwise */
     0,				/* nb_coerce */
-    0,0,0,0,0,			/* nb_* coercions (int, long, float, oct, hex) */
+    0,0,			/* nb_* integer coercions */
+    value_float,		/* nb_float */
+    0,0,			/* nb_* oct and hex conversions */
     0,0,0,0,0,0,0,0,0,0,0,	/* nb_inplace_* */
     value_floordiv,		/* nb_floor_divide */
     value_div,	       		/* nb_true_divide */
@@ -1163,10 +1204,67 @@ value_is_dimensionless(WithUnitObject *self, PyObject *ignore)
     Py_RETURN_FALSE;
 }
 
-PyObject *
-value_getitem(PyObject *self, PyObject *key)
+/* __getitem__ is unfortunately overloaded for ValueArrays, so we have
+ * to detect whether key is a unit or an index / slice object.  */
+
+static PyObject *
+value_getitem(PyObject *obj, PyObject *key)
 {
-    return PyObject_CallMethod(self, "_convert", "O", key);
+    WithUnitObject *self = (WithUnitObject *)obj;
+    WithUnitObject *result=0;
+    PyObject *new_val;
+
+    if (PyObject_IsInstance(key, (PyObject *)&PyString_Type) || PyObject_HasAttrString(key, "isDimensionless")) {
+	return PyObject_CallMethod(obj, "_convert", "O", key);
+    }
+
+    new_val = PyObject_GetItem(self->value, key);
+    if (!new_val)
+	return 0;
+    result = value_create(new_val, self->numer, self->denom, self->exp_10, self->base_units, self->display_units);
+    Py_XDECREF(new_val);
+    return (PyObject *)result;
+
+}
+
+/* This function doesn't work */
+static int
+value_setitem(WithUnitObject *self, PyObject *key, PyObject *val)
+{
+    double factor_l, factor_r;
+    WithUnitObject *right=0;
+    PyObject *bare_val=0;
+    PyObject *factor_num=0;
+    int result;
+    
+    right = value_wrap(val);
+    if (!right)
+	return 0;
+    
+    if(!PyObject_RichCompareBool((PyObject *)self->base_units, (PyObject *)right->base_units, Py_EQ)) {
+	PyErr_SetString(PyExc_ValueError, "WithUnit __setitem__ requires equivalent units");
+	goto fail;
+    }
+    factor_l = self->numer * 1.0 / self->denom * exp10_int(self->exp_10);
+    factor_r = right->numer * 1.0 / right->denom * exp10_int(right->exp_10);
+    factor_num = PyFloat_FromDouble(factor_r/factor_l);
+    if (!factor_num) goto fail;
+
+    bare_val = PyNumber_Multiply(right->value, factor_num);
+    if (!bare_val) goto fail;
+    result = PyObject_SetItem(self->value, key, val);
+    
+    Py_XDECREF(right);
+    Py_XDECREF(factor_num);
+    Py_XDECREF(bare_val);
+    return result;
+ fail:
+    Py_XDECREF(right);
+    Py_XDECREF(factor_num);
+    Py_XDECREF(bare_val);
+    if (!PyErr_Occurred())
+	PyErr_SetString(PyExc_MemoryError, "value_getitem failed");
+    return 0;
 }
 
 PyObject *
@@ -1192,6 +1290,8 @@ static PyMethodDef WithUnit_methods[] = {
     {"_set_py_func", (PyCFunction)value_set_py_func, METH_VARARGS | METH_CLASS, "Internal method: setup proxy object for python calls"},
     {"__copy__", (PyCFunction)value_copy, METH_NOARGS, "Copy function"},
     {"__deepcopy__", (PyCFunction)value_copy, METH_VARARGS, "Copy function"},
+    {"__complex__", (PyCFunction)value_complex, METH_NOARGS, "@returns: quantity converted to a bare complex number"},
+    {"__array__", (PyCFunction)value_array, METH_VARARGS, "@returns: quantity converted to a numpy array"},
     {0}
 };
 
@@ -1206,13 +1306,14 @@ static PyMemberDef WithUnit_members[] = {
 
 static PyMappingMethods WithUnitMappingMethods = {
     0,			/* mp_length */
-    value_getitem,	/* mp_subscript */
-    0			/* mp_ass_subscript */
+    (binaryfunc)value_getitem,	/* mp_subscript */
+    0 /*(objobjargproc)value_setitem */     	/* mp_ass_subscript */
 };
 
 static PyTypeObject WithUnitType = {
     PyObject_HEAD_INIT(NULL) 
     0,			       /* ob_size */
+
     "WithUnit",		       /* tp_name */
     sizeof(WithUnitObject),       /*tp_basicsize*/
     0,                         /*tp_itemsize*/
