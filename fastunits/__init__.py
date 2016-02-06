@@ -248,6 +248,22 @@ for (short_name, long_name, base, numer, denom, exp10, prefixable) in SI_DERIVED
         Unit._new_derived_unit(short_prefix+short_name, 1, 1, power+exp10, base)
         Unit._new_derived_unit(long_prefix+long_name, 1, 1, power+exp10, base)
 
+OTHER_DERIVED_UNITS = [
+    ('in', 'inch', 'cm', 254, 1, -2),
+    ('d', 'day', 's', 864, 1, 2),
+    ('hr', 'hour', 's', 36, 1, 2),
+    ('min', 'minute', 's', 6, 1, 1),
+    ('yr', 'year', 'day', 36525, 1, -2)]
+
+for (short_name, long_name, base, numer, denom, exp10) in OTHER_DERIVED_UNITS:
+    Unit._new_derived_unit(short_name, numer, denom, exp10, base)
+    Unit._new_derived_unit(long_name, numer, denom, exp10, base)
+    
+OTHER_BASE_UNITS = [
+    'dB', 'dBm' ]
+for name in OTHER_BASE_UNITS:
+    Unit._new_base_unit(name)
+
 # Make all the unit objects module variables.
 for k,v in _unit_cache.items():
     globals()[k] = v
