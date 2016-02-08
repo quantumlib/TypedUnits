@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import unittest
-import fast_units as U
+import fastunits as U
 from fastunits import Value, Unit, Complex, ValueArray
 import numpy as np
 
@@ -15,6 +15,19 @@ class FastUnitsTests(unittest.TestCase):
         self.assertIsInstance(3j*x, Complex)
         self.assertIsInstance(np.arange(5)*U.ns, ValueArray)
 
+    def testDimensionless(self):
+        """Test that dimensionless values act like floats"""
+        x = Value(1.5, '')
+        y = Value(1.5, 'us/ns')
+        self.assertEqual(x, 1.5)
+        self.assertEqual(np.ceil(x), 2.)
+        self.assertEqual(np.floor(x), 1.)
+        self.assertEqual(y, 1500.)
+    
+    def testValueArraySlicing(self):
+        x = np.arange(5)*U.ns
+        self.assertTrue(np.allclose(x[::2]['ns'], np.array([0., 2., 4.])))
+        
     def testAddition(self):
         n = Value(2, '')
         x = Value(1.0, U.kilometer);
@@ -36,9 +49,13 @@ class FastUnitsTests(unittest.TestCase):
         n = Value(2, '')
         x = Value(1.0+2j, U.meter)
         y = Value(3, U.mm)
+        z = np.arange(5)*U.ns
         a = Value(20, U.second)
         self.assertEqual(a*x, x*a)
         self.assertTrue((x/y).isDimensionless())
+        self.assertTrue((z/U.ns).isDimensionless())
+        self.assertIsInstance(z/U.ns, ValueArray)
+        self.assertTrue(np.allclose(z*Value(5, 'GHz'), z['ns']*5))
         
     def testPower(self):
         x = 2*U.mm
