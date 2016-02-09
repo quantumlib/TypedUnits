@@ -83,5 +83,13 @@ class FastUnitsTests(unittest.TestCase):
         self.assertEquals(y.inBaseUnits().value, 1000000.0)
         self.assertEquals(x.inUnitsOf('mm'), 3000*U.mm)
 
+    def testHash(self):
+        x = Value(3, 'ks')
+        y = Value(3000, 's')
+        self.assertEquals(hash(x), hash(y))
+        z = Value(3.1, '')
+        self.assertEquals(hash(z), hash(3.1))
+        hash(Value(4j, 'V'))
+
 if __name__ == "__main__":
     unittest.main()

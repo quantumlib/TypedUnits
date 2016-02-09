@@ -1244,7 +1244,30 @@ value_getitem(PyObject *obj, PyObject *key)
 
 }
 
-/* This function doesn't work */
+/*
+ * Python hash functions need to always return the same value for any
+ * two objects that compare equal.  In our case, this means that
+ * hash(1000*m) and hash(1*km) must return the same result.
+ * Therefore, we convert to base units before hashing.  The hash code
+ * does not depend on the actual units, so hash(1*m) and hash(1*s) are
+ * the same result, which is not a problem.  Finally, this makes sure
+ * that hash(1) and hash(Value(1, '')) are the same.
+ */
+static long
+value_hash(WithUnitObject *self)
+{
+    WithUnitObject *in_base=0;
+    long result;
+
+    in_base = value_in_base_units(self, 0);
+    if (!in_base)
+	return 0;
+
+    result = PyObject_Hash(in_base->value);
+    Py_DECREF(in_base);
+    return result;
+}
+
 static int
 value_setitem(WithUnitObject *self, PyObject *key, PyObject *val)
 {
@@ -1336,7 +1359,7 @@ static PyTypeObject WithUnitType = {
     &WithUnitNumberMethods,       /*tp_as_number*/
     0,                         /*tp_as_sequence*/
     &WithUnitMappingMethods,      /*tp_as_mapping*/
-    0,                         /*tp_hash */
+    (hashfunc)value_hash,                /*tp_hash */
     0,                         /*tp_call*/
     (reprfunc)value_str,       /*tp_str*/
     0,                         /*tp_getattro*/
