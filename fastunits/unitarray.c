@@ -556,16 +556,25 @@ value_wrap(PyObject *obj)
 static PyObject *
 value_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *meth;
-    PyObject *result;
+    PyObject *val, *unit, *unit_val, *result;
+    char *kwlist[] = {"number", "unit", 0};
+    int rv;
 
-    meth = PyObject_GetAttrString((PyObject *)type, "_create");
-    if (!meth)
+    rv = PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &val, &unit);
+    if(!rv)
 	return 0;
-    result = PyObject_Call(meth, args, kwds);
-    Py_DECREF(meth);
+    unit_val = PyObject_GetAttrString(unit, "_value"); /* For Unit objects */
+    if (!unit_val && PyString_Check(unit)) { /* For unit strings */
+	PyErr_Clear();
+	unit_val = PyObject_CallMethod((PyObject *)type, "_unit_val_from_str", "O", unit);
+    }
+    if(!unit_val)
+	return 0;
+    result = PyNumber_Multiply(val, unit_val);
+    Py_XDECREF(unit_val);
     return result;
 }
+
 /*
  * Python interface to value_create.
  */
@@ -1228,20 +1237,62 @@ static PyObject *
 value_getitem(PyObject *obj, PyObject *key)
 {
     WithUnitObject *self = (WithUnitObject *)obj;
-    WithUnitObject *result=0;
+    WithUnitObject *unit_val=0;
+    PyObject *result=0;
+    PyObject *factor_obj=0;
     PyObject *new_val;
+    double factor;
 
-    if (PyObject_IsInstance(key, (PyObject *)&PyString_Type) || PyObject_HasAttrString(key, "isDimensionless")) {
-	return PyObject_CallMethod(obj, "_convert", "O", key);
+    unit_val = (WithUnitObject *)PyObject_GetAttrString(key, "_value"); /* For Unit objects */
+    if (!unit_val && PyString_Check(key)) { /* For unit strings */
+	PyErr_Clear();
+	unit_val = (WithUnitObject *)PyObject_CallMethod(obj, "_unit_val_from_str", "O", key);
     }
-
+    if(unit_val) {
+	if(!PyObject_RichCompareBool((PyObject *)self->base_units, (PyObject *)unit_val->base_units, Py_EQ)) {
+	    PyErr_SetString(PyExc_ValueError, "WithUnit __getitem__ requires equivalent units");
+	    return 0;
+	}
+	factor = (exp10_int(self->exp_10) * self->numer * unit_val->denom ) / (exp10_int(unit_val->exp_10) * self->denom * unit_val->numer);
+	Py_XDECREF(unit_val);
+	factor_obj = PyFloat_FromDouble(factor);
+	if(factor_obj)
+	    result = PyNumber_Multiply(factor_obj, self->value);
+	Py_XDECREF(factor_obj);
+	return result;
+    }
+    /* key wasn't a unit, try array slicing */
+    PyErr_Clear();
     new_val = PyObject_GetItem(self->value, key);
     if (!new_val)
 	return 0;
-    result = value_create(new_val, self->numer, self->denom, self->exp_10, self->base_units, self->display_units);
+    result = (PyObject *)value_create(new_val, self->numer, self->denom, self->exp_10, self->base_units, self->display_units);
     Py_XDECREF(new_val);
-    return (PyObject *)result;
+    return result;
+}
 
+static PyObject *
+value_in_units_of(PyObject *self, PyObject *unit)
+{
+    PyObject *new_val=0, *result=0;
+    WithUnitObject *unit_val=0;
+    
+    unit_val = (WithUnitObject *)PyObject_GetAttrString(unit, "_value"); /* For Unit objects */
+    if (!unit_val && PyString_Check(unit)) { /* For unit strings */
+	PyErr_Clear();
+	unit_val = (WithUnitObject *)PyObject_CallMethod(self, "_unit_val_from_str", "O", unit);
+    }
+    if(!unit_val)
+	return 0;
+    new_val = value_getitem(self, unit);
+    if (!new_val) {
+	Py_DECREF(unit_val);
+	return 0;
+    }
+    result = (PyObject *)value_create(new_val, unit_val->numer, unit_val->denom, unit_val->exp_10, unit_val->base_units, unit_val->display_units);
+    Py_XDECREF(unit_val);
+    Py_XDECREF(new_val);
+    return result;
 }
 
 /*
@@ -1304,21 +1355,20 @@ static PyObject *
 value_set_py_func(PyTypeObject *t, PyObject *args)
 {
     int rv;
-    PyObject *f1, *f2, *f3, *f4;
-    rv = PyArg_ParseTuple(args, "OOOO", &f1, &f2, &f3, &f4);
+    PyObject *f1, *f2;
+    rv = PyArg_ParseTuple(args, "OO", &f1, &f2);
     if(!rv)
 	return 0;
     
-    PyDict_SetItemString(t->tp_dict, "_create", f1);
-    PyDict_SetItemString(t->tp_dict, "_convert", f2);
-    PyDict_SetItemString(t->tp_dict, "inUnitsOf", f3);
-    PyDict_SetItemString(t->tp_dict, "unit", f4);
+    PyDict_SetItemString(t->tp_dict, "unit", f1);
+    PyDict_SetItemString(t->tp_dict, "_unit_val_from_str", f2);
     Py_RETURN_NONE;
 }
 
 static PyMethodDef WithUnit_methods[] = {
     {"inBaseUnits", (PyCFunction)value_in_base_units, METH_NOARGS, "@returns: the same quantity converted to base units,  i.e. SI units in most cases"},
     {"isDimensionless", (PyCFunction)value_is_dimensionless, METH_NOARGS, "returns true if the value is dimensionless"},
+    {"inUnitsOf", (PyCFunction)value_in_units_of, METH_O, "Convert to the specified units"},
     {"_new_raw", (PyCFunction)value_new_raw, METH_VARARGS | METH_KEYWORDS | METH_CLASS, "Create value unit from factor and UnitArray objects"},
     {"_set_py_func", (PyCFunction)value_set_py_func, METH_VARARGS | METH_CLASS, "Internal method: setup proxy object for python calls"},
     {"__copy__", (PyCFunction)value_copy, METH_NOARGS, "Copy function"},

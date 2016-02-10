@@ -160,7 +160,7 @@ class Unit(object):
     def isAngle(self):
         return self._value.base_units == _unit_cache['rad'].base_units
 
-# The next four methods are called from the C implementation
+# The next two methods are called from the C implementation
 # of Value() to implement the parts of the API that interact
 # with Unit objects (in particular, the cache of known unit
 # instances)-- unit conversion and new object creation.  
@@ -170,23 +170,14 @@ class Unit(object):
 
 
 @classmethod
-def _value_create(cls, self, unit):
-    """This is called by Value to implement WithUnit(number, unit)"""
-    unit = Unit(unit)
-    return self * unit._value
+def _unit_val_from_str(cls, unitstr):
+    """Lookup a unit by name.
 
-def _value_getitem(self, unit):
-    """This is called by WithUnit to implement __getitem__"""
-    unit = Unit(unit)
-    if (unit._value.base_units != self.base_units):
-        raise TypeError("incompabile units '%s', '%s'" % (unit.name, self.unit.name))
-    ratio = self / unit._value
-    return ratio.inBaseUnits().value
-
-def _value_in_units(self, unit):
-    """This is called by Value to implement inUnitsOf()."""
-    unit = Unit(unit)
-    return _value_getitem(self, unit) * unit._value
+    This is a helper called when WithUnit objects need to lookup a unit
+    string.  We return the underlying _value, because that is what the C
+    API knows how to handle."""
+    unit = Unit(unitstr)
+    return unit._value
 
 @property
 def _value_unit(self):
@@ -194,7 +185,7 @@ def _value_unit(self):
     v = WithUnit._new_raw(1, self.numer, self.denom, self.exp10, self.base_units, self.display_units)
     return Unit._new_from_value(v)
 
-WithUnit._set_py_func(_value_create, _value_getitem, _value_in_units, _value_unit)
+WithUnit._set_py_func(_value_unit, _unit_val_from_str)
 
 
 _unit_cache[''] = Unit._new_from_value(WithUnit._new_raw(1,1,1,0, unitarray.DimensionlessUnit, unitarray.DimensionlessUnit))
