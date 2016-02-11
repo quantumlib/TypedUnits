@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from __future__ import division
 import fastunits.unitarray as unitarray
-from fastunits.unitarray import WithUnit, Value, Complex, ValueArray
+from fastunits.unitarray import WithUnit, Value, Complex, ValueArray, UnitMismatchError
 import fastunits.unit_grammar as unit_grammar
 
 _unit_cache = {}

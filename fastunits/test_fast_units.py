@@ -2,7 +2,7 @@
 
 import unittest
 import fastunits as U
-from fastunits import Value, Unit, Complex, ValueArray
+from fastunits import Value, Unit, Complex, ValueArray, UnitMismatchError
 import numpy as np
 
 class FastUnitsTests(unittest.TestCase):
@@ -36,9 +36,9 @@ class FastUnitsTests(unittest.TestCase):
         self.assertEqual(x + y, Value(1003, 'meter'))
         self.assertNotEqual(x, y)
         self.assertNotEqual(x, a)
-        with self.assertRaises(ValueError):
+        with self.assertRaises(UnitMismatchError):
             _ = y + a 
-        with self.assertRaises(ValueError):
+        with self.assertRaises(UnitMismatchError):
             _ = x + 3.0
         _ = x + y
         self.assertEqual(x-y, Value(997, 'm'))
@@ -77,7 +77,7 @@ class FastUnitsTests(unittest.TestCase):
     def testConversion(self):
         x = Value(3, 'm')
         self.assertEquals(x['mm'], 3000.0)
-        with self.assertRaises(TypeError):
+        with self.assertRaises(UnitMismatchError):
             x['s']
         y = Value(1000, 'Mg')
         self.assertEquals(y.inBaseUnits().value, 1000000.0)

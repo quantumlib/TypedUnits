@@ -62,6 +62,8 @@ static PyObject *unit_array_op(UnitArray *left, UnitArray *right, int sign_r);
 static PyObject *unit_array_mul(PyObject *a, PyObject *b);
 static PyObject *unit_array_div(PyObject *a, PyObject *b);
 
+static PyObject *UnitMismatchError;
+
 static PyTypeObject UnitArrayType;
 static PyTypeObject WithUnitType;
 static PyTypeObject ValueType;
@@ -221,7 +223,7 @@ unit_array_richcompare(PyObject *a, PyObject *b, int op)
 	return Py_NotImplemented;
     }
     if (op != Py_EQ && op != Py_NE) {
-	PyErr_SetString(PyExc_TypeError, "Can't compare value arrays except for equality");
+	PyErr_SetString(PyExc_TypeError, "Can't compare unit arrays except for equality");
 	return 0;
     }
     left = (UnitArray *)a;
@@ -728,7 +730,7 @@ value_add(PyObject *a, PyObject *b)
     }
 
     if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
-	PyErr_SetString(PyExc_ValueError, "WithUnit __add__ requires equivalent units");
+	PyErr_SetString(UnitMismatchError, "WithUnit __add__ requires equivalent units");
 	goto fail;
     }
 
@@ -905,7 +907,7 @@ value_divmod(PyObject *a, PyObject *b)
 	return Py_NotImplemented;
     }
     if(!PyObject_RichCompareBool((PyObject *)left->base_units, (PyObject *)right->base_units, Py_EQ)) {
-	PyErr_SetString(PyExc_ValueError, "WithUnit __divmod__ requires equivalent units");
+	PyErr_SetString(UnitMismatchError, "WithUnit __divmod__ requires equivalent units");
 	goto fail;
     }
     
@@ -1067,7 +1069,7 @@ value_complex(WithUnitObject *self, PyObject *ignore)
 {
     Py_complex c;
     if(self->base_units->ob_size != 0) {
-	PyErr_SetString(PyExc_TypeError, "Can only convert dimensionless to complex");
+	PyErr_SetString(UnitMismatchError, "Can only convert dimensionless to complex");
 	return 0;
     }
     c = PyComplex_AsCComplex(self->value);
@@ -1080,7 +1082,7 @@ static PyObject *
 value_array(WithUnitObject *self, PyObject *ignore)
 {
     if(self->base_units->ob_size != 0) {
-	PyErr_SetString(PyExc_TypeError, "Can only convert dimensionless to plain ndarray");
+	PyErr_SetString(UnitMismatchError, "Can only convert dimensionless to plain ndarray");
 	return 0;
     }
     Py_INCREF((PyObject *)self->value);
@@ -1135,7 +1137,7 @@ value_richcompare(PyObject *a, PyObject *b, int op)
 	     Py_RETURN_FALSE;
 	 if (op == Py_NE)
 	     Py_RETURN_TRUE;
-	 PyErr_SetString(PyExc_ValueError, "UnitArray comparison requires equivalent units");
+	 PyErr_SetString(UnitMismatchError, "UnitArray comparison requires equivalent units");
 	 return 0;
      }
      diff = (WithUnitObject *)value_sub((PyObject *)left, (PyObject *)right);
@@ -1250,7 +1252,7 @@ value_getitem(PyObject *obj, PyObject *key)
     }
     if(unit_val) {
 	if(!PyObject_RichCompareBool((PyObject *)self->base_units, (PyObject *)unit_val->base_units, Py_EQ)) {
-	    PyErr_SetString(PyExc_ValueError, "WithUnit __getitem__ requires equivalent units");
+	    PyErr_SetString(UnitMismatchError, "WithUnit __getitem__ requires equivalent units");
 	    return 0;
 	}
 	factor = (exp10_int(self->exp_10) * self->numer * unit_val->denom ) / (exp10_int(unit_val->exp_10) * self->denom * unit_val->numer);
@@ -1333,7 +1335,7 @@ value_setitem(WithUnitObject *self, PyObject *key, PyObject *val)
 	goto fail;
     
     if(!PyObject_RichCompareBool((PyObject *)self->base_units, (PyObject *)right->base_units, Py_EQ)) {
-	PyErr_SetString(PyExc_ValueError, "WithUnit __setitem__ requires equivalent units");
+	PyErr_SetString(UnitMismatchError, "WithUnit __setitem__ requires equivalent units");
 	goto fail;
     }
     factor_l = self->numer * 1.0 / self->denom * exp10_int(self->exp_10);
@@ -1485,7 +1487,7 @@ initunitarray(void)
 	return;
     if (PyType_Ready(&ValueArrayType) < 0)
 	return;
-
+    UnitMismatchError = PyErr_NewExceptionWithDoc("fastunits.unitarray.UnitMismatchError", "Raised when operations fail due to a unit mismatch.", PyExc_ValueError, 0);
     PyDict_SetItemString(WithUnitType.tp_dict, "__array_priority__", PyInt_FromLong(15));
     m = Py_InitModule3("unitarray", 0, "Module that creates unit arrays");
     Py_INCREF(&UnitArrayType);
@@ -1503,4 +1505,5 @@ initunitarray(void)
     PyModule_AddObject(m, "Complex", (PyObject *)&ComplexType);
     PyModule_AddObject(m, "ValueArray", (PyObject *)&ValueArrayType);
     PyModule_AddObject(m, "DimensionlessUnit", (PyObject *)dimensionless);
+    PyModule_AddObject(m, "UnitMismatchError", (PyObject *)UnitMismatchError);
 }
