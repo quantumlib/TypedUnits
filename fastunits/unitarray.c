@@ -1490,7 +1490,7 @@ initunitarray(void)
 	return;
     if (PyType_Ready(&ValueArrayType) < 0)
 	return;
-    UnitMismatchError = PyErr_NewExceptionWithDoc("fastunits.unitarray.UnitMismatchError", "Raised when operations fail due to a unit mismatch.", PyExc_ValueError, 0);
+    UnitMismatchError = PyErr_NewExceptionWithDoc("fastunits.unitarray.UnitMismatchError", "Raised when operations fail due to a unit mismatch.", PyExc_TypeError, 0);
     PyDict_SetItemString(WithUnitType.tp_dict, "__array_priority__", PyInt_FromLong(15));
     m = Py_InitModule3("unitarray", 0, "Module that creates unit arrays");
     Py_INCREF(&UnitArrayType);
