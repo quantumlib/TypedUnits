@@ -558,13 +558,16 @@ value_wrap(PyObject *obj)
 static PyObject *
 value_new(PyTypeObject *type, PyObject *args, PyObject *kwds)
 {
-    PyObject *val, *unit, *unit_val, *result;
+    PyObject *val, *unit, *unit_val=0, *result;
     char *kwlist[] = {"number", "unit", 0};
     int rv;
 
-    rv = PyArg_ParseTupleAndKeywords(args, kwds, "OO", kwlist, &val, &unit);
+    rv = PyArg_ParseTupleAndKeywords(args, kwds, "O|O", kwlist, &val, &unit);
     if(!rv)
 	return 0;
+    if(!unit)
+	return (PyObject *)value_wrap(val);
+
     unit_val = PyObject_GetAttrString(unit, "_value"); /* For Unit objects */
     if (!unit_val && PyString_Check(unit)) { /* For unit strings */
 	PyErr_Clear();
