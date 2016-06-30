@@ -223,7 +223,7 @@ SI_DERIVED_UNITS = [
     ('F', 'farad', 'J/C', 1, 1, 0, True),
     ('Ohm', 'ohm', 'V/A', 1, 1, 0, True),
     ('S', 'siemens', 'A/V', 1, 1, 0, True),
-    ('W', 'weber', 'V*s', 1, 1, 0, True),
+    ('Wb', 'weber', 'V*s', 1, 1, 0, True),
     ('T', 'tesla', 'Wb/m^2', 1, 1, 0, True),
     ('Gauss', 'gauss', 'T', 1, 1, -5, True),
     ('H', 'henry', 'Wb/A', 1, 1, 0, True),
