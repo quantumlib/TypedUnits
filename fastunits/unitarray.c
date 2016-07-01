@@ -1403,23 +1403,23 @@ static PyTypeObject WithUnitType = {
     0,                         /* ob_size */
 
     "WithUnit",                /* tp_name */
-    sizeof(WithUnitObject),    /*tp_basicsize*/
-    0,                         /*tp_itemsize*/
-    (destructor)value_dealloc, /*tp_dealloc*/
-    0,                         /*tp_print*/
-    0,                         /*tp_getattr*/
-    0,                         /*tp_setattr*/
-    0,                         /*tp_compare*/
-    (reprfunc)value_repr,      /*tp_repr*/
-    &WithUnitNumberMethods,    /*tp_as_number*/
-    0,                         /*tp_as_sequence*/
-    &WithUnitMappingMethods,   /*tp_as_mapping*/
-    (hashfunc)value_hash,      /*tp_hash */
-    0,                         /*tp_call*/
-    (reprfunc)value_str,       /*tp_str*/
-    0,                         /*tp_getattro*/
-    0,                         /*tp_setattro*/
-    0,                         /*tp_as_buffer*/
+    sizeof(WithUnitObject),    /* tp_basicsize */
+    0,                         /* tp_itemsize */
+    (destructor)value_dealloc, /* tp_dealloc */
+    0,                         /* tp_print */
+    0,                         /* tp_getattr */
+    0,                         /* tp_setattr */
+    0,                         /* tp_compare */
+    (reprfunc)value_repr,      /* tp_repr */
+    &WithUnitNumberMethods,    /* tp_as_number */
+    0,                         /* tp_as_sequence */
+    &WithUnitMappingMethods,   /* tp_as_mapping */
+    (hashfunc)value_hash,      /* tp_hash */
+    0,                         /* tp_call */
+    (reprfunc)value_str,       /* tp_str */
+    0,                         /* tp_getattro */
+    0,                         /* tp_setattro */
+    0,                         /* tp_as_buffer */
     Py_TPFLAGS_DEFAULT|Py_TPFLAGS_CHECKTYPES,        /*tp_flags*/
     "Unit Array object",       /* tp_doc */
     0,                         /* tp_traverse */
@@ -1443,18 +1443,18 @@ static PyTypeObject WithUnitType = {
 
 static PyTypeObject ValueType = {
     PyObject_HEAD_INIT(NULL) 
-    0,                               /* ob_size */
-    "Value",                       /* tp_name */
+    0,                            /* ob_size */
+    "Value",                      /* tp_name */
     sizeof(WithUnitObject),       /*tp_basicsize*/
-    0                         /*tp_itemsize*/
+    0                             /*tp_itemsize*/
 };
 
 static PyTypeObject ComplexType = {
     PyObject_HEAD_INIT(NULL) 
-    0,                               /* ob_size */
-    "Complex",                       /* tp_name */
+    0,                            /* ob_size */
+    "Complex",                    /* tp_name */
     sizeof(WithUnitObject),       /*tp_basicsize*/
-    0                         /*tp_itemsize*/
+    0                             /*tp_itemsize*/
 };
 
 static PyTypeObject ValueArrayType = {
