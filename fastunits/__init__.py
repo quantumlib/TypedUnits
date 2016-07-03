@@ -225,7 +225,7 @@ SI_DERIVED_UNITS = [
     ('S', 'siemens', 'A/V', 1, 1, 0, True),
     ('W', 'weber', 'V*s', 1, 1, 0, True),
     ('T', 'tesla', 'Wb/m^2', 1, 1, 0, True),
-    ('Gauss', 'gauss', 'T', 1, 1, -5, True),
+    ('Gauss', 'gauss', 'T', 1, 1, -4, True),
     ('H', 'henry', 'Wb/A', 1, 1, 0, True),
     ('lm', 'lumen', 'cd*sr', 1, 1, 0, True),
     ('lx', 'lux', 'lm/m^2', 1, 1, 0, True),
