@@ -12,3 +12,8 @@ from fastunits import Value, meter
 print Value(2, 'km') / Value(3, 's')
 print 3*meter + 5*meter
 ```
+# Building
+
+In the `pythonunits` directory, run:
+
+    python setup.py build_ext --inplace
