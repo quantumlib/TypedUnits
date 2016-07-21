@@ -1,8 +1,9 @@
-from distutils.core import setup, Extension
-import numpy as np
+from distutils.core import setup
+from Cython.Build import cythonize
 
-setup(name="fastunits", version="1.0",
-      packages = ['fastunits'],
-      include_dirs = [np.get_include()],
-      ext_modules=[Extension("fastunits.unitarray", 
-                             sources = ["fastunits/unitarray.c"])])
+setup(
+    name="fastunits",
+    version="1.0",
+    packages=['fastunits'],
+    ext_modules=cythonize("fastunits/unitarray.pyx"),
+    requires=['Cython', 'numpy'])

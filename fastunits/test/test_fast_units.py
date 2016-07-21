@@ -13,7 +13,7 @@ class FastUnitsTests(unittest.TestCase):
         self.assertIsInstance(y, Value)
         self.assertTrue(x.isDimensionless())
         self.assertIsInstance(3j*x, Complex)
-        self.assertIsInstance(np.arange(5)*U.ns, ValueArray)
+        self.assertIsInstance(U.ns*np.arange(5), ValueArray)
 
     def testDimensionless(self):
         """Test that dimensionless values act like floats"""
@@ -23,21 +23,21 @@ class FastUnitsTests(unittest.TestCase):
         self.assertEqual(np.ceil(x), 2.)
         self.assertEqual(np.floor(x), 1.)
         self.assertEqual(y, 1500.)
-    
+
     def testValueArraySlicing(self):
         x = np.arange(5)*U.ns
         self.assertTrue(np.allclose(x[::2]['ns'], np.array([0., 2., 4.])))
-        
+
     def testAddition(self):
         n = Value(2, '')
-        x = Value(1.0, U.kilometer);
-        y = Value(3, 'meter');
-        a = Value(20, 's');
+        x = Value(1.0, U.kilometer)
+        y = Value(3, 'meter')
+        a = Value(20, 's')
         self.assertEqual(x + y, Value(1003, 'meter'))
         self.assertNotEqual(x, y)
         self.assertNotEqual(x, a)
         with self.assertRaises(UnitMismatchError):
-            _ = y + a 
+            _ = y + a
         with self.assertRaises(UnitMismatchError):
             _ = x + 3.0
         _ = x + y
@@ -56,7 +56,7 @@ class FastUnitsTests(unittest.TestCase):
         self.assertTrue((z/U.ns).isDimensionless())
         self.assertIsInstance(z/U.ns, ValueArray)
         self.assertTrue(np.allclose(z*Value(5, 'GHz'), z['ns']*5))
-        
+
     def testPower(self):
         x = 2*U.mm
         y = 4*U.mm
@@ -65,9 +65,12 @@ class FastUnitsTests(unittest.TestCase):
 
     def testStringification(self):
         x = Value(4, U.mm)
-        self.assertEqual(repr(x), 'Value(4.0, "mm")')
-        self.assertEqual(str(x), '4.0 mm');
-        
+        self.assertEqual(
+            repr(x),
+            "WithUnit.raw(4.0, 1, 1, -3, UnitArray.raw([('m', 1, 1)]), " +
+            "UnitArray.raw([('mm', 1, 1)]))")
+        self.assertEqual(str(x), '4.0 mm')
+
     def testDivmod(self):
         x = 4.001*U.us
         self.assertEquals(x//(4*U.ns), 1000)

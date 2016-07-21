@@ -10,7 +10,7 @@ class Unit(object):
 
     Values defined in unit_array do not actually store a unit object, the unit names and powers
     are stored within the value object itself.  However, when constructing new values or converting
-    betwee units, we need a database of known units.
+    between units, we need a database of known units.
     """
     __array_priority__ = 15
     __slots__ = ['_value']
@@ -57,7 +57,7 @@ class Unit(object):
         numer = numer * base_unit._value.numer
         denom = denom * base_unit._value.denom
         exp10 = exp10 + base_unit._value.exp10
-        val = WithUnit._new_raw(1, numer, denom, exp10, base_unit._value.base_units, unitarray.UnitArray(name))
+        val = WithUnit.raw(1, numer, denom, exp10, base_unit._value.base_units, unitarray.UnitArray(name))
         result = cls._new_from_value(val)
         _unit_cache[name] = result
         return result
@@ -67,7 +67,7 @@ class Unit(object):
         if name in _unit_cache:
             raise RuntimeError("Trying to create unit that already exists")
         ua = unitarray.UnitArray(name)
-        val = WithUnit._new_raw(1, 1, 1, 0, ua, ua)
+        val = WithUnit.raw(1, 1, 1, 0, ua, ua)
         result = cls._new_from_value(val)
         _unit_cache[name] = result
         return result
@@ -76,7 +76,7 @@ class Unit(object):
     def parse_unit_str(cls, name):
         parsed = unit_grammar.unit.parseString(name)
         result = Unit('')
-          
+
         for item in parsed.posexp:
             element = cls._unit_from_parse_item(item, 0)
             result = result * element
@@ -87,16 +87,16 @@ class Unit(object):
     # Unit arithmetic is used in two ways: to build compound units
     # or to build new Value instances by multiplying a scalar by
     # a unit object.  Since a "Unit" just has an internal value,
-    # representing its units, the later just gets delegated to 
+    # representing its units, the later just gets delegated to
     # Value arithmetic.
     def __mul__(self, other):
         if isinstance(other, Unit):
-            return Unit._new_from_value(other._value * self._value)
-        result = other * self._value
+            return Unit._new_from_value(self._value * other._value)
+        result = self._value * other
         return result
 
     __rmul__ = __mul__
-    
+
     def __div__(self, other):
         if isinstance(other, Unit):
             return Unit._new_from_value(self._value/other._value)
@@ -128,7 +128,7 @@ class Unit(object):
 
     def __str__(self):
         return str(self._value.display_units)
-    
+
     def __eq__(self, other):
         if not isinstance(other, Unit):
             return NotImplemented
@@ -147,7 +147,7 @@ class Unit(object):
 
     def converstionTupleTo(self, other):
         """Deprecated.
-        
+
         This was needed for support of degree scales with zero offsets like degF and degC.  This library
         doesn't support them, so offset is always 0.
         """
@@ -163,14 +163,13 @@ class Unit(object):
 # The next two methods are called from the C implementation
 # of Value() to implement the parts of the API that interact
 # with Unit objects (in particular, the cache of known unit
-# instances)-- unit conversion and new object creation.  
+# instances)-- unit conversion and new object creation.
 # It is not allowed to directly modify C PyTypeObjects from python
 # so we need a helper method to set these, which is done in
 # Value._set_py_func
 
 
-@classmethod
-def _unit_val_from_str(cls, unitstr):
+def _unit_val_from_str(unitstr):
     """Lookup a unit by name.
 
     This is a helper called when WithUnit objects need to lookup a unit
@@ -179,16 +178,15 @@ def _unit_val_from_str(cls, unitstr):
     unit = Unit(unitstr)
     return unit._value
 
-@property
-def _value_unit(self):
+def _value_unit(withUnit):
     """This is called by Value to implement the .unit property"""
-    v = WithUnit._new_raw(1, self.numer, self.denom, self.exp10, self.base_units, self.display_units)
+    v = WithUnit._new_raw(1, withUnit.numer, withUnit.denom, withUnit.exp10, withUnit.base_units, withUnit.display_units)
     return Unit._new_from_value(v)
 
-WithUnit._set_py_func(_value_unit, _unit_val_from_str)
+unitarray.init_base_unit_functions(_value_unit, _unit_val_from_str)
 
 
-_unit_cache[''] = Unit._new_from_value(WithUnit._new_raw(1,1,1,0, unitarray.DimensionlessUnit, unitarray.DimensionlessUnit))
+_unit_cache[''] = Unit._new_from_value(WithUnit.raw(1,1,1,0, unitarray.DimensionlessUnit, unitarray.DimensionlessUnit))
 
 SI_PREFIX_SHORT = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y']
 SI_PREFIX_LONG = ['yotta', 'zetta', 'exa', 'peta', 'tera', 'giga', 'mega', 'kilo', 'hecto', 'deka', 'deci', 'centi', 'milli', 'micro', 'nano', 'pico', 'femto', 'atto', 'zepto', 'yocto']
@@ -199,7 +197,7 @@ SI_BASE_UNIT_FULL = ['meter', 'kilogram', 'second', 'ampere', 'kelvin', 'mole', 
 for name, long_name in zip(SI_BASE_UNITS, SI_BASE_UNIT_FULL):
     Unit._new_base_unit(name)
     Unit._new_derived_unit(long_name, 1, 1, 0, name)
-    
+
     if (name == 'kg'):
         Unit._new_derived_unit('g', 1, 1, -3, name)
         Unit._new_derived_unit('gram', 1, 1, -3, name)
@@ -249,7 +247,7 @@ OTHER_DERIVED_UNITS = [
 for (short_name, long_name, base, numer, denom, exp10) in OTHER_DERIVED_UNITS:
     Unit._new_derived_unit(short_name, numer, denom, exp10, base)
     Unit._new_derived_unit(long_name, numer, denom, exp10, base)
-    
+
 OTHER_BASE_UNITS = [
     'dB', 'dBm' ]
 for name in OTHER_BASE_UNITS:
