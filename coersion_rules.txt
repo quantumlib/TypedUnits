@@ -1,25 +1,29 @@
 
 
-		float, Value, complex, Complex, ndarray,   ValueArray
-float		 N/A   Value*   N/A    Complex*   N/A	   ValueArray*
-		 N/A   Value	N/A    Complex    N/A        Value
+                float   complex  ndarray  Value  Complex  ValueArray
+float            ---      ---      ---      V*      C*        V[]*
+                 ---      ---      ---      V       C         V
 
-Value		Value  Value*  Complex Complex*  ValueArray  ValueArray*
-		Value* Value*  Complex Complex   Value*	     Value*
+complex          ---      ---      ---      C       C*        V[]*
+                 ---      ---      ---      C       C         C
 
-complex		N/A    Complex   N/A   Complex*  N/A	      ValueArray*
-		N/A    Complex   N/A   Complex	 N/A	      Complex
+ndarray          ---      ---      ---      V*      C*        V[]*
+                  V[]     ---      ---      V[]     V[]       V[]
 
+Value             V        C        V[]     V*      C*        V[]*
+                  V*       C        V*      V*      C         V*
 
-Complex	      Complex  Complex Complex  Complex*  ValueArray  ValueArray*
-	      Complex* Complex* Complex* Complex* Complex*    Complex*
+Complex           C        C        V[]     C       C*        V[]*
+                  C*       C*       C*      C*      C*        C*
 
-ndarray	      N/A      Value*	N/A	 Complex* N/A	      ValueArray*
-	      ValueArray VA    N/A	 ValueArr N/A	      ValueArray 
+ValueArray        V        C        V[]     V*      C*        V[]*
+                  V[]      C        V[]     V*      C*        V[]*
 
-ValueArray    Value	Value* Complex	 Complex* ValueArray  ValueArray*
-	      ValueArray ..........................................
-
+C = Complex
+C* = Complex*
+V* = Value*
+V[] = ValueArray
+V[]* = ValueArray*
 
 Array/VA always change to value VA
 complex -> Complex
