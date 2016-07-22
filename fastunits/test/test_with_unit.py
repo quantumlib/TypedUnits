@@ -1,4 +1,6 @@
 #!/usr/bin/python
+import copy
+import numpy as np
 import unittest
 from fastunits.unitarray import WithUnit, UnitArray, DimensionlessUnit
 
@@ -66,6 +68,73 @@ class WithUnitTests(unittest.TestCase):
                             self.assertNotEqual(e1, e2)
                         self.assertEqual(e1 == e2, match)
                         self.assertEqual(e1 != e2, not match)
+
+    def testFloat(self):
+        self.assertRaises(lambda e: float(WithUnit.raw(1, 2, 3, 4, mps, kph)))
+        self.assertRaises(lambda e: float(
+            WithUnit.raw(1j, 2, 3, 4, DimensionlessUnit, DimensionlessUnit)))
+        self.assertRaises(lambda e: float(WithUnit.raw(
+            np.array([1, 2]), 2, 3, 4, DimensionlessUnit, DimensionlessUnit)))
+
+        u = float(
+            WithUnit.raw(5, 1, 1, 0, DimensionlessUnit, DimensionlessUnit))
+        self.assertIsInstance(u, float)
+        self.assertEqual(u, 5)
+
+        self.assertEqual(float(
+            WithUnit.raw(1, 2, 3, 4, DimensionlessUnit, DimensionlessUnit)),
+            2.0 / 3.0 * 1E4)
+
+    def testComplex(self):
+        self.assertRaises(lambda e: complex(WithUnit.raw(1j, 2, 3, 4, mps, kph)))
+        self.assertRaises(lambda e: complex(WithUnit.raw(
+            np.array([1, 2]), 2, 3, 4, DimensionlessUnit, DimensionlessUnit)))
+
+        u = complex(
+            WithUnit.raw(5, 1, 1, 0, DimensionlessUnit, DimensionlessUnit))
+        self.assertIsInstance(u, complex)
+        self.assertEqual(u, 5)
+
+        self.assertEqual(complex(
+            WithUnit.raw(1, 2, 3, 4, DimensionlessUnit, DimensionlessUnit)),
+            2.0 / 3.0 * 1E4)
+        self.assertEqual(complex(
+            WithUnit.raw(1+3j, 2, 5, 4, DimensionlessUnit, DimensionlessUnit)),
+            (1+3j) * 2.0 / 5.0 * 1E4)
+
+    def testArray(self):
+        self.assertRaises(lambda e: np.array(
+            WithUnit.raw(np.array([1, 2]), 2, 3, 4, mps, kph)))
+        self.assertRaises(lambda e: np.array(
+            WithUnit.raw(1, 2, 3, 4, DimensionlessUnit, DimensionlessUnit)))
+
+        u = np.array(WithUnit.raw(
+            np.array([2, 3]), 1, 1, 0, DimensionlessUnit, DimensionlessUnit))
+        self.assertIsInstance(u, np.ndarray)
+        self.assertTrue(np.all(np.array([2, 3]) == u))
+
+        self.assertTrue(np.all(np.array(WithUnit.raw(
+            np.array([2, 3]), 2, 3, 4, DimensionlessUnit, DimensionlessUnit)) ==
+            np.array([4.0 / 3.0 * 1E4, 2E4])))
+
+    def testCopy(self):
+        a = WithUnit.raw(1, 2, 3, 4, mps, kph)
+        self.assertIs(a, copy.copy(a))
+        self.assertIs(a, copy.deepcopy(a))
+
+        b = WithUnit.raw(1+2j, 2, 3, 4, mps, kph)
+        self.assertIs(b, copy.copy(b))
+        self.assertIs(b, copy.deepcopy(b))
+
+        c = WithUnit.raw(np.array([10, 11]), 2, 3, 4, mps, kph)
+        self.assertIsNot(c, copy.copy(c))
+        self.assertIsNot(c, copy.deepcopy(c))
+        self.assertTrue(np.all(c == copy.copy(c)))
+        self.assertTrue(np.all(c == copy.deepcopy(c)))
+
+        c2 = copy.copy(c)
+        c[1] = WithUnit.raw(52, 1, 1, 0, mps, mps)
+        self.assertFalse(np.all(c == c2))
 
 if __name__ == "__main__":
     unittest.main()

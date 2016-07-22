@@ -1,6 +1,7 @@
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
 from cpython.object cimport Py_EQ, Py_NE, Py_LE, Py_GE, Py_LT, Py_GT
+import copy
 import math
 import numpy as np
 
@@ -531,15 +532,13 @@ cdef class WithUnit:
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
                 "Only dimensionless values can be stripped into a float.")
-        # TODO: BUT WHAT ABOUT SCALING FACTORS?
-        return float(self.value)
+        return self._scale_to_double() * float(self.value)
 
     def __complex__(self):
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
                 "Only dimensionless values can be stripped into a complex.")
-        # TODO: BUT WHAT ABOUT SCALING FACTORS?
-        return complex(self.value)
+        return self._scale_to_double() * complex(self.value)
 
     def __richcmp__(a, b, int op):
         cdef WithUnit left
@@ -550,6 +549,7 @@ cdef class WithUnit:
         except:
             return NotImplemented
 
+        # Check units.
         if left.base_units != right.base_units:
             if op == Py_EQ:
                 return False
@@ -557,24 +557,32 @@ cdef class WithUnit:
                 return True
             raise UnitMismatchError("Comparands have different units.")
 
+        # Compute scaled comparand values, without dividing.
+        u = left.value
+        v = right.value
+        cdef frac f = frac_div(left.ratio, right.ratio)
+        cdef int e = left.exp10 - right.exp10
+        if e > 0:
+            u = u * (f.numer * c_pow(10, e))
+            v = v * f.denom
+        else:
+            u = u * f.numer
+            v = v * (f.denom * c_pow(10, -e))
+
+        # Delegate to value comparison.
         if op == Py_EQ:
-            if right.value == 0:
-                return left.value == 0
-            # Division is much less sensitive to error than subtraction here.
-            return (left / right).inBaseUnits().value == 1
+            return u == v
         elif op == Py_NE:
-            if right.value == 0:
-                return left.value != 0
-            # Division is much less sensitive to error than subtraction here.
-            return (left / right).inBaseUnits().value != 1
+            return u != v
         elif op == Py_LT:
-            return (left - right).value < 0
+            return u < v
         elif op == Py_GT:
-            return (left - right).value > 0
+            return u > v
         elif op == Py_LE:
-            return (left - right).value <= 0
+            return u <= v
         elif op == Py_GE:
-            return (left - right).value >= 0
+            return u >= v
+
         return NotImplemented
 
     def __str__(self):
@@ -591,11 +599,9 @@ cdef class WithUnit:
         ])
     
     def __copy__(self):
-        # TODO: BUT WHAT ABOUT SETITEM BEING IMPLEMENTED?
         return self
 
-    def __deepcopy__(self):
-        # TODO: BUT WHAT ABOUT SETITEM BEING IMPLEMENTED?
+    def __deepcopy__(self, memo):
         return self
     
     def inBaseUnits(self):
@@ -641,9 +647,9 @@ cdef class WithUnit:
 
     def __array__(self):
         if self.base_units.unit_count != 0:
-            return self.__with_value(np.array(self.value))
-        # TODO: BUT WHAT ABOUT SCALING FACTORS?
-        return np.array(self.value)
+            raise UnitMismatchError(
+                "Only dimensionless values can be stripped into an array.")
+        return np.array(self._scale_to_double() * self.value)
 
     def __array_priority__(self):
         return 15
@@ -666,12 +672,18 @@ class Complex(WithUnit):
 
 
 class ValueArray(WithUnit):
-    def __setitem__(self, key, val):
+    def __setitem__(WithUnit self, key, val):
         cdef WithUnit right = WithUnit.wrap(val)
         if self.base_units != right.base_units:
             raise UnitMismatchError("Item's units don't match array's units.")
         cdef double f = self._scale_to_double() / right._scale_to_double()
         self.value[key] = right.value * f
+
+    def __copy__(WithUnit self):
+        return self.__with_value(copy.copy(self.value))
+
+    def __deepcopy__(WithUnit self, memo):
+        return self.__with_value(copy.deepcopy(self.value))
 
 
 class UnitMismatchError(TypeError):
