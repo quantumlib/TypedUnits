@@ -5,9 +5,6 @@ from fastunits import Value
 
 class UsageTests(unittest.TestCase):
     def testParsingByComparison(self):
-        self.assertRaises(lambda: Value(1, 'junk'))
-        self.assertRaises(lambda: Value(1, 'kminute'))
-
         self.assertLess(Value(1, 'in'), Value(1, 'm'))
         self.assertLess(Value(1, 'cm'), Value(1, 'in'))
         self.assertLess(Value(1, 'gauss'), Value(1, 'mT'))
@@ -16,6 +13,7 @@ class UsageTests(unittest.TestCase):
         self.assertEqual(Value(10, 'Mg'), Value(10000, 'kg'))
         self.assertEqual(Value(10, 'Mg'), Value(10000000, 'g'))
         self.assertNotEqual(Value(10, 'decibel'), Value(10, 'mol'))
+        self.assertEqual(Value(1, 'millisecond'), Value(1, 'ms'))
         self.assertEqual(Value(1, ''), Value(1, 'm/m'))
 
     def testRadiansVsSteradians(self):
