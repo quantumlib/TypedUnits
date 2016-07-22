@@ -3,6 +3,7 @@ from __future__ import division
 import fastunits.unitarray as unitarray
 from fastunits.unitarray import WithUnit, Value, Complex, ValueArray, UnitMismatchError
 import fastunits.unit_grammar as unit_grammar
+from prefix_data import SI_PREFIXES
 
 _unit_cache = {}
 class Unit(object):
@@ -188,9 +189,6 @@ unitarray.init_base_unit_functions(_value_unit, _unit_val_from_str)
 
 _unit_cache[''] = Unit._new_from_value(WithUnit.raw(1,1,1,0, unitarray.DimensionlessUnit, unitarray.DimensionlessUnit))
 
-SI_PREFIX_SHORT = ['Y', 'Z', 'E', 'P', 'T', 'G', 'M', 'k', 'h', 'da', 'd', 'c', 'm', 'u', 'n', 'p', 'f', 'a', 'z', 'y']
-SI_PREFIX_LONG = ['yotta', 'zetta', 'exa', 'peta', 'tera', 'giga', 'mega', 'kilo', 'hecto', 'deka', 'deci', 'centi', 'milli', 'micro', 'nano', 'pico', 'femto', 'atto', 'zepto', 'yocto']
-SI_PREFIX_POWER = [ 24,  21,  18,  15,  12,   9,  6,   3,   2,   1,   -1,  -2,  -3,  -6,  -9,  -12, -15, -18, -21, -24]
 SI_BASE_UNITS = ['m', 'kg', 's', 'A', 'K', 'mol', 'cd', 'rad', 'sr']
 SI_BASE_UNIT_FULL = ['meter', 'kilogram', 'second', 'ampere', 'kelvin', 'mole', 'candela', 'radian', 'steradian']
 
@@ -204,11 +202,11 @@ for name, long_name in zip(SI_BASE_UNITS, SI_BASE_UNIT_FULL):
         name = 'g'
         long_name = 'gram'
 
-    for short_prefix, long_prefix, power in zip(SI_PREFIX_SHORT, SI_PREFIX_LONG, SI_PREFIX_POWER):
-        if (name == 'g' and short_prefix == 'k'):
+    for pre in SI_PREFIXES:
+        if (name == 'g' and pre.symbol == 'k'):
             continue
-        Unit._new_derived_unit(short_prefix+name, 1, 1, power, name)
-        Unit._new_derived_unit(long_prefix+long_name, 1, 1, power, name)
+        Unit._new_derived_unit(pre.symbol + name, 1, 1, pre.exponent, name)
+        Unit._new_derived_unit(pre.name + long_name, 1, 1, pre.exponent, name)
 
 SI_DERIVED_UNITS = [
     ('Hz', 'hertz', '1/s', 1, 1, 0, True),
@@ -233,9 +231,11 @@ SI_DERIVED_UNITS = [
 for (short_name, long_name, base, numer, denom, exp10, prefixable) in SI_DERIVED_UNITS:
     Unit._new_derived_unit(short_name, numer, denom, exp10, base)
     Unit._new_derived_unit(long_name, numer, denom, exp10, base)
-    for short_prefix, long_prefix, power in zip(SI_PREFIX_SHORT, SI_PREFIX_LONG, SI_PREFIX_POWER):
-        Unit._new_derived_unit(short_prefix+short_name, 1, 1, power+exp10, base)
-        Unit._new_derived_unit(long_prefix+long_name, 1, 1, power+exp10, base)
+    for pre in SI_PREFIXES:
+        Unit._new_derived_unit(
+            pre.symbol + short_name, 1, 1, pre.exponent + exp10, base)
+        Unit._new_derived_unit(
+            pre.name + long_name, 1, 1, pre.exponent + exp10, base)
 
 OTHER_DERIVED_UNITS = [
     ('in', 'inch', 'cm', 254, 1, -2),
