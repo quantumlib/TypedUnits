@@ -4,6 +4,7 @@ import fastunits.unitarray as unitarray
 from fastunits.unitarray import WithUnit, Value, Complex, ValueArray, UnitMismatchError
 import fastunits.unit_grammar as unit_grammar
 from prefix_data import SI_PREFIXES
+from derived_unit_data import ALL_DERIVED_UNITS
 
 _unit_cache = {}
 class Unit(object):
@@ -208,45 +209,32 @@ for name, long_name in zip(SI_BASE_UNITS, SI_BASE_UNIT_FULL):
         Unit._new_derived_unit(pre.symbol + name, 1, 1, pre.exponent, name)
         Unit._new_derived_unit(pre.name + long_name, 1, 1, pre.exponent, name)
 
-SI_DERIVED_UNITS = [
-    ('Hz', 'hertz', '1/s', 1, 1, 0, True),
-    ('N', 'newton', 'kg*m/s^2', 1, 1, 0, True),
-    ('Pa', 'pascal', 'N/m^2', 1, 1, 0, True),
-    ('J', 'joule', 'N*m', 1, 1, 0, True),
-    ('W', 'watt', 'J/s', 1, 1, 0, True),
-    ('C', 'coulomb', 'A*s', 1, 1, 0, True),
-    ('V', 'volt', 'W/A', 1, 1, 0, True),
-    ('F', 'farad', 'J/C', 1, 1, 0, True),
-    ('Ohm', 'ohm', 'V/A', 1, 1, 0, True),
-    ('S', 'siemens', 'A/V', 1, 1, 0, True),
-    ('Wb', 'weber', 'V*s', 1, 1, 0, True),
-    ('T', 'tesla', 'Wb/m^2', 1, 1, 0, True),
-    ('Gauss', 'gauss', 'T', 1, 1, -4, True),
-    ('H', 'henry', 'Wb/A', 1, 1, 0, True),
-    ('lm', 'lumen', 'cd*sr', 1, 1, 0, True),
-    ('lx', 'lux', 'lm/m^2', 1, 1, 0, True),
-    ('Bq', 'becqurel', 'Hz', 1, 1, 0, True)
-    ]
+for der in ALL_DERIVED_UNITS:
+    Unit._new_derived_unit(der.symbol,
+                           der.numerator,
+                           der.denominator,
+                           der.exponent,
+                           der.base_unit_expression)
 
-for (short_name, long_name, base, numer, denom, exp10, prefixable) in SI_DERIVED_UNITS:
-    Unit._new_derived_unit(short_name, numer, denom, exp10, base)
-    Unit._new_derived_unit(long_name, numer, denom, exp10, base)
-    for pre in SI_PREFIXES:
-        Unit._new_derived_unit(
-            pre.symbol + short_name, 1, 1, pre.exponent + exp10, base)
-        Unit._new_derived_unit(
-            pre.name + long_name, 1, 1, pre.exponent + exp10, base)
+    Unit._new_derived_unit(der.name,
+                           der.numerator,
+                           der.denominator,
+                           der.exponent,
+                           der.base_unit_expression)
 
-OTHER_DERIVED_UNITS = [
-    ('in', 'inch', 'cm', 254, 1, -2),
-    ('d', 'day', 's', 864, 1, 2),
-    ('hr', 'hour', 's', 36, 1, 2),
-    ('min', 'minute', 's', 6, 1, 1),
-    ('yr', 'year', 'day', 36525, 1, -2)]
+    if der.use_prefixes:
+        for pre in SI_PREFIXES:
+            Unit._new_derived_unit(pre.symbol + der.symbol,
+                                   der.numerator,
+                                   der.denominator,
+                                   pre.exponent + der.exponent,
+                                   der.base_unit_expression)
 
-for (short_name, long_name, base, numer, denom, exp10) in OTHER_DERIVED_UNITS:
-    Unit._new_derived_unit(short_name, numer, denom, exp10, base)
-    Unit._new_derived_unit(long_name, numer, denom, exp10, base)
+            Unit._new_derived_unit(pre.name + der.name,
+                                   der.numerator,
+                                   der.denominator,
+                                   pre.exponent + der.exponent,
+                                   der.base_unit_expression)
 
 OTHER_BASE_UNITS = [
     'dB', 'dBm' ]
