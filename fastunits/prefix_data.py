@@ -4,7 +4,6 @@ class Prefix:
         self.name = name
         self.exponent = exponent
 
-
 SI_PREFIXES = [
     Prefix('Y', 'yotta', 24),
     Prefix('Z', 'zetta', 21),

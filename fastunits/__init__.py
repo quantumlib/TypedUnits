@@ -3,8 +3,9 @@ from __future__ import division
 import fastunits.unitarray as unitarray
 from fastunits.unitarray import WithUnit, Value, Complex, ValueArray, UnitMismatchError
 import fastunits.unit_grammar as unit_grammar
-from prefix_data import SI_PREFIXES
+from base_unit_data import ALL_BASE_UNITS
 from derived_unit_data import ALL_DERIVED_UNITS
+from prefix_data import SI_PREFIXES
 
 _unit_cache = {}
 class Unit(object):
@@ -188,26 +189,37 @@ def _value_unit(withUnit):
 unitarray.init_base_unit_functions(_value_unit, _unit_val_from_str)
 
 
-_unit_cache[''] = Unit._new_from_value(WithUnit.raw(1,1,1,0, unitarray.DimensionlessUnit, unitarray.DimensionlessUnit))
+_unit_cache[''] = Unit._new_from_value(WithUnit(1))
 
-SI_BASE_UNITS = ['m', 'kg', 's', 'A', 'K', 'mol', 'cd', 'rad', 'sr']
-SI_BASE_UNIT_FULL = ['meter', 'kilogram', 'second', 'ampere', 'kelvin', 'mole', 'candela', 'radian', 'steradian']
 
-for name, long_name in zip(SI_BASE_UNITS, SI_BASE_UNIT_FULL):
-    Unit._new_base_unit(name)
-    Unit._new_derived_unit(long_name, 1, 1, 0, name)
+for base in ALL_BASE_UNITS:
+    symbol = base.symbol
+    name = base.name
+    Unit._new_base_unit(base.symbol)
+    Unit._new_derived_unit(base.name, 1, 1, 0, base.symbol)
 
-    if (name == 'kg'):
-        Unit._new_derived_unit('g', 1, 1, -3, name)
-        Unit._new_derived_unit('gram', 1, 1, -3, name)
-        name = 'g'
-        long_name = 'gram'
+    if symbol == 'kg':
+        symbol = 'g'
+        name = 'gram'
+        Unit._new_derived_unit(symbol, 1, 1, -3, 'kg')
+        Unit._new_derived_unit(name, 1, 1, -3, 'kg')
 
-    for pre in SI_PREFIXES:
-        if (name == 'g' and pre.symbol == 'k'):
-            continue
-        Unit._new_derived_unit(pre.symbol + name, 1, 1, pre.exponent, name)
-        Unit._new_derived_unit(pre.name + long_name, 1, 1, pre.exponent, name)
+    if base.use_prefixes:
+        for pre in SI_PREFIXES:
+            if symbol == 'g' and pre.symbol == 'k':
+                continue
+
+            Unit._new_derived_unit(pre.symbol + symbol,
+                                   1,
+                                   1,
+                                   pre.exponent,
+                                   symbol)
+
+            Unit._new_derived_unit(pre.name + name,
+                                   1,
+                                   1,
+                                   pre.exponent,
+                                   symbol)
 
 for der in ALL_DERIVED_UNITS:
     Unit._new_derived_unit(der.symbol,
@@ -235,11 +247,6 @@ for der in ALL_DERIVED_UNITS:
                                    der.denominator,
                                    pre.exponent + der.exponent,
                                    der.base_unit_expression)
-
-OTHER_BASE_UNITS = [
-    'dB', 'dBm' ]
-for name in OTHER_BASE_UNITS:
-    Unit._new_base_unit(name)
 
 # Make all the unit objects module variables.
 for k,v in _unit_cache.items():
