@@ -13,7 +13,6 @@ SI_BASE_UNITS = [
     BaseUnit('mol', 'mole'),
     BaseUnit('cd', 'candela'),
     BaseUnit('rad', 'radian'),
-    BaseUnit('sr', 'steradian'),
 ]
 
 OTHER_BASE_UNITS = [

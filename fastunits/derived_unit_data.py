@@ -15,6 +15,10 @@ class DerivedUnit:
         self.denominator = denominator
         self.use_prefixes = use_prefixes
 
+SI_REDUNDANT_BASE_UNITS = [
+    DerivedUnit('sr', 'steradian', 'rad^2'),
+]
+
 SI_DERIVED_UNITS = [
     DerivedUnit('Hz', 'hertz', '1/s'),
     DerivedUnit('N', 'newton', 'kg*m/s^2'),
@@ -32,15 +36,15 @@ SI_DERIVED_UNITS = [
     DerivedUnit('H', 'henry', 'Wb/A'),
     DerivedUnit('lm', 'lumen', 'cd*sr'),
     DerivedUnit('lx', 'lux', 'lm/m^2'),
-    DerivedUnit('Bq', 'becqurel', 'Hz')
+    DerivedUnit('Bq', 'becqurel', 'Hz'),
 ]
 
-OTHER_DERIVED_UNITS = [
+OTHER_UNITS = [
     DerivedUnit('in', 'inch', 'cm', -2, 254, 1, False),
     DerivedUnit('d', 'day', 's', 2, 864, 1, False),
     DerivedUnit('hr', 'hour', 's', 2, 36, 1, False),
     DerivedUnit('min', 'minute', 's', 1, 6, 1, False),
-    DerivedUnit('yr', 'year', 'day', -2, 36525, 1, False)
+    DerivedUnit('yr', 'year', 'day', -2, 36525, 1, False),
 ]
 
-ALL_DERIVED_UNITS = SI_DERIVED_UNITS + OTHER_DERIVED_UNITS
+ALL_DERIVED_UNITS = SI_REDUNDANT_BASE_UNITS + SI_DERIVED_UNITS + OTHER_UNITS
