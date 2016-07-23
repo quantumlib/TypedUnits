@@ -611,7 +611,20 @@ cdef class WithUnit:
 
     def isDimensionless(self):
         return self.base_units.unit_count == 0
-    
+
+    def isAngle(self):
+        if self.base_units.unit_count != 1:
+            return False
+        cdef UnitTerm unit = self.base_units.units[0]
+        return unit.power.numer == 1 \
+            and unit.power.denom == 1 \
+            and <str>unit.name == "rad"
+
+    property is_angle:
+        def __get__(self):
+            return self.isAngle()
+
+
     def __getitem__(self, key):
         cdef WithUnit unit_val
         if isinstance(key, slice):

@@ -5,7 +5,8 @@ from __future__ import division
 from fastunits.unitarray import Value, \
                                 Complex, \
                                 ValueArray, \
-                                UnitMismatchError
+                                UnitMismatchError, \
+                                WithUnit
 from unit import Unit
 
 # Expose defined units as module variables.

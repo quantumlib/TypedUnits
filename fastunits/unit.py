@@ -161,8 +161,12 @@ class Unit(object):
     def isDimensionless(self):
         return self._value.isDimensionless()
 
+    @property
+    def is_angle(self):
+        return self.isAngle()
+
     def isAngle(self):
-        return self._value.base_units == _unit_cache['rad'].base_units
+        return self._value.base_units == _unit_cache['rad']._value.base_units
 
 # The next two methods are called from the C implementation
 # of Value() to implement the parts of the API that interact
