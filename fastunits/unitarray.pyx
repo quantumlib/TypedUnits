@@ -666,8 +666,9 @@ cdef class WithUnit:
         #       FLOATING POINT ERROR PERTURBING THEIR KEYS
         return hash(self.inBaseUnits().value)
 
-    def unit(self):
-        return __unit(self)
+    property unit:
+        def __get__(self):
+            return __unit(self)
 
     def __array__(self):
         if self.base_units.unit_count != 0:

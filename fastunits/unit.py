@@ -123,6 +123,10 @@ class Unit(object):
         return self
 
     @property
+    def base_unit(self):
+        return Unit(str(self._value.base_units))
+
+    @property
     def name(self):
         return str(self)
 

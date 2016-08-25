@@ -35,7 +35,7 @@ class LabradUnitsTests(unittest.TestCase):
         kg = fu.Unit('kg')
         km = fu.Unit('km')
 
-        #self.assertEqual(fu.Value(5.0, None)*m, 5.0*m)
+        self.assertEqual(fu.Value(5.0, None)*m, 5.0*m)
 
         # addition
         self.assertEqual(1.0*kg + 0.0*kg, 1.0*kg)

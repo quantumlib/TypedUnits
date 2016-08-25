@@ -7,8 +7,9 @@ from fastunits.unitarray import WithUnit, UnitArray, DimensionlessUnit
 
 s = UnitArray.raw([('s', 1, 1)])
 h = UnitArray.raw([('s', 3600, 1)])
-mps = UnitArray.raw([('m', 1, 1), ('s', 1, 1)])
-kph = UnitArray.raw([('m', 1000, 1), ('s', 1, 3600)])
+m = UnitArray.raw([('m', 1, 1)])
+mps = UnitArray.raw([('m', 1, 1), ('s', -1, 1)])
+kph = UnitArray.raw([('m', 1000, 1), ('s', -1, 3600)])
 
 class WithUnitTests(unittest.TestCase):
     def assertNumpyArrayEqual(self, a, b):
@@ -145,11 +146,11 @@ class WithUnitTests(unittest.TestCase):
         u = np.array(WithUnit.raw(
             np.array([2, 3]), 1, 1, 0, DimensionlessUnit, DimensionlessUnit))
         self.assertIsInstance(u, np.ndarray)
-        self.assertTrue(np.all(np.array([2, 3]) == u))
+        self.assertNumpyArrayEqual([2, 3], u)
 
-        self.assertTrue(np.all(np.array(WithUnit.raw(
-            np.array([2, 3]), 2, 3, 4, DimensionlessUnit, DimensionlessUnit)) ==
-            np.array([4.0 / 3.0 * 1E4, 2E4])))
+        self.assertNumpyArrayEqual(np.array(WithUnit.raw(
+            np.array([2, 3]), 2, 3, 4, DimensionlessUnit, DimensionlessUnit)),
+            np.array([4.0 / 3.0 * 1E4, 2E4]))
 
     def testCopy(self):
         a = WithUnit.raw(1, 2, 3, 4, mps, kph)
@@ -177,6 +178,17 @@ class WithUnitTests(unittest.TestCase):
         ]
         for e in examples:
             self.assertEqual(e, pickle.loads(pickle.dumps(e)))
+
+    def testMultiplication(self):
+        self.assertEqual(
+            WithUnit.raw(2, 3, 5, 7, mps, kph) * 5,
+            WithUnit.raw(10, 3, 5, 7, mps, kph))
+        self.assertEqual(
+            5 * WithUnit.raw(2, 3, 5, 7, mps, kph),
+            WithUnit.raw(10, 3, 5, 7, mps, kph))
+        self.assertEqual(WithUnit.raw(2, 3, 5, 7, mps, kph) *
+                         WithUnit.raw(11, 13, 17, 19, s, h),
+                         WithUnit.raw(22, 39, 85, 26, m, m))
 
 if __name__ == "__main__":
     unittest.main()
