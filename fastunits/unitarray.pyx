@@ -2,6 +2,7 @@ from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
 from cpython.object cimport Py_EQ, Py_NE, Py_LE, Py_GE, Py_LT, Py_GT
 import copy
+import copy_reg
 import math
 import numpy as np
 
@@ -320,7 +321,9 @@ cdef raw_WithUnit(value,
         return value._value
 
     # Choose derived class type.
-    if isinstance(value, complex):
+    if isinstance(value, WithUnit):
+        return value
+    elif isinstance(value, complex):
         val = value
         target_type = Complex
     elif isinstance(value, np.ndarray):
@@ -369,7 +372,7 @@ cdef class WithUnit:
         :param unit: A representation of the physical units. Could be an
             instance of Unit, or UnitArray, or a string to be parsed.
         """
-        if unit is None:
+        if unit is None and not isinstance(value, WithUnit):
             self.value = value
             self.base_units = DimensionlessUnit
             self.display_units = DimensionlessUnit
@@ -379,11 +382,14 @@ cdef class WithUnit:
             return
 
         cdef WithUnit unit_val
-        if isinstance(unit, str):
+        if unit is None:
+            unit_val = WithUnit(1)
+        elif isinstance(unit, str):
             unit_val = __unit_val_from_str(unit)
         else:
             unit_val = unit._value
-        self.value = value * unit_val.value
+        unit_val *= value
+        self.value = unit_val.value
         self.base_units = unit_val.base_units
         self.display_units = unit_val.display_units
         self.exp10 = unit_val.exp10
@@ -624,7 +630,6 @@ cdef class WithUnit:
         def __get__(self):
             return self.isAngle()
 
-
     def __getitem__(self, key):
         cdef WithUnit unit_val
         if isinstance(key, slice):
@@ -701,3 +706,26 @@ class ValueArray(WithUnit):
 
 class UnitMismatchError(TypeError):
     pass
+
+
+def __unpickle_UnitArray(x):
+    return UnitArray.raw(x)
+
+
+def __unpickle_WithUnit(*x):
+    return WithUnit.raw(*x)
+
+
+copy_reg.pickle(
+    UnitArray,
+    lambda e: (__unpickle_UnitArray, (list(e),)))
+
+copy_reg.pickle(
+    WithUnit,
+    lambda e: (__unpickle_WithUnit, (
+        e.value,
+        e.numer,
+        e.denom,
+        e.exp10,
+        e.base_units,
+        e.display_units)))

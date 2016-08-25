@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import pickle
 import unittest
 from fastunits.unitarray import UnitArray, DimensionlessUnit
 
@@ -149,6 +150,16 @@ class UnitsArrayTests(unittest.TestCase):
 
         self.assertEqual(UnitArray.raw([('a', 2, 3), ('b', -5, 7)])**(37.0/12),
                          UnitArray.raw([('a', 37, 18), ('b', -5*37, 7*12)]))
+
+    def testPickling(self):
+        examples = [
+            DimensionlessUnit,
+            UnitArray.raw([('a', 2, 7)]),
+            UnitArray.raw([('a', 2, 7), ('b', 1, 3)])
+        ]
+        for e in examples:
+            self.assertEqual(e, pickle.loads(pickle.dumps(e)))
+
 
 if __name__ == "__main__":
     unittest.main()

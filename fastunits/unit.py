@@ -17,7 +17,6 @@ class Unit(object):
     between units, we need a database of known units.
     """
     __array_priority__ = 15
-    __slots__ = ['_value']
 
     def __new__(cls, name):
         if isinstance(name, Unit):

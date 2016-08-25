@@ -1,6 +1,7 @@
 #!/usr/bin/python
 import copy
 import numpy as np
+import pickle
 import unittest
 from fastunits.unitarray import WithUnit, UnitArray, DimensionlessUnit
 
@@ -135,6 +136,14 @@ class WithUnitTests(unittest.TestCase):
         c2 = copy.copy(c)
         c[1] = WithUnit.raw(52, 1, 1, 0, mps, mps)
         self.assertFalse(np.all(c == c2))
+
+    def testPickle(self):
+        examples = [
+            WithUnit(1),
+            WithUnit.raw(2, 3, 5, 7, mps, kph)
+        ]
+        for e in examples:
+            self.assertEqual(e, pickle.loads(pickle.dumps(e)))
 
 if __name__ == "__main__":
     unittest.main()
