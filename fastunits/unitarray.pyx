@@ -638,7 +638,7 @@ cdef class WithUnit:
 
     def __getitem__(self, key):
         cdef WithUnit unit_val
-        if isinstance(key, slice):
+        if isinstance(key, int) or isinstance(key, slice):
             return self.__with_value(self.value[key])
         if isinstance(key, str):
             unit_val = __unit_val_from_str(key)
@@ -676,8 +676,7 @@ cdef class WithUnit:
                 "Only dimensionless values can be stripped into an array.")
         return np.array(self._scale_to_double() * self.value)
 
-    def __array_priority__(self):
-        return 15
+    __array_priority__ = 15
 
 __unit = None
 __unit_val_from_str = None

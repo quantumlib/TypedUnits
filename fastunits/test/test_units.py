@@ -120,6 +120,16 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertIsInstance(a*x2, fu.ValueArray)
         self.assertIsInstance(a*GHz, fu.ValueArray)
         self.assertIsInstance(a*va, fu.ValueArray)
+        self.assertIsInstance(va*va, fu.ValueArray)
+
+        # values
+        self.assertEquals((a*x1)[2], 2*m)
+        self.assertEquals((a*x2)[2], 10j*V)
+        self.assertEquals((a*GHz)[2], 2*GHz)
+        self.assertEquals((a*(GHz*GHz))[2], 2*GHz*GHz)
+        self.assertEquals(((GHz*GHz)*a)[2], 2*GHz*GHz)
+        self.assertEquals((a*va)[2], 4*GHz)
+        self.assertEquals((va*va)[2], 4*GHz*GHz)
 
         # ValueArray times ?
         self.assertIsInstance(va*x1, fu.ValueArray)
@@ -175,18 +185,18 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertTrue(rad.isAngle())
         x = fu.Unit('rad*m/s')
         self.assertFalse(x.is_angle)
-        
+
     def testInfNan(self):
         ms = fu.Unit('ms')
         GHz = fu.Unit('GHz')
         MHz = fu.Unit('MHz')
-        
+
         self.assertEquals(float('inf')*GHz, float('inf')*MHz)
         self.assertNotEqual(float('inf')*GHz, float('inf')*ms)
         self.assertNotEqual(float('inf')*GHz, -float('inf')*GHz)
         self.assertNotEqual(float('nan')*GHz, float('nan')*GHz)
         self.assertNotEqual(float('nan')*GHz, float('nan')*ms)
-        
+
     def testPickling(self):
         ns = fu.Unit('ns')
         GHz = fu.Unit('GHz')
@@ -262,9 +272,9 @@ class LabradUnitsTests(unittest.TestCase):
         for x in data:
             self.assertIsInstance(x, fu.Value)
         with self.assertRaises(TypeError):
-            for x in 5*fu.kg:
+            for _ in 5*fu.kg:
                 pass
-            
+
     def testIsCompatible(self):
         x = 5*fu.ns
         self.assertTrue(x.isCompatible('s'))
