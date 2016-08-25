@@ -44,7 +44,6 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertAlmostEqual(1.0*km/m + 5.0, 1005)
         self.assertNotEqual(1.0*kg, None)
 
-    @unittest.expectedFailure # TODO: fix isfinite on ValueArray
     def testValueArray(self):
         # Slicing
         self.assertTrue((ValueArray([1, 2, 3], 'm')[0:2] == ValueArray([1, 2], 'm')).all())
@@ -164,7 +163,8 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertTrue(hasattr((5*ns)*(5*GHz), 'inUnitsOf'))
         self.assertTrue(((5*ns)*(5*GHz)).isDimensionless())
         self.assertTrue((5*ns)*(5*GHz) < 50)
-        self.assertTrue(isinstance(fu.WithUnit(5.0, ''), fu.Value))
+        self.assertIsInstance(fu.WithUnit(1, ''), fu.WithUnit)
+        self.assertIsInstance(5.0*fu.WithUnit(1, ''), fu.Value)
 
         self.assertTrue((5*ns*5j*GHz) == 25j)
         self.assertTrue((5*ns*5j*GHz).isDimensionless())

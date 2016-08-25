@@ -11,6 +11,12 @@ mps = UnitArray.raw([('m', 1, 1), ('s', 1, 1)])
 kph = UnitArray.raw([('m', 1000, 1), ('s', 1, 3600)])
 
 class WithUnitTests(unittest.TestCase):
+    def assertNumpyArrayEqual(self, a, b):
+        if len(a) != len(b) or not np.all(a == b):
+            standardMsg = 'not np.all(%s == %s)' % (repr(a), repr(b))
+            msg = self._formatMessage(None, standardMsg)
+            raise self.failureException(msg)
+
     def testRawVersusProperties(self):
         x = WithUnit.raw(1, 2, 3, 4, mps, kph)
         self.assertEqual(x.value, 1)
@@ -29,15 +35,17 @@ class WithUnitTests(unittest.TestCase):
         self.assertEqual(x.display_units, h)
 
     def testEquality(self):
+        u = DimensionlessUnit
+
         equivalence_groups = [
-            [0, WithUnit.raw(0, 1, 1, 0, DimensionlessUnit, DimensionlessUnit)],
-            [[]],
             [""],
             ["other types"],
             [WithUnitTests],
             [None],
             [DimensionlessUnit],
-            [1 + 2j],
+
+            [0, WithUnit.raw(0, 1, 1, 0, u, u)],
+            [1 + 2j, WithUnit.raw(1 + 2j, 1, 1, 0, u, u)],
 
             [
                 WithUnit.raw(1, 2, 3, 4, mps, kph),
@@ -69,6 +77,31 @@ class WithUnitTests(unittest.TestCase):
                             self.assertNotEqual(e1, e2)
                         self.assertEqual(e1 == e2, match)
                         self.assertEqual(e1 != e2, not match)
+
+    def testArrayEquality(self):
+        u = DimensionlessUnit
+        self.assertNumpyArrayEqual(5 == WithUnit.raw([], 2, 3, 5, mps, kph),
+                                   [])
+        self.assertNumpyArrayEqual([] == WithUnit.raw([], 2, 3, 5, mps, kph),
+                                   [])
+        self.assertNumpyArrayEqual(
+            [1, 2] == WithUnit.raw([1, 2], 2, 3, 5, mps, kph),
+            [False, False])
+        self.assertNumpyArrayEqual(
+            [1, 2] == WithUnit.raw([1, 2], 1, 1, 0, u, u),
+            np.array([True, True]))
+        self.assertNumpyArrayEqual(
+            [3, 2] == WithUnit.raw([1, 2], 1, 1, 0, u, u),
+            np.array([False, True]))
+        self.assertNumpyArrayEqual(
+            [3, 2] == WithUnit.raw([1, 2], 3, 1, 0, u, u),
+            np.array([True, False]))
+        self.assertNumpyArrayEqual(
+            3 == WithUnit.raw([1, 2], 3, 1, 0, u, u),
+            np.array([True, False]))
+        self.assertNumpyArrayEqual(
+            6 == WithUnit.raw([1, 2], 3, 1, 0, u, u),
+            np.array([False, True]))
 
     def testFloat(self):
         self.assertRaises(lambda e: float(WithUnit.raw(1, 2, 3, 4, mps, kph)))

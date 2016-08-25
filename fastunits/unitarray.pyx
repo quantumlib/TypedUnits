@@ -329,6 +329,9 @@ cdef raw_WithUnit(value,
     elif isinstance(value, np.ndarray):
         val = value
         target_type = ValueArray
+    elif isinstance(value, list):
+        val = np.array(value)
+        target_type = ValueArray
     else:  # int or float or other
         val = float(value)
         target_type = Value
@@ -372,6 +375,8 @@ cdef class WithUnit:
         :param unit: A representation of the physical units. Could be an
             instance of Unit, or UnitArray, or a string to be parsed.
         """
+        if isinstance(value, list):
+            value = np.array(value)
         if unit is None and not isinstance(value, WithUnit):
             self.value = value
             self.base_units = DimensionlessUnit
@@ -557,10 +562,11 @@ cdef class WithUnit:
 
         # Check units.
         if left.base_units != right.base_units:
+            shaped_false = (left.value == right.value) & False
             if op == Py_EQ:
-                return False
+                return shaped_false
             if op == Py_NE:
-                return True
+                return not shaped_false
             raise UnitMismatchError("Comparands have different units.")
 
         # Compute scaled comparand values, without dividing.
