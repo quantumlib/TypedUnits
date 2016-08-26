@@ -1,6 +1,6 @@
 ## pythonunits
 
-![Build Status](https://matrix-reloaded.physics.ucsb.edu/teamcity/app/rest/builds/buildType:pythonunits_Pythonunits/statusIcon)
+[![Build Status](https://matrix-reloaded.physics.ucsb.edu/teamcity/app/rest/builds/buildType:pythonunits_Pythonunits/statusIcon)](https://matrix-reloaded.physics.ucsb.edu/teamcity/project.html?projectId=pythonunits&tab=projectOverview)
 
 Implements faster unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
