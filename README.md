@@ -17,14 +17,14 @@ print 3*meter + 5*meter
 
 # Building
 
-1. Install dependencies
+1. **Install dependencies**
 
-    pip install numpy
-    pip install pytest
-    pip install pyparsing
-    pip install Cython --install-option="--no-cython-compile"
+        pip install numpy
+        pip install pytest
+        pip install pyparsing
+        pip install Cython
 
-2. Produce `pyc` files
+2. **Produce `pyc` files**
 
     In the `pythonunits` directory, run:
 
