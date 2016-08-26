@@ -42,7 +42,7 @@ SI_DERIVED_UNITS = [
 OTHER_UNITS = [
     DerivedUnit('in', 'inch', 'cm', -2, 254, 1, False),
     DerivedUnit('d', 'day', 's', 2, 864, 1, False),
-    DerivedUnit('hr', 'hour', 's', 2, 36, 1, False),
+    DerivedUnit('h', 'hour', 's', 2, 36, 1, False),
     DerivedUnit('min', 'minute', 's', 1, 6, 1, False),
     DerivedUnit('yr', 'year', 'day', -2, 36525, 1, False),
 ]

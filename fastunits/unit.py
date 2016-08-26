@@ -82,9 +82,9 @@ class Unit(object):
 
         for item in parsed.posexp:
             element = cls._unit_from_parse_item(item, 0)
-            result = result * element
+            result *= element
         for item in parsed.negexp:
-            result = result * cls._unit_from_parse_item(item, -1)
+            result *= cls._unit_from_parse_item(item, -1)
         return result
 
     # Unit arithmetic is used in two ways: to build compound units
@@ -164,6 +164,9 @@ class Unit(object):
     def isDimensionless(self):
         return self._value.isDimensionless()
 
+    def isCompatible(self, unit):
+        return self._value.isCompatible(unit)
+
     @property
     def is_angle(self):
         return self.isAngle()
@@ -199,6 +202,17 @@ init_base_unit_functions(_value_unit, _unit_val_from_str)
 
 _unit_cache[''] = Unit._new_from_value(WithUnit(1))
 
+
+def addNonSI(name, prefixable=False):
+    Unit._new_base_unit(name)
+
+    if prefixable:
+        for pre in SI_PREFIXES:
+            Unit._new_derived_unit(pre.symbol + name,
+                                   1,
+                                   1,
+                                   pre.exponent,
+                                   name)
 
 for base in ALL_BASE_UNITS:
     symbol = base.symbol

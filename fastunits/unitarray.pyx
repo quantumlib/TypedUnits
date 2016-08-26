@@ -389,6 +389,8 @@ cdef class WithUnit:
         cdef WithUnit unit_val
         if unit is None:
             unit_val = WithUnit(1)
+        elif isinstance(unit, WithUnit):
+            unit_val = unit
         elif isinstance(unit, str):
             unit_val = __unit_val_from_str(unit)
         else:
@@ -643,9 +645,10 @@ cdef class WithUnit:
         if isinstance(key, str):
             unit_val = __unit_val_from_str(key)
         elif isinstance(key, WithUnit):
-            unit_val = key._value
+            unit_val = key
         else:
-            raise ValueError("Bad unit key")
+            unit_val = key._value
+#            raise ValueError("Bad unit key")
 
         if self.base_units != unit_val.base_units:
             raise UnitMismatchError("Value doesn't match specified units.")
@@ -653,13 +656,23 @@ cdef class WithUnit:
         cdef double f = self._scale_to_double() / unit_val._scale_to_double()
         return self.value * f
 
+    def isCompatible(self, unit):
+        cdef WithUnit other
+        if isinstance(unit, str):
+            other = __unit_val_from_str(unit)
+        elif isinstance(unit, WithUnit):
+            other = unit
+        else:
+            other = unit._value
+        return self.base_units == other.base_units
+
     def inUnitsOf(WithUnit self, unit):
         cdef WithUnit unit_val
         if isinstance(unit, str):
             unit_val = __unit_val_from_str(unit)
         else:
             unit_val = unit._value
-        return unit_val.__with_value(self[unit])
+        return unit_val.__with_value(self[unit_val])
 
     def __hash__(self):
         # TODO: ANYONE CALLING THIS ALMOST CERTAINLY HAS A BUG RELATED TO
@@ -688,14 +701,16 @@ def init_base_unit_functions(unit, unit_val_from_str):
 
 
 class Value(WithUnit):
-    pass
+    _numType = float
 
 
 class Complex(WithUnit):
-    pass
+    _numType = complex
 
 
 class ValueArray(WithUnit):
+    _numType = np.array # Regular ndarray constructor doesn't work
+
     def __setitem__(WithUnit self, key, val):
         cdef WithUnit right = WithUnit.wrap(val)
         if self.base_units != right.base_units:
@@ -709,6 +724,27 @@ class ValueArray(WithUnit):
     def __deepcopy__(WithUnit self, memo):
         return self.__with_value(copy.deepcopy(self.value))
 
+    def __iter__(WithUnit self):
+        for e in self.value:
+            yield self.__with_value(e)
+
+    def __len__(self):
+        return len(self._value)
+
+    @property
+    def dtype(self):
+        return self.value.dtype
+
+    @property
+    def ndim(self):
+        return self.value.ndim
+
+    @property
+    def shape(self):
+        return self.value.shape
+
+    def allclose(self, other, *args, **kw):
+        return np.allclose(self.value, other[self.unit], *args, **kw)
 
 class UnitMismatchError(TypeError):
     pass

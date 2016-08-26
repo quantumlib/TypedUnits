@@ -65,9 +65,9 @@ class LabradUnitsTests(unittest.TestCase):
 
         self.assertTrue((ValueArray([2, 3], 'GHz') * Value(3, 'ns')).dtype == np.float64)
 
-        # isfinite
-        self.assertTrue(np.isfinite(ValueArray([1, 2], 'GHz')).all())
-        self.assertTrue((np.isfinite(ValueArray([1, float('nan')], 'GHz')) == np.array([True, False])).all())
+    # def testIsFinite(self):
+    #     self.assertTrue(np.isfinite(ValueArray([1, 2], 'GHz')).all())
+    #     self.assertTrue((np.isfinite(ValueArray([1, float('nan')], 'GHz')) == np.array([True, False])).all())
 
     def testNegativePowers(self):
         self.assertIn(str(fu.Unit('1/s')), ['s^-1', '1/s'])

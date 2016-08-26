@@ -13,3 +13,5 @@ from unit import Unit
 from unit import _unit_cache
 for k,v in unit._unit_cache.items():
     globals()[k] = v
+
+addNonSI = unit.addNonSI
