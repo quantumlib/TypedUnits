@@ -5,6 +5,7 @@ import fastunits as U
 from fastunits import Value, Unit, Complex, ValueArray, UnitMismatchError
 import numpy as np
 
+
 class FastUnitsTests(unittest.TestCase):
     def testConstruction(self):
         x = 2*Unit('')

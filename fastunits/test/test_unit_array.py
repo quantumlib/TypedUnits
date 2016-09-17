@@ -3,6 +3,7 @@ import pickle
 import unittest
 from fastunits.unitarray import UnitArray, DimensionlessUnit
 
+
 class UnitsArrayTests(unittest.TestCase):
     def testConstructionVersusItems(self):
         empty = UnitArray()
@@ -159,7 +160,6 @@ class UnitsArrayTests(unittest.TestCase):
         ]
         for e in examples:
             self.assertEqual(e, pickle.loads(pickle.dumps(e)))
-
 
 if __name__ == "__main__":
     unittest.main()

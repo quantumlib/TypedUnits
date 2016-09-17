@@ -11,6 +11,7 @@ m = UnitArray.raw([('m', 1, 1)])
 mps = UnitArray.raw([('m', 1, 1), ('s', -1, 1)])
 kph = UnitArray.raw([('m', 1000, 1), ('s', -1, 3600)])
 
+
 class WithUnitTests(unittest.TestCase):
     def assertNumpyArrayEqual(self, a, b):
         if len(a) != len(b) or not np.all(a == b):
@@ -189,6 +190,15 @@ class WithUnitTests(unittest.TestCase):
         self.assertEqual(WithUnit.raw(2, 3, 5, 7, mps, kph) *
                          WithUnit.raw(11, 13, 17, 19, s, h),
                          WithUnit.raw(22, 39, 85, 26, m, m))
+
+    def testNumpyMethod_isFinite(self):
+        val = WithUnit.raw(
+            np.array([2, 3, -2, float('nan'), float('inf')]),
+            2, 3, 4, DimensionlessUnit, DimensionlessUnit)
+
+        self.assertNumpyArrayEqual(
+            np.isfinite(val),
+            [True, True, True, False, False])
 
 if __name__ == "__main__":
     unittest.main()
