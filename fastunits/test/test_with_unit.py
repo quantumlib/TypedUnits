@@ -200,5 +200,16 @@ class WithUnitTests(unittest.TestCase):
             np.isfinite(val),
             [True, True, True, False, False])
 
+    def testGetItem_scaling(self):
+        u = WithUnit.raw(2, 3, 5, 7, mps, kph)
+        self.assertEquals(u[u], 1)
+        self.assertEquals(u[WithUnit.raw(2, 1, 5, 7, mps, kph)], 3)
+        self.assertEquals(u[WithUnit.raw(2, 3, 1, 7, mps, kph)], 0.2)
+        self.assertEquals(u[WithUnit.raw(2, 3, 5, 0, mps, kph)], 10**7)
+        self.assertEquals(WithUnit.raw(2, 3, 1, 7, mps, kph)[u], 5)
+
+        self.assertAlmostEquals(WithUnit.raw(2, 1, 5, 7, mps, kph)[u], 1/3.0)
+        self.assertAlmostEquals(WithUnit.raw(2, 3, 5, 0, mps, kph)[u], 10**-7)
+
 if __name__ == "__main__":
     unittest.main()

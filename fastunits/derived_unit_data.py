@@ -3,13 +3,25 @@ class DerivedUnit:
                  symbol,
                  name,
                  base_unit_expression,
+                 value=1.0,
                  exponent=0,
                  numerator=1,
                  denominator=1,
                  use_prefixes=True):
+        """
+        :param symbol: The short name for the unit (e.g. 'm' for meter).
+        :param name: The full name of the unit (e.g. 'meter').
+        :param base_unit_expression: A physical unit scale factor.
+        :param value: A floating-point scale factor.
+        :param exponent: An integer power-of-10 exponent scale factor.
+        :param numerator: A small integer scale factor.
+        :param denominator: A small integer inverse scale factor.
+        :param use_prefixes: Should there be 'kiloUNIT', 'milliUNIT', etc.
+        """
         self.symbol = symbol
         self.name = name
         self.base_unit_expression = base_unit_expression
+        self.value = value
         self.exponent = exponent
         self.numerator = numerator
         self.denominator = denominator
@@ -40,11 +52,11 @@ SI_DERIVED_UNITS = [
 ]
 
 OTHER_UNITS = [
-    DerivedUnit('in', 'inch', 'cm', -2, 254, 1, False),
-    DerivedUnit('d', 'day', 's', 2, 864, 1, False),
-    DerivedUnit('h', 'hour', 's', 2, 36, 1, False),
-    DerivedUnit('min', 'minute', 's', 1, 6, 1, False),
-    DerivedUnit('yr', 'year', 'day', -2, 36525, 1, False),
+    DerivedUnit('in', 'inch', 'cm', 1, -2, 254, 1, False),
+    DerivedUnit('d', 'day', 's', 1, 2, 864, 1, False),
+    DerivedUnit('h', 'hour', 's', 1, 2, 36, 1, False),
+    DerivedUnit('min', 'minute', 's', 1, 1, 6, 1, False),
+    DerivedUnit('yr', 'year', 'day', 1, -2, 36525, 1, False),
 ]
 
 ALL_DERIVED_UNITS = SI_REDUNDANT_BASE_UNITS + SI_DERIVED_UNITS + OTHER_UNITS

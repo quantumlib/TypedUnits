@@ -26,15 +26,13 @@ class Unit(object):
         else:
             return cls.parse_unit_str(name)
 
-    # The following methods are internal constructors used to generate new unit instances
-    # to separate that out from the main __new__ method which users will use to construct
-    # objects from strings.
+    # The following methods are internal constructors used to generate new unit
+    # instances to separate that out from the main __new__ method which users
+    # will use to construct objects from strings.
     @classmethod
     def _new_from_value(cls, val):
         if not isinstance(val, WithUnit):
             raise RuntimeError("Need Value type to create unit")
-        if val.value != 1.0:
-            raise RuntimeError("Cannot create unit from a value not of unit magnitude")
         obj = object.__new__(cls)
         obj._value = val
         return obj
@@ -49,18 +47,26 @@ class Unit(object):
             sign = -sign
         if base_name not in _unit_cache:
             base_unit = UnitArray(base_name)
-            _unit_cache[base_name] = Unit._new_from_value(WithUnit.raw(1, 1, 1, 0, base_unit, base_unit))
+            _unit_cache[base_name] = Unit._new_from_value(
+                WithUnit.raw(1, 1, 1, 0, base_unit, base_unit))
         element = _unit_cache[base_name]**(1.0*sign*numer/denom)
         return element
 
     @classmethod
-    def _new_derived_unit(cls, name, numer, denom, exp10, base_unit):
+    def _new_derived_unit(cls, name, value, numer, denom, exp10, base_unit):
         if isinstance(base_unit, str):
             base_unit = Unit(base_unit)
+        value = value * base_unit._value.value
         numer = numer * base_unit._value.numer
         denom = denom * base_unit._value.denom
         exp10 = exp10 + base_unit._value.exp10
-        val = WithUnit.raw(1, numer, denom, exp10, base_unit._value.base_units, UnitArray(name))
+        val = WithUnit.raw(
+            value,
+            numer,
+            denom,
+            exp10,
+            base_unit._value.base_units,
+            UnitArray(name))
         result = cls._new_from_value(val)
         _unit_cache[name] = result
         return result
@@ -211,6 +217,7 @@ def addNonSI(name, prefixable=False):
             Unit._new_derived_unit(pre.symbol + name,
                                    1,
                                    1,
+                                   1,
                                    pre.exponent,
                                    name)
 
@@ -218,13 +225,13 @@ for base in ALL_BASE_UNITS:
     symbol = base.symbol
     name = base.name
     Unit._new_base_unit(base.symbol)
-    Unit._new_derived_unit(base.name, 1, 1, 0, base.symbol)
+    Unit._new_derived_unit(base.name, 1, 1, 1, 0, base.symbol)
 
     if symbol == 'kg':
         symbol = 'g'
         name = 'gram'
-        Unit._new_derived_unit(symbol, 1, 1, -3, 'kg')
-        Unit._new_derived_unit(name, 1, 1, -3, 'kg')
+        Unit._new_derived_unit(symbol, 1, 1, 1, -3, 'kg')
+        Unit._new_derived_unit(name, 1, 1, 1, -3, 'kg')
 
     if base.use_prefixes:
         for pre in SI_PREFIXES:
@@ -234,10 +241,12 @@ for base in ALL_BASE_UNITS:
             Unit._new_derived_unit(pre.symbol + symbol,
                                    1,
                                    1,
+                                   1,
                                    pre.exponent,
                                    symbol)
 
             Unit._new_derived_unit(pre.name + name,
+                                   1,
                                    1,
                                    1,
                                    pre.exponent,
@@ -245,12 +254,14 @@ for base in ALL_BASE_UNITS:
 
 for der in ALL_DERIVED_UNITS:
     Unit._new_derived_unit(der.symbol,
+                           der.value,
                            der.numerator,
                            der.denominator,
                            der.exponent,
                            der.base_unit_expression)
 
-    Unit._new_derived_unit(der.name,
+    x = Unit._new_derived_unit(der.name,
+                           der.value,
                            der.numerator,
                            der.denominator,
                            der.exponent,
@@ -259,12 +270,14 @@ for der in ALL_DERIVED_UNITS:
     if der.use_prefixes:
         for pre in SI_PREFIXES:
             Unit._new_derived_unit(pre.symbol + der.symbol,
+                                   der.value,
                                    der.numerator,
                                    der.denominator,
                                    pre.exponent + der.exponent,
                                    der.base_unit_expression)
 
             Unit._new_derived_unit(pre.name + der.name,
+                                   der.value,
                                    der.numerator,
                                    der.denominator,
                                    pre.exponent + der.exponent,

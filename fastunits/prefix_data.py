@@ -1,5 +1,10 @@
 class Prefix:
     def __init__(self, symbol, name, exponent):
+        """
+        :param symbol: The short name for the prefix (e.g. 'G' for giga).
+        :param name: The full name of the prefix (e.g. 'giga').
+        :param exponent: The power of 10 the prefix corresponds to.
+        """
         self.symbol = symbol
         self.name = name
         self.exponent = exponent

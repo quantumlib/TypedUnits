@@ -652,9 +652,12 @@ cdef class WithUnit:
 
         if self.base_units != unit_val.base_units:
             raise UnitMismatchError("Value doesn't match specified units.")
-        
-        cdef double f = self._scale_to_double() / unit_val._scale_to_double()
-        return self.value * f
+
+
+        return (self.value
+            * frac_to_double(frac_div(self.ratio, unit_val.ratio))
+            * c_pow(10.0, self.exp10 - unit_val.exp10)
+            / unit_val.value)
 
     def isCompatible(self, unit):
         cdef WithUnit other

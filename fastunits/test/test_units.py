@@ -286,6 +286,13 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertFalse(fu.ns.isCompatible(fu.kg))
         with self.assertRaises(Exception):
             x.isCompatible(4)
-        
+
+    def testScaledGetItem(self):
+        from fastunits import ns, s
+        v = s*1.0
+        self.assertEquals(v[ns], 10**9)
+        self.assertEquals(v[ns*2], 10**9/2)
+        self.assertEquals((v*3)[(ns*3)], 10 ** 9)
+
 if __name__ == "__main__":
     unittest.main()
