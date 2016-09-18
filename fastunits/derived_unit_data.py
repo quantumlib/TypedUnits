@@ -1,3 +1,6 @@
+import math
+
+
 class DerivedUnit:
     def __init__(self,
                  symbol,
@@ -57,6 +60,7 @@ OTHER_UNITS = [
     DerivedUnit('h', 'hour', 's', 1, 2, 36, 1, False),
     DerivedUnit('min', 'minute', 's', 1, 1, 6, 1, False),
     DerivedUnit('yr', 'year', 'day', 1, -2, 36525, 1, False),
+    DerivedUnit('cyc', 'cycle', 'rad', 2*math.pi, 0, 1, 1, False),
 ]
 
 ALL_DERIVED_UNITS = SI_REDUNDANT_BASE_UNITS + SI_DERIVED_UNITS + OTHER_UNITS
