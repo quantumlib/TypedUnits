@@ -211,5 +211,14 @@ class WithUnitTests(unittest.TestCase):
         self.assertAlmostEquals(WithUnit.raw(2, 1, 5, 7, mps, kph)[u], 1/3.0)
         self.assertAlmostEquals(WithUnit.raw(2, 3, 5, 0, mps, kph)[u], 10**-7)
 
+    def testHash(self):
+        d = dict()
+        v = WithUnit.raw(2, 1, 5, 7, mps, kph)
+        w = WithUnit.raw(3, 1, 5, 7, mps, kph)
+        d[v] = 5
+        d[w] = "b"
+        self.assertEquals(d[v], 5)
+        self.assertEquals(d[w], "b")
+
 if __name__ == "__main__":
     unittest.main()

@@ -678,8 +678,8 @@ cdef class WithUnit:
         return unit_val.__with_value(self[unit_val])
 
     def __hash__(self):
-        # TODO: ANYONE CALLING THIS ALMOST CERTAINLY HAS A BUG RELATED TO
-        #       FLOATING POINT ERROR PERTURBING THEIR KEYS
+        # Note: Anyone calling this, except in the case where they're using a
+        # single unchanging value as a key, likely has a bug.
         return hash(self.inBaseUnits().value)
 
     property unit:
