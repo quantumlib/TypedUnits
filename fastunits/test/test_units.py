@@ -15,10 +15,9 @@
 import unittest
 import numpy as np
 
-import sys
-import os
 import cPickle
 import fastunits as fu
+from fastunits import UnitMismatchError
 ValueArray = fu.ValueArray
 Value = fu.Value
 
@@ -187,6 +186,9 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertTrue(rad.isAngle())
         x = fu.Unit('rad*m/s')
         self.assertFalse(x.is_angle)
+        self.assertFalse((3.14 * rad).isDimensionless())
+        self.assertFalse((3.14 * rad**2).isDimensionless())
+        self.assertRaises(UnitMismatchError, lambda: float(2.0*rad))
 
     def testInfNan(self):
         ms = fu.Unit('ms')
