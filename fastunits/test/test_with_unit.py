@@ -9,6 +9,7 @@ from fastunits.unitarray import \
     DimensionlessUnit,\
     UnitMismatchError
 
+du = DimensionlessUnit
 s = UnitArray.raw([('s', 1, 1)])
 h = UnitArray.raw([('s', 3600, 1)])
 m = UnitArray.raw([('m', 1, 1)])
@@ -41,17 +42,15 @@ class WithUnitTests(unittest.TestCase):
         self.assertEqual(x.display_units, h)
 
     def testEquality(self):
-        u = DimensionlessUnit
-
         equivalence_groups = [
             [""],
             ["other types"],
             [WithUnitTests],
             [None],
-            [DimensionlessUnit],
+            [du],
 
-            [0, WithUnit.raw(0, 1, 1, 0, u, u)],
-            [1 + 2j, WithUnit.raw(1 + 2j, 1, 1, 0, u, u)],
+            [0, WithUnit.raw(0, 1, 1, 0, du, du)],
+            [1 + 2j, WithUnit.raw(1 + 2j, 1, 1, 0, du, du)],
 
             [
                 WithUnit.raw(1, 2, 3, 4, mps, kph),
@@ -85,7 +84,6 @@ class WithUnitTests(unittest.TestCase):
                         self.assertEqual(e1 != e2, not match)
 
     def testArrayEquality(self):
-        u = DimensionlessUnit
         self.assertNumpyArrayEqual(5 == WithUnit.raw([], 2, 3, 5, mps, kph),
                                    [])
         self.assertNumpyArrayEqual([] == WithUnit.raw([], 2, 3, 5, mps, kph),
@@ -94,67 +92,65 @@ class WithUnitTests(unittest.TestCase):
             [1, 2] == WithUnit.raw([1, 2], 2, 3, 5, mps, kph),
             [False, False])
         self.assertNumpyArrayEqual(
-            [1, 2] == WithUnit.raw([1, 2], 1, 1, 0, u, u),
+            [1, 2] == WithUnit.raw([1, 2], 1, 1, 0, du, du),
             np.array([True, True]))
         self.assertNumpyArrayEqual(
-            [3, 2] == WithUnit.raw([1, 2], 1, 1, 0, u, u),
+            [3, 2] == WithUnit.raw([1, 2], 1, 1, 0, du, du),
             np.array([False, True]))
         self.assertNumpyArrayEqual(
-            [3, 2] == WithUnit.raw([1, 2], 3, 1, 0, u, u),
+            [3, 2] == WithUnit.raw([1, 2], 3, 1, 0, du, du),
             np.array([True, False]))
         self.assertNumpyArrayEqual(
-            3 == WithUnit.raw([1, 2], 3, 1, 0, u, u),
+            3 == WithUnit.raw([1, 2], 3, 1, 0, du, du),
             np.array([True, False]))
         self.assertNumpyArrayEqual(
-            6 == WithUnit.raw([1, 2], 3, 1, 0, u, u),
+            6 == WithUnit.raw([1, 2], 3, 1, 0, du, du),
             np.array([False, True]))
 
     def testFloat(self):
-        self.assertRaises(lambda e: float(WithUnit.raw(1, 2, 3, 4, mps, kph)))
-        self.assertRaises(lambda e: float(
-            WithUnit.raw(1j, 2, 3, 4, DimensionlessUnit, DimensionlessUnit)))
-        self.assertRaises(lambda e: float(WithUnit.raw(
-            np.array([1, 2]), 2, 3, 4, DimensionlessUnit, DimensionlessUnit)))
+        with self.assertRaises(TypeError):
+            float(WithUnit.raw(1, 2, 3, 4, mps, kph))
+        with self.assertRaises(TypeError):
+            float(WithUnit.raw(1j, 2, 3, 4, du, du))
+        with self.assertRaises(TypeError):
+            float(WithUnit.raw(np.array([1, 2]), 2, 3, 4, du, du))
 
-        u = float(
-            WithUnit.raw(5, 1, 1, 0, DimensionlessUnit, DimensionlessUnit))
+        u = float(WithUnit.raw(5, 1, 1, 0, du, du))
         self.assertIsInstance(u, float)
         self.assertEqual(u, 5)
 
         self.assertEqual(float(
-            WithUnit.raw(1, 2, 3, 4, DimensionlessUnit, DimensionlessUnit)),
+            WithUnit.raw(1, 2, 3, 4, du, du)),
             2.0 / 3.0 * 1E4)
 
     def testComplex(self):
-        self.assertRaises(lambda e: complex(WithUnit.raw(1j, 2, 3, 4, mps, kph)))
-        self.assertRaises(lambda e: complex(WithUnit.raw(
-            np.array([1, 2]), 2, 3, 4, DimensionlessUnit, DimensionlessUnit)))
+        with self.assertRaises(TypeError):
+            complex(WithUnit.raw(1j, 2, 3, 4, mps, kph))
+        with self.assertRaises(TypeError):
+            complex(WithUnit.raw(np.array([1, 2]), 2, 3, 4, du, du))
 
         u = complex(
-            WithUnit.raw(5, 1, 1, 0, DimensionlessUnit, DimensionlessUnit))
+            WithUnit.raw(5, 1, 1, 0, du, du))
         self.assertIsInstance(u, complex)
         self.assertEqual(u, 5)
 
         self.assertEqual(complex(
-            WithUnit.raw(1, 2, 3, 4, DimensionlessUnit, DimensionlessUnit)),
+            WithUnit.raw(1, 2, 3, 4, du, du)),
             2.0 / 3.0 * 1E4)
         self.assertEqual(complex(
-            WithUnit.raw(1+3j, 2, 5, 4, DimensionlessUnit, DimensionlessUnit)),
+            WithUnit.raw(1+3j, 2, 5, 4, du, du)),
             (1+3j) * 2.0 / 5.0 * 1E4)
 
     def testArray(self):
-        self.assertRaises(lambda e: np.array(
-            WithUnit.raw(np.array([1, 2]), 2, 3, 4, mps, kph)))
-        self.assertRaises(lambda e: np.array(
-            WithUnit.raw(1, 2, 3, 4, DimensionlessUnit, DimensionlessUnit)))
+        with self.assertRaises(TypeError):
+            np.array(WithUnit.raw(np.array([1, 2]), 2, 3, 4, mps, kph))
 
-        u = np.array(WithUnit.raw(
-            np.array([2, 3]), 1, 1, 0, DimensionlessUnit, DimensionlessUnit))
+        u = np.array(WithUnit.raw(np.array([2, 3]), 1, 1, 0, du, du))
         self.assertIsInstance(u, np.ndarray)
         self.assertNumpyArrayEqual([2, 3], u)
 
         self.assertNumpyArrayEqual(np.array(WithUnit.raw(
-            np.array([2, 3]), 2, 3, 4, DimensionlessUnit, DimensionlessUnit)),
+            np.array([2, 3]), 2, 3, 4, du, du)),
             np.array([4.0 / 3.0 * 1E4, 2E4]))
 
     def testCopy(self):
@@ -198,14 +194,14 @@ class WithUnitTests(unittest.TestCase):
     def testNumpyMethod_isFinite(self):
         val = WithUnit.raw(
             np.array([2, 3, -2, float('nan'), float('inf')]),
-            2, 3, 4, DimensionlessUnit, DimensionlessUnit)
+            2, 3, 4, du, du)
 
         self.assertNumpyArrayEqual(
             np.isfinite(val),
             [True, True, True, False, False])
 
     def testGetItem_scaling(self):
-        u = WithUnit.raw(1, 1, 1, 1, DimensionlessUnit, DimensionlessUnit)
+        u = WithUnit.raw(1, 1, 1, 1, du, du)
         v = WithUnit.raw(2, 3, 5, 7, mps, kph)
 
         with self.assertRaises(TypeError):
