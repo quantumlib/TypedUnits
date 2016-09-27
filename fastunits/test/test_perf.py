@@ -35,7 +35,7 @@ def perf_goal(avg_micros, repeats=100):
 
 
 # noinspection PyProtectedMember
-unit_list = [v for k, v in U.unit._unit_cache.items()]
+unit_list = [v for k, v in U.unit._default_unit_database.known_units.items()]
 
 
 def random_unit():

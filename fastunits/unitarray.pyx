@@ -331,7 +331,7 @@ cdef raw_WithUnit(value,
     else:
         raise ValueError("Unrecognized value type: " + type(value))
 
-    cdef WithUnit result = target_type(None)
+    cdef WithUnit result = target_type(0)
     result.value = val
     result.ratio = frac_least_terms(numer, denom)
     result.exp10 = exp10
@@ -383,7 +383,7 @@ cdef class WithUnit:
             return
 
         cdef WithUnit unit_val = WithUnit(1) if unit is None else \
-            __try_interpret_as_with_unit_value_loose(unit)
+            __try_interpret_as_with_unit(unit)
         if unit_val is None:
             raise ValueError("Bad WithUnit scaling value: " + repr(value))
         unit_val *= value
@@ -413,9 +413,8 @@ cdef class WithUnit:
         Wraps the given object into a WithUnit instance, unless it's already
         a WithUnit.
         """
-        raw = __try_interpret_as_with_unit_value_strict(obj)
-        if raw is not None:
-            return raw
+        if isinstance(obj, WithUnit):
+            return obj
         return raw_WithUnit(obj, 1, 1, 0, DimensionlessUnit, DimensionlessUnit)
 
     cdef __with_value(self, new_value):
@@ -592,7 +591,10 @@ cdef class WithUnit:
         return NotImplemented
 
     def __str__(self):
-        return "%s %s" % (str(self.value), str(self.display_units))
+        unit_str = str(self.display_units)
+        if self.value == 1 and unit_str != '':
+            return unit_str
+        return ("%s %s" % (str(self.value), unit_str)).strip()
 
     def __repr__(self):
         return "WithUnit.raw(%s)" % ', '.join(repr(e) for e in [
@@ -634,8 +636,7 @@ cdef class WithUnit:
         if isinstance(key, int) or isinstance(key, slice):
             return self.__with_value(self.value[key])
 
-
-        cdef WithUnit unit_val = __try_interpret_as_with_unit_value_loose(key)
+        cdef WithUnit unit_val = __try_interpret_as_with_unit(key)
         if unit_val is None:
             raise TypeError("Bad unit key: " + repr(key))
 
@@ -654,13 +655,13 @@ cdef class WithUnit:
             / unit_val.value)
 
     def isCompatible(self, unit):
-        cdef WithUnit other = __try_interpret_as_with_unit_value_loose(unit)
+        cdef WithUnit other = __try_interpret_as_with_unit(unit)
         if other is None:
             raise ValueError("Bad unit key: " + repr(unit))
         return self.base_units == other.base_units
 
     def inUnitsOf(WithUnit self, unit):
-        cdef WithUnit unit_val = __try_interpret_as_with_unit_value_loose(unit)
+        cdef WithUnit unit_val = __try_interpret_as_with_unit(unit)
         if unit_val is None:
             raise ValueError("Bad unit key: " + repr(unit))
         return unit_val.__with_value(self[unit_val])
@@ -672,7 +673,7 @@ cdef class WithUnit:
 
     property unit:
         def __get__(self):
-            return __unit(self)
+            return self.__with_value(1)
 
     def __array__(self):
         if self.base_units.unit_count != 0:
@@ -682,21 +683,10 @@ cdef class WithUnit:
 
     __array_priority__ = 15
 
-__unit = None
-__try_interpret_as_with_unit_value_loose = None
-__try_interpret_as_with_unit_value_strict = None
-def init_base_unit_functions(
-        unit,
-        try_interpret_as_with_unit_value_loose,
-        try_interpret_as_with_unit_value_strict):
-    global __unit
-    global __try_interpret_as_with_unit_value_loose
-    global __try_interpret_as_with_unit_value_strict
-    __unit = unit
-    __try_interpret_as_with_unit_value_loose = \
-        try_interpret_as_with_unit_value_loose
-    __try_interpret_as_with_unit_value_strict = \
-        try_interpret_as_with_unit_value_strict
+__try_interpret_as_with_unit = None
+def init_base_unit_functions(try_interpret_as_with_unit):
+    global __try_interpret_as_with_unit
+    __try_interpret_as_with_unit = try_interpret_as_with_unit
 
 
 class Value(WithUnit):

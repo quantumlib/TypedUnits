@@ -7,11 +7,9 @@ from fastunits.unitarray import Value, \
                                 ValueArray, \
                                 UnitMismatchError, \
                                 WithUnit
-from unit import Unit
 
 # Expose defined units as module variables.
-from unit import _unit_cache
-for k,v in unit._unit_cache.items():
+from unit import Unit
+from unit import _default_unit_database, Unit, addNonSI
+for k,v in _default_unit_database.known_units.items():
     globals()[k] = v
-
-addNonSI = unit.addNonSI

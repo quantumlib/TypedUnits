@@ -9,6 +9,7 @@ class BaseUnit:
         self.name = name
         self.use_prefixes = use_prefixes
 
+
 SI_BASE_UNITS = [
     BaseUnit('m', 'meter'),
     BaseUnit('kg', 'kilogram'),  # Note: causes special-cased prefix behavior.

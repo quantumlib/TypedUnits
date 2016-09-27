@@ -229,8 +229,6 @@ class LabradUnitsTests(unittest.TestCase):
 
     def testBaseUnitPowers(self):
         x = Value(1, 'ns^2')
-
-        self.assertTrue(x.unit.base_unit == fu.Unit('s^2'))
         self.assertTrue(x.inBaseUnits() == Value(1e-18, 's^2'))
 
     def testUnitPowers(self):
@@ -266,7 +264,13 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertTrue(x.inBaseUnits() == 5000.0*fu.Unit('count'))
         self.assertTrue((x**2).unit == fu.Unit('kcount^2'))
 
-    def test_string_unit(self):
+    def test_unit_auto_creation(self):
+        ts = fu.Unit('pants/s')
+        self.assertEqual((1*ts)['pants/h'], 3600.0)
+        self.assertEqual(str(ts), 'pants/s')
+
+    def test_unit_manual_creation(self):
+        fu.addNonSI('tshirt')
         ts = fu.Unit('tshirt/s')
         self.assertEqual((1*ts)['tshirt/h'], 3600.0)
         self.assertEqual(str(ts), 'tshirt/s')
