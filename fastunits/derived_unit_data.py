@@ -56,11 +56,18 @@ SI_DERIVED_UNITS = [
 
 OTHER_UNITS = [
     DerivedUnit('in', 'inch', 'cm', 1, -2, 254, 1, False),
-    DerivedUnit('d', 'day', 's', 1, 2, 864, 1, False),
     DerivedUnit('h', 'hour', 's', 1, 2, 36, 1, False),
     DerivedUnit('min', 'minute', 's', 1, 1, 6, 1, False),
-    DerivedUnit('yr', 'year', 'day', 1, -2, 36525, 1, False),
     DerivedUnit('cyc', 'cycle', 'rad', 2*math.pi, 0, 1, 1, False),
 ]
 
-ALL_DERIVED_UNITS = SI_REDUNDANT_BASE_UNITS + SI_DERIVED_UNITS + OTHER_UNITS
+# Units that aren't technically exact, but close enough for our purposes.
+APPROXIMATE_CIVIL_UNITS = [
+    DerivedUnit('d', 'day', 's', 1, 2, 864, 1, False),
+    DerivedUnit('yr', 'year', 'day', 1, -2, 36525, 1, False),
+]
+
+ALL_DERIVED_UNITS = (SI_REDUNDANT_BASE_UNITS +
+                     SI_DERIVED_UNITS +
+                     OTHER_UNITS +
+                     APPROXIMATE_CIVIL_UNITS)
