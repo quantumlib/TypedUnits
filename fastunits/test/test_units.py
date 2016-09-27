@@ -285,9 +285,13 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertFalse(x.isCompatible(fu.kg))
         self.assertTrue(fu.ns.isCompatible(fu.s))
         self.assertTrue(fu.ns.isCompatible(fu.ns))
+        self.assertTrue(fu.ns.isCompatible(fu.ns*2.0))
         self.assertFalse(fu.ns.isCompatible(fu.kg))
+        self.assertFalse(fu.ns.isCompatible(fu.kg*2.0))
+        self.assertFalse(x.isCompatible(4))
+        self.assertTrue((x / fu.ns).isCompatible(4))
         with self.assertRaises(Exception):
-            x.isCompatible(4)
+            x.isCompatible(dict())
 
     def testScaledGetItem(self):
         from fastunits import ns, s

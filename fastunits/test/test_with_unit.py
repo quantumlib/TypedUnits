@@ -3,7 +3,11 @@ import copy
 import numpy as np
 import pickle
 import unittest
-from fastunits.unitarray import WithUnit, UnitArray, DimensionlessUnit
+from fastunits.unitarray import \
+    WithUnit,\
+    UnitArray,\
+    DimensionlessUnit,\
+    UnitMismatchError
 
 s = UnitArray.raw([('s', 1, 1)])
 h = UnitArray.raw([('s', 3600, 1)])
@@ -201,15 +205,40 @@ class WithUnitTests(unittest.TestCase):
             [True, True, True, False, False])
 
     def testGetItem_scaling(self):
-        u = WithUnit.raw(2, 3, 5, 7, mps, kph)
-        self.assertEquals(u[u], 1)
-        self.assertEquals(u[WithUnit.raw(2, 1, 5, 7, mps, kph)], 3)
-        self.assertEquals(u[WithUnit.raw(2, 3, 1, 7, mps, kph)], 0.2)
-        self.assertEquals(u[WithUnit.raw(2, 3, 5, 0, mps, kph)], 10**7)
-        self.assertEquals(WithUnit.raw(2, 3, 1, 7, mps, kph)[u], 5)
+        u = WithUnit.raw(1, 1, 1, 1, DimensionlessUnit, DimensionlessUnit)
+        v = WithUnit.raw(2, 3, 5, 7, mps, kph)
 
-        self.assertAlmostEquals(WithUnit.raw(2, 1, 5, 7, mps, kph)[u], 1/3.0)
-        self.assertAlmostEquals(WithUnit.raw(2, 3, 5, 0, mps, kph)[u], 10**-7)
+        with self.assertRaises(TypeError):
+            _ = u[1.0]
+        with self.assertRaises(TypeError):
+            _ = WithUnit.raw(u[mps])
+        with self.assertRaises(TypeError):
+            _ = WithUnit.raw(u[1])
+        with self.assertRaises(TypeError):
+            _ = WithUnit.raw(u[1:2])
+        with self.assertRaises(UnitMismatchError):
+            _ = u[v]
+        with self.assertRaises(TypeError):
+            _ = u[v/v]
+
+        self.assertEquals(u[''], 10)
+        self.assertEquals(v[v], 1)
+        self.assertEquals(v[WithUnit.raw(2, 1, 5, 7, mps, kph)], 3)
+        self.assertEquals(v[WithUnit.raw(2, 3, 1, 7, mps, kph)], 0.2)
+        self.assertEquals(v[WithUnit.raw(2, 3, 5, 0, mps, kph)], 10**7)
+        self.assertEquals(WithUnit.raw(2, 3, 1, 7, mps, kph)[v], 5)
+
+        self.assertAlmostEquals(WithUnit.raw(2, 1, 5, 7, mps, kph)[v], 1/3.0)
+        self.assertAlmostEquals(WithUnit.raw(2, 3, 5, 0, mps, kph)[v], 10**-7)
+
+    def testIter(self):
+        a = []
+        for e in WithUnit.raw([1, 2, 4], 2, 3, 4, mps, kph):
+            a.append(e)
+        self.assertEquals(len(a), 3)
+        self.assertEquals(a[0], WithUnit.raw(1, 2, 3, 4, mps, kph))
+        self.assertEquals(a[1], WithUnit.raw(2, 2, 3, 4, mps, kph))
+        self.assertEquals(a[2], WithUnit.raw(4, 2, 3, 4, mps, kph))
 
     def testHash(self):
         d = dict()

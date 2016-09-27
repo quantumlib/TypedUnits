@@ -5,6 +5,7 @@ import fastunits.unit_grammar as unit_grammar
 from base_unit_data import ALL_BASE_UNITS
 from derived_unit_data import ALL_DERIVED_UNITS
 from prefix_data import SI_PREFIXES
+import numpy as np
 
 _unit_cache = {}
 
@@ -189,21 +190,42 @@ class Unit(object):
 # Value._set_py_func
 
 
-def _unit_val_from_str(unitstr):
+def _try_interpret_as_with_unit_value_loose(obj):
     """Lookup a unit by name.
 
     This is a helper called when WithUnit objects need to lookup a unit
     string.  We return the underlying _value, because that is what the C
     API knows how to handle."""
-    unit = Unit(unitstr)
-    return unit._value
+    if isinstance(obj, WithUnit):
+        return obj
+    if isinstance(obj, str):
+        return Unit(obj)._value
+    if isinstance(obj, Unit):
+        return obj._value
+    if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, list) \
+            or isinstance(obj, complex) or isinstance(obj, np.ndarray):
+        return WithUnit(obj)
+    return None
+
+
+def _try_interpret_as_with_unit_value_strict(obj):
+    if isinstance(obj, WithUnit):
+        return obj
+    if isinstance(obj, Unit):
+        return obj._value
+    return None
+
 
 def _value_unit(withUnit):
     """This is called by Value to implement the .unit property"""
     v = WithUnit.raw(1, withUnit.numer, withUnit.denom, withUnit.exp10, withUnit.base_units, withUnit.display_units)
     return Unit._new_from_value(v)
 
-init_base_unit_functions(_value_unit, _unit_val_from_str)
+
+init_base_unit_functions(
+    _value_unit,
+    _try_interpret_as_with_unit_value_loose,
+    _try_interpret_as_with_unit_value_strict)
 
 
 _unit_cache[''] = Unit._new_from_value(WithUnit(1))

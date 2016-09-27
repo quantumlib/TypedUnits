@@ -315,26 +315,21 @@ cdef raw_WithUnit(value,
     if not (numer > 0 and denom > 0):
         raise ValueError("Numerator and denominator must both be positive.")
 
-    # Unwrap a Unit instance, which we can't talk about directly here
-    # because it's in python code that depends on us, into a WithUnit value.
-    if hasattr(value, '_value') and isinstance(value._value, WithUnit):
-        return value._value
-
     # Choose derived class type.
-    if isinstance(value, WithUnit):
-        return value
-    elif isinstance(value, complex):
+    if isinstance(value, complex):
         val = value
         target_type = Complex
     elif isinstance(value, np.ndarray):
         val = value
         target_type = ValueArray
-    elif isinstance(value, list):
+    elif isinstance(value, list) or isinstance(value, np.ndarray):
         val = np.array(value)
         target_type = ValueArray
-    else:  # int or float or other
+    elif isinstance(value, int) or isinstance(value, float):
         val = float(value)
         target_type = Value
+    else:
+        raise ValueError("Unrecognized value type: " + type(value))
 
     cdef WithUnit result = target_type(None)
     result.value = val
@@ -371,7 +366,8 @@ cdef class WithUnit:
     def __init__(WithUnit self, value, unit=None):
         """
         Creates a value with associated units.
-        :param value: The value. An int, float, complex, or ndarray.
+        :param value: The value. An int, float, complex, list, string, Unit,
+                      WithUnit, or ndarray.
         :param unit: A representation of the physical units. Could be an
             instance of Unit, or UnitArray, or a string to be parsed.
         """
@@ -386,15 +382,10 @@ cdef class WithUnit:
             self.ratio.denom = 1
             return
 
-        cdef WithUnit unit_val
-        if unit is None:
-            unit_val = WithUnit(1)
-        elif isinstance(unit, WithUnit):
-            unit_val = unit
-        elif isinstance(unit, str):
-            unit_val = __unit_val_from_str(unit)
-        else:
-            unit_val = unit._value
+        cdef WithUnit unit_val = WithUnit(1) if unit is None else \
+            __try_interpret_as_with_unit_value_loose(unit)
+        if unit_val is None:
+            raise ValueError("Bad WithUnit scaling value: " + repr(value))
         unit_val *= value
         self.value = unit_val.value
         self.base_units = unit_val.base_units
@@ -422,8 +413,9 @@ cdef class WithUnit:
         Wraps the given object into a WithUnit instance, unless it's already
         a WithUnit.
         """
-        if isinstance(obj, WithUnit):
-            return obj
+        raw = __try_interpret_as_with_unit_value_strict(obj)
+        if raw is not None:
+            return raw
         return raw_WithUnit(obj, 1, 1, 0, DimensionlessUnit, DimensionlessUnit)
 
     cdef __with_value(self, new_value):
@@ -639,20 +631,22 @@ cdef class WithUnit:
             return self.isAngle()
 
     def __getitem__(self, key):
-        cdef WithUnit unit_val
         if isinstance(key, int) or isinstance(key, slice):
             return self.__with_value(self.value[key])
-        if isinstance(key, str):
-            unit_val = __unit_val_from_str(key)
-        elif isinstance(key, WithUnit):
-            unit_val = key
-        else:
-            unit_val = key._value
-#            raise ValueError("Bad unit key")
+
+
+        cdef WithUnit unit_val = __try_interpret_as_with_unit_value_loose(key)
+        if unit_val is None:
+            raise TypeError("Bad unit key: " + repr(key))
+
+        # We could interpret the dimensionless value like the others, but x[1.0]
+        # is uncomfortably close to x[1] yet acts differently so for now we will
+        # disallow it.
+        if unit_val.isDimensionless() and not isinstance(key, str):
+            raise TypeError("Ambiguous unit key: " + repr(key))
 
         if self.base_units != unit_val.base_units:
-            raise UnitMismatchError("Value doesn't match specified units.")
-
+            raise UnitMismatchError("Unit key doesn't match value's units.")
 
         return (self.value
             * frac_to_double(frac_div(self.ratio, unit_val.ratio))
@@ -660,21 +654,15 @@ cdef class WithUnit:
             / unit_val.value)
 
     def isCompatible(self, unit):
-        cdef WithUnit other
-        if isinstance(unit, str):
-            other = __unit_val_from_str(unit)
-        elif isinstance(unit, WithUnit):
-            other = unit
-        else:
-            other = unit._value
+        cdef WithUnit other = __try_interpret_as_with_unit_value_loose(unit)
+        if other is None:
+            raise ValueError("Bad unit key: " + repr(unit))
         return self.base_units == other.base_units
 
     def inUnitsOf(WithUnit self, unit):
-        cdef WithUnit unit_val
-        if isinstance(unit, str):
-            unit_val = __unit_val_from_str(unit)
-        else:
-            unit_val = unit._value
+        cdef WithUnit unit_val = __try_interpret_as_with_unit_value_loose(unit)
+        if unit_val is None:
+            raise ValueError("Bad unit key: " + repr(unit))
         return unit_val.__with_value(self[unit_val])
 
     def __hash__(self):
@@ -695,12 +683,20 @@ cdef class WithUnit:
     __array_priority__ = 15
 
 __unit = None
-__unit_val_from_str = None
-def init_base_unit_functions(unit, unit_val_from_str):
+__try_interpret_as_with_unit_value_loose = None
+__try_interpret_as_with_unit_value_strict = None
+def init_base_unit_functions(
+        unit,
+        try_interpret_as_with_unit_value_loose,
+        try_interpret_as_with_unit_value_strict):
     global __unit
-    global __unit_val_from_str
+    global __try_interpret_as_with_unit_value_loose
+    global __try_interpret_as_with_unit_value_strict
     __unit = unit
-    __unit_val_from_str = unit_val_from_str
+    __try_interpret_as_with_unit_value_loose = \
+        try_interpret_as_with_unit_value_loose
+    __try_interpret_as_with_unit_value_strict = \
+        try_interpret_as_with_unit_value_strict
 
 
 class Value(WithUnit):
