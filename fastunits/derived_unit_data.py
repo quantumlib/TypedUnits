@@ -51,7 +51,7 @@ SI_DERIVED_UNITS = [
     DerivedUnit('H', 'henry', 'Wb/A'),
     DerivedUnit('lm', 'lumen', 'cd*sr'),
     DerivedUnit('lx', 'lux', 'lm/m^2'),
-    DerivedUnit('Bq', 'becqurel', 'Hz'),
+    DerivedUnit('Bq', 'becquerel', 'Hz'),
 ]
 
 OTHER_UNITS = [
