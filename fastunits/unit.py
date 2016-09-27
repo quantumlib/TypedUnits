@@ -17,11 +17,11 @@ def make_unit_database_from_unit_data():
         db.add_derived_unit_data(data, SI_PREFIXES)
     return db
 
-_default_unit_database = make_unit_database_from_unit_data()
+default_unit_database = make_unit_database_from_unit_data()
 
 
 def _unit_val_from_str(formula):
-    return _default_unit_database.get_unit(formula)
+    return default_unit_database.get_unit(formula)
 
 
 def _try_interpret_as_with_unit(obj):
@@ -33,7 +33,7 @@ def _try_interpret_as_with_unit(obj):
     if isinstance(obj, WithUnit):
         return obj
     if isinstance(obj, str):
-        return _default_unit_database.parse_unit(obj)
+        return default_unit_database.parse_unit(obj)
     if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, list) \
             or isinstance(obj, complex) or isinstance(obj, np.ndarray):
         return WithUnit(obj)
@@ -45,16 +45,16 @@ init_base_unit_functions(_try_interpret_as_with_unit)
 
 class Unit(Value):
     def __init__(self, obj):
-        unit = _default_unit_database.parse_unit(obj)
+        unit = default_unit_database.parse_unit(obj)
         super(Value, self).__init__(unit)
 
 
 def addNonSI(name, use_prefixes=False):
-    _default_unit_database.add_root_unit(name)
+    default_unit_database.add_root_unit(name)
     if use_prefixes:
         for data in SI_PREFIXES:
             for prefix in [data.name, data.symbol]:
-                _default_unit_database.add_scaled_unit(
+                default_unit_database.add_scaled_unit(
                     prefix + name,
                     1,
                     1,
