@@ -1,33 +1,36 @@
-class Prefix:
-    def __init__(self, symbol, name, exponent):
+class PrefixData:
+    """
+    Describes the properties of a unit prefix.
+    """
+    def __init__(self, symbol, name, exp10):
         """
-        :param symbol: The short name for the prefix (e.g. 'G' for giga).
-        :param name: The full name of the prefix (e.g. 'giga').
-        :param exponent: The power of 10 the prefix corresponds to.
+        :param str symbol: The short name for the prefix (e.g. 'G' for giga).
+        :param str name: The full name of the prefix (e.g. 'giga').
+        :param int exp10: The power of 10 the prefix corresponds to.
         """
         self.symbol = symbol
         self.name = name
-        self.exponent = exponent
+        self.exp10 = exp10
 
 SI_PREFIXES = [
-    Prefix('Y', 'yotta', 24),
-    Prefix('Z', 'zetta', 21),
-    Prefix('E', 'exa', 18),
-    Prefix('P', 'peta', 15),
-    Prefix('T', 'tera', 12),
-    Prefix('G', 'giga', 9),
-    Prefix('M', 'mega', 6),
-    Prefix('k', 'kilo', 3),
-    Prefix('h', 'hecto', 2),
-    Prefix('da', 'deka', 1),
-    Prefix('d', 'deci', -1),
-    Prefix('c', 'centi', -2),
-    Prefix('m', 'milli', -3),
-    Prefix('u', 'micro', -6),
-    Prefix('n',' nano', -9),
-    Prefix('p', 'pico', -12),
-    Prefix('f', 'femto', -15),
-    Prefix('a', 'atto', -18),
-    Prefix('z', 'zepto', -21),
-    Prefix('y', 'yocto', -24),
+    PrefixData('Y', 'yotta', 24),
+    PrefixData('Z', 'zetta', 21),
+    PrefixData('E', 'exa', 18),
+    PrefixData('P', 'peta', 15),
+    PrefixData('T', 'tera', 12),
+    PrefixData('G', 'giga', 9),
+    PrefixData('M', 'mega', 6),
+    PrefixData('k', 'kilo', 3),
+    PrefixData('h', 'hecto', 2),
+    PrefixData('da', 'deka', 1),
+    PrefixData('d', 'deci', -1),
+    PrefixData('c', 'centi', -2),
+    PrefixData('m', 'milli', -3),
+    PrefixData('u', 'micro', -6),
+    PrefixData('n', 'nano', -9),
+    PrefixData('p', 'pico', -12),
+    PrefixData('f', 'femto', -15),
+    PrefixData('a', 'atto', -18),
+    PrefixData('z', 'zepto', -21),
+    PrefixData('y', 'yocto', -24),
 ]

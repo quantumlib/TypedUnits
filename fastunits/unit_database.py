@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import division
 from __all_cythonized import WithUnit, UnitArray
 import unit_grammar
 
@@ -11,7 +10,6 @@ class UnitDatabase(object):
     constructing new values or converting between units, we need a database of
     known units.
     """
-
     def __init__(self, auto_create_units=True):
         """
         :param auto_create_units: Determines if unrecognized strings are
@@ -21,11 +19,19 @@ class UnitDatabase(object):
         self.auto_create_units = auto_create_units
 
     def get_unit(self, unit_name):
-        if self.auto_create_units and not unit_name in self.known_units:
+        """
+        :param str unit_name:
+        :return WithUnit:
+        """
+        if self.auto_create_units and unit_name not in self.known_units:
             self.add_root_unit(unit_name)
         return self.known_units[unit_name]
 
-    def parse_unit(self, formula):
+    def parse_unit_formula(self, formula):
+        """
+        :param str formula:
+        :return WithUnit:
+        """
         if formula == '':
             return self.get_unit('')
         parsed = unit_grammar.unit.parseString(formula)
@@ -44,6 +50,10 @@ class UnitDatabase(object):
         return self.get_unit(unit_name) ** (sign * float(numer) / denom)
 
     def add_unit(self, unit_name, unit_base_value):
+        """
+        :param str unit_name:
+        :param WithUnit unit_base_value:
+        """
         if not isinstance(unit_base_value, WithUnit):
             raise TypeError('unit_base_value must be a WithUnit')
         if unit_name in self.known_units:
@@ -51,12 +61,29 @@ class UnitDatabase(object):
         self.known_units[unit_name] = unit_base_value
 
     def add_root_unit(self, unit_name):
+        """
+        :param str unit_name:
+        """
         ua = UnitArray(unit_name)
         unit = WithUnit.raw(1, 1, 1, 0, ua, ua)
         self.add_unit(unit_name, unit)
 
-    def add_scaled_unit(self, unit_name, value, numer, denom, exp10, formula):
-        base_unit = self.parse_unit(formula)
+    def add_scaled_unit(self,
+                        unit_name,
+                        formula,
+                        value=1,
+                        numer=1,
+                        denom=1,
+                        exp10=0):
+        """
+        :param str unit_name:
+        :param str formula:
+        :param int|float|complex value:
+        :param int numer:
+        :param int denom:
+        :param int exp10:
+        """
+        base_unit = self.parse_unit_formula(formula)
         value *= base_unit.value
         numer *= base_unit.numer
         denom *= base_unit.denom
@@ -72,63 +99,50 @@ class UnitDatabase(object):
 
         self.add_unit(unit_name, unit)
 
-    def add_base_unit_data(self, data, prefix_data):
+    def add_base_unit_data(self, data, prefixes):
+        """
+        :param BaseUnitData data:
+        :param list[PrefixData] prefixes:
+        """
+        self.add_root_unit(data.symbol)
+        self.add_scaled_unit(data.name, data.symbol)
+
         symbol = data.symbol
         name = data.name
-        self.add_root_unit(data.symbol)
-        self.add_scaled_unit(data.name, 1, 1, 1, 0, data.symbol)
-
         if symbol == 'kg':
             symbol = 'g'
             name = 'gram'
-            self.add_scaled_unit(symbol, 1, 1, 1, -3, 'kg')
-            self.add_scaled_unit(name, 1, 1, 1, -3, 'kg')
+            self.add_scaled_unit(symbol, 'kg', exp10=-3)
+            self.add_scaled_unit(name, 'kg', exp10=-3)
 
         if data.use_prefixes:
-            for pre in prefix_data:
+            for pre in prefixes:
                 if symbol == 'g' and pre.symbol == 'k':
                     continue
+                for key in [pre.symbol + symbol, pre.name + name]:
+                    self.add_scaled_unit(key,
+                                         symbol,
+                                         exp10=pre.exp10)
 
-                self.add_scaled_unit(pre.symbol + symbol,
-                                     1,
-                                     1,
-                                     1,
-                                     pre.exponent,
-                                     symbol)
-
-                self.add_scaled_unit(pre.name + name,
-                                     1,
-                                     1,
-                                     1,
-                                     pre.exponent,
-                                     symbol)
-
-    def add_derived_unit_data(self, data, prefix_data):
-        self.add_scaled_unit(data.symbol,
-                             data.value,
-                             data.numerator,
-                             data.denominator,
-                             data.exponent,
-                             data.base_unit_expression)
-        self.add_scaled_unit(data.name,
-                             data.value,
-                             data.numerator,
-                             data.denominator,
-                             data.exponent,
-                             data.base_unit_expression)
+    def add_derived_unit_data(self, data, prefixes):
+        """
+        :param DerivedUnitData data:
+        :param list[PrefixData] prefixes:
+        """
+        for key in [data.symbol, data.name]:
+            self.add_scaled_unit(key,
+                                 data.formula,
+                                 data.value,
+                                 data.numerator,
+                                 data.denominator,
+                                 data.exp10)
 
         if data.use_prefixes:
-            for pre in prefix_data:
-                self.add_scaled_unit(pre.symbol + data.symbol,
-                                     data.value,
-                                     data.numerator,
-                                     data.denominator,
-                                     pre.exponent + data.exponent,
-                                     data.base_unit_expression)
-
-                self.add_scaled_unit(pre.name + data.name,
-                                     data.value,
-                                     data.numerator,
-                                     data.denominator,
-                                     pre.exponent + data.exponent,
-                                     data.base_unit_expression)
+            for pre in prefixes:
+                for key in [pre.symbol + data.symbol, pre.name + data.name]:
+                    self.add_scaled_unit(key,
+                                         data.formula,
+                                         data.value,
+                                         data.numerator,
+                                         data.denominator,
+                                         data.exp10 + pre.exp10)

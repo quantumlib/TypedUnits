@@ -5,7 +5,7 @@ import unit as __unit
 
 # Expose the type/method API.
 Unit = __unit.Unit
-addNonSI = __unit.addNonSI
+addNonSI = __unit.add_non_si
 Complex = __all_cythonized.Complex
 DimensionlessUnit = __all_cythonized.DimensionlessUnit
 UnitArray = __all_cythonized.UnitArray

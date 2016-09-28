@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-from __future__ import division
 from __all_cythonized import WithUnit, Value, init_base_unit_functions
 from fastunits.unit_database import UnitDatabase
 from base_unit_data import ALL_BASE_UNITS
@@ -17,8 +16,6 @@ def make_unit_database_from_unit_data():
         db.add_derived_unit_data(data, SI_PREFIXES)
     return db
 
-default_unit_database = make_unit_database_from_unit_data()
-
 
 def _unit_val_from_str(formula):
     return default_unit_database.get_unit(formula)
@@ -33,31 +30,36 @@ def _try_interpret_as_with_unit(obj):
     if isinstance(obj, WithUnit):
         return obj
     if isinstance(obj, str):
-        return default_unit_database.parse_unit(obj)
+        return default_unit_database.parse_unit_formula(obj)
     if isinstance(obj, int) or isinstance(obj, float) or isinstance(obj, list) \
             or isinstance(obj, complex) or isinstance(obj, np.ndarray):
         return WithUnit(obj)
     return None
 
 
-init_base_unit_functions(_try_interpret_as_with_unit)
-
-
 class Unit(Value):
+    """
+    Just a Value (WithValue), but with a constructor that accepts formulas.
+    """
     def __init__(self, obj):
-        unit = default_unit_database.parse_unit(obj)
+        unit = default_unit_database.parse_unit_formula(obj)
         super(Value, self).__init__(unit)
 
 
-def addNonSI(name, use_prefixes=False):
+def add_non_si(name, use_prefixes=False):
+    """
+    :param str name:
+    :param bool use_prefixes:
+    """
     default_unit_database.add_root_unit(name)
     if use_prefixes:
         for data in SI_PREFIXES:
             for prefix in [data.name, data.symbol]:
                 default_unit_database.add_scaled_unit(
                     prefix + name,
-                    1,
-                    1,
-                    1,
-                    data.exponent,
-                    name)
+                    name,
+                    exp10=data.exp10)
+
+
+default_unit_database = make_unit_database_from_unit_data()
+init_base_unit_functions(_try_interpret_as_with_unit)

@@ -1,11 +1,18 @@
 #!/usr/bin/env python
 
-from pyparsing import (Word, Literal, Group,
-                              Forward, Optional, alphas, nums, alphanums, stringEnd)
+from pyparsing import (Word,
+                       Literal,
+                       Group,
+                       Forward,
+                       Optional,
+                       alphas,
+                       nums,
+                       alphanums,
+                       stringEnd)
 
-toInt = lambda s, l, t: [int(t[0])]
+to_int = lambda s, l, t: [int(t[0])]
 
-number = Word(nums).setParseAction(toInt)
+number = Word(nums).setParseAction(to_int)
 name = Word(alphas + '%"\'\xE6\xF8', alphanums + '%"\'\xE6\xF8') # degree and mu
 
 power = Literal('^').suppress()
