@@ -1,9 +1,10 @@
 from distutils.core import setup
-from Cython.Build import cythonize
+from setuptools import Extension
+from Cython.Distutils import build_ext
 
 setup(
-    name="fastunits",
-    version="1.0",
-    packages=['fastunits'],
-    ext_modules=cythonize("fastunits/unitarray.pyx"),
-    requires=['Cython', 'numpy'])
+    ext_modules=[Extension(
+        "fastunits.__all_cythonized",
+        ["fastunits/cython/__all_cythonized.pyx"])],
+    requires=['Cython', 'numpy'],
+    cmdclass={'build_ext': build_ext})

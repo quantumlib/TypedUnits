@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import division
-from fastunits.unitarray import WithUnit, Value, init_base_unit_functions
+from __all_cythonized import WithUnit, Value, init_base_unit_functions
 from fastunits.unit_database import UnitDatabase
 from base_unit_data import ALL_BASE_UNITS
 from derived_unit_data import ALL_DERIVED_UNITS

@@ -3,307 +3,16 @@ from cpython.mem cimport PyMem_Free, PyMem_Malloc
 from cpython.object cimport Py_EQ, Py_NE, Py_LE, Py_GE, Py_LT, Py_GT
 import copy
 import copy_reg
-import math
 import numpy as np
 
-cimport cython
-from libc.math cimport floor as c_floor, pow as c_pow
+from libc.math cimport pow as c_pow
 
 
-# A ratio that should always be canonicalized into least terms with the sign
-# on the numerator.
-cdef struct frac:
-    long long numer
-    long long denom
-
-
-# Returns the greatest divisor that both inputs share.
-@cython.cdivision(True)
-cpdef long long gcd(long long a, long long b):
-    if a < 0 or b < 0:
-       return gcd(abs(a), abs(b))
-    if a == 0:
-        return b
-    return gcd(b % a, a)
-
-
-# Returns an equivalent fraction, without common factors between numerator and
-# denominator and with the negative sign on the numerator (if present).
-@cython.cdivision(True)
-cpdef frac frac_least_terms(long long numer, long long denom) except *:
-    if denom < 0:
-        return frac_least_terms(-numer, -denom)
-    if denom == 0:
-        raise ZeroDivisionError()
-    cdef long long d = gcd(numer, denom)
-    cdef frac f
-    f.numer = numer / d
-    f.denom = denom / d
-    return f
-
-
-# Returns the product of the two given fractions, in least terms.
-@cython.cdivision(True)
-cpdef frac frac_times(frac a, frac b):
-    cdef long long d1 = gcd(a.numer, b.denom)
-    cdef long long d2 = gcd(b.numer, a.denom)
-    cdef frac f
-    f.numer = (a.numer/d1) * (b.numer/d2)
-    f.denom = (a.denom/d2) * (b.denom/d1)
-    return f
-
-
-# Returns the quotient of the two given fractions, in least terms.
-@cython.cdivision(True)
-cpdef frac frac_div(frac a, frac b) except *:
-    if b.numer == 0:
-        raise ZeroDivisionError()
-    cdef long long d1 = gcd(a.numer, b.numer)
-    cdef long long d2 = gcd(b.denom, a.denom)
-    cdef frac f
-    f.numer = (a.numer/d1) * (b.denom/d2)
-    f.denom = (a.denom/d2) * (b.numer/d1)
-    if f.denom < 0:
-        f.numer *= -1
-        f.denom *= -1
-    return f
-
-
-# Recognizes floats corresponding to twelths. Returns them as a fraction.
-cpdef frac float_to_twelths_frac(a) except *:
-    if isinstance(a, int):
-        return frac_least_terms(a, 1)
-
-    cdef double d = float(a)
-    cdef long long x = <long long>c_floor(12*d + 0.5)
-    if abs(12*d - x) > 1e-5:
-        raise ValueError("Not a twelfth.")
-
-    return frac_least_terms(x, 12)
-
-
-# Converts a fraction to a double approximating its value.
-cpdef double frac_to_double(frac f):
-    return <double>f.numer / <double>f.denom
-
-
-cdef long long iroot(long long x, int exponent_denom):
+cdef long long inv_root(long long x, int exponent_denom):
     cdef long long tmp = <long long>c_pow(x, 1.0/exponent_denom)
     if c_pow(tmp, exponent_denom) != x:
         raise ValueError("%s root of %s not an integer" % (exponent_denom, x))
     return tmp
-
-
-# A symbol raised to a power.
-cdef struct UnitTerm:
-    PyObject *name
-    frac power
-
-
-cdef class UnitArray:
-    """
-    A list of physical units raised to various powers.
-    """
-    cdef UnitTerm *units
-    cdef int unit_count
-
-    def __cinit__(self, str name = None):
-        if name is not None:
-            # Singleton unit array.
-            self.unit_count = 1
-            self.units = <UnitTerm *>PyMem_Malloc(sizeof(UnitTerm))
-            if self.units == NULL:
-                raise RuntimeError("Malloc failed")
-            Py_INCREF(name)
-            self.units[0].name = <PyObject *>name
-            self.units[0].power.numer = 1
-            self.units[0].power.denom = 1
-        # else default to empty unit array
-        # (the calling Cython code may do some non-empty initialization)
-
-    @staticmethod
-    def raw(name_numer_denom_tuples):
-        """
-        :param list((name, power.numer, power.denom)) name_numer_denom_tuples:
-            The list of properties that units in the resulting list should have.
-        :return UnitArray:
-        """
-        cdef int n = len(name_numer_denom_tuples)
-        cdef UnitArray result = UnitArray()
-        result.units = <UnitTerm *>PyMem_Malloc(sizeof(UnitTerm) * n)
-        if result.units == NULL:
-            raise RuntimeError("Malloc failed")
-
-        cdef str name
-        cdef long long numer
-        cdef long long denom
-        cdef UnitTerm* dst
-        for name, numer, denom in name_numer_denom_tuples:
-            dst = result.units + result.unit_count
-            dst.power = frac_least_terms(numer, denom)
-            dst.name = <PyObject *>name
-            Py_INCREF(name)
-            result.unit_count += 1
-
-        return result
-
-    def __dealloc__(self):
-        cdef int i
-        for i in range(self.unit_count):
-            Py_DECREF(<str>self.units[i].name)
-        if self.units:
-            PyMem_Free(self.units)
-
-    def __len__(UnitArray self):
-        return self.unit_count
-
-    def __getitem__(UnitArray self, int index):
-        if index < 0 or index >= self.unit_count:
-            raise IndexError()
-        cdef UnitTerm unit = self.units[index]
-        return <str>unit.name, unit.power.numer, unit.power.denom
-
-    def __iter__(self):
-        cdef int i
-        for i in range(self.unit_count):
-            yield self[i]
-
-    def __repr__(self):
-        return 'UnitArray.raw(%s)' % repr(list(self))
-
-    def __str__(self):
-        def tup_str(tup):
-            name, numer, denom = tup
-            numer = abs(numer)
-            if numer == 1 and denom == 1:
-                return name
-            if denom == 1:
-                return "%s^%d" % (name, numer)
-            return "%s^(%d/%d)" % (name, numer, denom)
-
-        times = '*'.join(tup_str(e) for e in self if e[1] > 0)
-        divisions = ''.join('/' + tup_str(e) for e in self if e[1] < 0)
-        if not divisions:
-            return times
-        return (times or '1') + divisions
-
-    def __richcmp__(a, b, int op):
-        if op != Py_EQ and op != Py_NE:
-            return NotImplemented
-        match = op == Py_EQ
-        if not isinstance(a, UnitArray) or not isinstance(b, UnitArray):
-            return not match
-        cdef UnitArray left = a
-        cdef UnitArray right = b
-        if left.unit_count != right.unit_count:
-            return not match
-        cdef int i
-        for i in range(left.unit_count):
-            if <str>left.units[i].name != <str>right.units[i].name:
-                return not match
-            if left.units[i].power.numer != right.units[i].power.numer:
-                return not match
-            if left.units[i].power.denom != right.units[i].power.denom:
-                return not match
-        return match
-
-    def __mul__(UnitArray a, UnitArray b):
-        return a.__times_div(b, +1)
-
-    def __div__(UnitArray a, UnitArray b):
-        return a.__times_div(b, -1)
-
-    def __times_div(UnitArray left, UnitArray right, int sign_r):
-        # Compute the needed array size
-        cdef UnitTerm *a = left.units
-        cdef UnitTerm *b = right.units
-        cdef int out_count = 0
-        cdef UnitTerm *a_end = left.units + left.unit_count
-        cdef UnitTerm *b_end = right.units + right.unit_count
-        while a != a_end or b != b_end:
-            a_name = None if a == a_end else <str>a.name
-            b_name = None if b == b_end else <str>b.name
-
-            if a_name == b_name:
-                if a.power.numer * b.power.denom \
-                        + sign_r * b.power.numer * a.power.denom != 0:
-                    out_count += 1
-                a += 1
-                b += 1
-            elif b_name is None or (a_name is not None and a_name < b_name):
-                a += 1
-                out_count += 1
-            else:
-                b += 1
-                out_count += 1
-
-        cdef UnitArray out = UnitArray()
-        out.units = <UnitTerm *>PyMem_Malloc(sizeof(UnitTerm) * out_count)
-        if out.units == NULL:
-            raise RuntimeError("Malloc failed")
-
-        a = left.units
-        b = right.units
-        a_end = left.units + left.unit_count
-        b_end = right.units + right.unit_count
-        cdef int i = 0
-        cdef long long new_numer
-        cdef long long new_denom
-        while a != a_end or b != b_end:
-            a_name = None if a == a_end else <str>a.name
-            b_name = None if b == b_end else <str>b.name
-
-            if a_name == b_name:
-                new_numer = a.power.numer * b.power.denom \
-                        + sign_r * b.power.numer * a.power.denom
-                if new_numer != 0:
-                    out.units[i].name = a.name
-                    Py_INCREF(a_name)
-                    out.unit_count += 1
-                    new_denom = a.power.denom * b.power.denom
-                    out.units[i].power = frac_least_terms(new_numer, new_denom)
-                    i += 1
-                a += 1
-                b += 1
-            elif b_name is None or (a_name is not None and a_name < b_name):
-                out.units[i] = a[0]
-                Py_INCREF(a_name)
-                out.unit_count += 1
-                a += 1
-                i += 1
-            else:
-                out.units[i] = b[0]
-                Py_INCREF(b_name)
-                out.unit_count += 1
-                out.units[i].power.numer *= sign_r
-                b += 1
-                i += 1
-
-        return out
-
-    cdef pow_frac(UnitArray self, frac exponent):
-        if exponent.numer == 0:
-            return DimensionlessUnit
-        cdef UnitArray result = UnitArray()
-        result.units = <UnitTerm*>PyMem_Malloc(sizeof(UnitTerm)*self.unit_count)
-        if result.units == NULL:
-            raise RuntimeError("Malloc failed")
-        cdef UnitTerm *p
-        cdef int i
-        for i in range(self.unit_count):
-            p = result.units + i
-            p[0] = self.units[i]
-            Py_INCREF(<str>p[0].name)
-            result.unit_count += 1
-            p[0].power = frac_times(p[0].power, exponent)
-        return result
-
-    def __pow__(UnitArray self, exponent, modulo):
-        if modulo is not None:
-            raise ValueError("UnitArray power does not support third argument")
-        return self.pow_frac(float_to_twelths_frac(exponent));
-
-DimensionlessUnit = UnitArray()
 
 
 cdef raw_WithUnit(value,
@@ -515,8 +224,10 @@ cdef class WithUnit:
         if (left.exp10 * pow_frac.numer) % pow_frac.denom:
             raise RuntimeError("Unable to take root of specified unit")
 
-        cdef long long numer = <long long>c_pow(iroot(left.ratio.numer, pow_frac.denom), abs_numer)
-        cdef long long denom = <long long>c_pow(iroot(left.ratio.denom, pow_frac.denom), abs_numer)
+        cdef long long numer = <long long>c_pow(
+            inv_root(left.ratio.numer, pow_frac.denom), abs_numer)
+        cdef long long denom = <long long>c_pow(
+            inv_root(left.ratio.denom, pow_frac.denom), abs_numer)
         if pow_sign == -1:
             numer, denom = denom, numer
 
@@ -605,13 +316,13 @@ cdef class WithUnit:
             self.base_units,
             self.display_units
         ])
-    
+
     def __copy__(self):
         return self
 
     def __deepcopy__(self, memo):
         return self
-    
+
     def inBaseUnits(self):
         factor = self._scale_to_double()
         new_value = self.value * factor
@@ -689,67 +400,8 @@ def init_base_unit_functions(try_interpret_as_with_unit):
     __try_interpret_as_with_unit = try_interpret_as_with_unit
 
 
-class Value(WithUnit):
-    _numType = float
-
-
-class Complex(WithUnit):
-    _numType = complex
-
-
-class ValueArray(WithUnit):
-    _numType = np.array # Regular ndarray constructor doesn't work
-
-    def __setitem__(WithUnit self, key, val):
-        cdef WithUnit right = WithUnit.wrap(val)
-        if self.base_units != right.base_units:
-            raise UnitMismatchError("Item's units don't match array's units.")
-        cdef double f = self._scale_to_double() / right._scale_to_double()
-        self.value[key] = right.value * f
-
-    def __copy__(WithUnit self):
-        return self.__with_value(copy.copy(self.value))
-
-    def __deepcopy__(WithUnit self, memo):
-        return self.__with_value(copy.deepcopy(self.value))
-
-    def __iter__(WithUnit self):
-        for e in self.value:
-            yield self.__with_value(e)
-
-    def __len__(self):
-        return len(self._value)
-
-    @property
-    def dtype(self):
-        return self.value.dtype
-
-    @property
-    def ndim(self):
-        return self.value.ndim
-
-    @property
-    def shape(self):
-        return self.value.shape
-
-    def allclose(self, other, *args, **kw):
-        return np.allclose(self.value, other[self.unit], *args, **kw)
-
-class UnitMismatchError(TypeError):
-    pass
-
-
-def __unpickle_UnitArray(x):
-    return UnitArray.raw(x)
-
-
 def __unpickle_WithUnit(*x):
     return WithUnit.raw(*x)
-
-
-copy_reg.pickle(
-    UnitArray,
-    lambda e: (__unpickle_UnitArray, (list(e),)))
 
 copy_reg.pickle(
     WithUnit,

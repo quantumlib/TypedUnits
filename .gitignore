@@ -3,5 +3,5 @@
 \#*#
 build/
 *.so
-fastunits/unitarray.c
+*_cythonized.c
 .cache/

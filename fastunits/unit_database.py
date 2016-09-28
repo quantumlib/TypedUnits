@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 from __future__ import division
-from fastunits.unitarray import WithUnit, UnitArray, init_base_unit_functions
-import fastunits.unit_grammar as unit_grammar
-from base_unit_data import ALL_BASE_UNITS
-from derived_unit_data import ALL_DERIVED_UNITS
-from prefix_data import SI_PREFIXES
+from __all_cythonized import WithUnit, UnitArray
+import unit_grammar
 
 
 class UnitDatabase(object):

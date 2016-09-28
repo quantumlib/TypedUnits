@@ -3,11 +3,7 @@ import copy
 import numpy as np
 import pickle
 import unittest
-from fastunits.unitarray import \
-    WithUnit,\
-    UnitArray,\
-    DimensionlessUnit,\
-    UnitMismatchError
+from fastunits import WithUnit, UnitArray, DimensionlessUnit, UnitMismatchError
 
 du = DimensionlessUnit
 s = UnitArray.raw([('s', 1, 1)])
