@@ -5,7 +5,8 @@ import random
 import time
 import numpy as np
 
-import fastunits as U
+import fastunits.units as U
+import fastunits
 
 
 def perf_goal(avg_micros, repeats=100):
@@ -35,7 +36,8 @@ def perf_goal(avg_micros, repeats=100):
 
 
 # noinspection PyProtectedMember
-unit_list = [v for k, v in U.unit.default_unit_database.known_units.items()]
+unit_list = \
+    [v for k, v in fastunits.unit.default_unit_database.known_units.items()]
 
 
 def random_unit():
@@ -53,7 +55,7 @@ def test_perf_multiply_units():
 def test_perf_multiply_values():
     u1 = random_unit()
     u2 = random_unit()
-    return (1.0*u1) * (1.0*u2)
+    return u1 * 2.0 * u2
 
 
 @perf_goal(avg_micros=10)
@@ -68,26 +70,27 @@ def test_perf_multiply_cached_values():
 
 @perf_goal(avg_micros=20)
 def test_perf_add_values_with_same_cached_unit():
-    return (1*U.m) + (1*U.m)
+    return 2 * U.m + 3 * U.m
 
 
 @perf_goal(avg_micros=20)
 def test_perf_add_values_with_different_cached_units():
-    return (1*U.nm) + (1*U.m)
+    return 2 * U.nm + 3 * U.m
 
 
 @perf_goal(avg_micros=100*1000, repeats=1)
 def test_perf_envelope_unit():
     n = 1000
-    t = np.arange(20*n)*U.ns
-    t_cos = np.arange(20)*U.ns
+    t = np.arange(20 * n) * U.ns
+    t_cos = np.arange(20) * U.ns
     w_cos = np.pi * 2 * U.GHz / 20
-    z = np.zeros(20*n, dtype=np.complex128)
+    z = np.zeros(20 * n, dtype=np.complex128)
     for i in range(n):
         w = random.random() * .1 * U.GHz
-        phi = random.random()*np.pi
-        z[i*20:(i+1)*20] = \
-            (1-np.cos(t_cos*w_cos))*np.exp(1j*w*t[i*20:(i+1)*20]+phi)
+        phi = random.random() * np.pi
+        z[i * 20:(i + 1) * 20] = \
+            (1 - np.cos(t_cos * w_cos)) \
+            * np.exp(1j * w * t[i * 20:(i + 1) * 20] + phi)
     return z
 
 
@@ -108,8 +111,8 @@ def test_perf_envelope_no_unit():
 
 @perf_goal(avg_micros=100)
 def test_perf_multiply_unit_array():
-    a1 = np.arange(1000)*U.ns
-    a2 = np.arange(1000)*U.GHz
+    a1 = np.arange(1000) * U.ns
+    a2 = np.arange(1000) * U.GHz
     return a1 * a2
 
 

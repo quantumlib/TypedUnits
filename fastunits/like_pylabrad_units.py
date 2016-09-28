@@ -1,8 +1,11 @@
 #!/usr/bin/env python
+"""
+A compatibility layer that tries to expose the same API as pylabrad's unit
+library.
+"""
+
 import __all_cythonized
 import unit as __unit
-import units as __units
-
 
 # Expose the type/method API.
 Unit = __unit.Unit
@@ -14,4 +17,7 @@ UnitMismatchError = __all_cythonized.UnitMismatchError
 Value = __all_cythonized.Value
 ValueArray = __all_cythonized.ValueArray
 WithUnit = __all_cythonized.WithUnit
-units = __units
+
+# Expose defined units (e.g. 'meter', 'km', 'day') as module variables.
+for k, v in __unit.default_unit_database.known_units.items():
+    globals()[k] = v

@@ -16,7 +16,7 @@ import unittest
 import numpy as np
 
 import cPickle
-import fastunits as fu
+import fastunits.like_pylabrad_units as fu
 from fastunits import UnitMismatchError
 ValueArray = fu.ValueArray
 Value = fu.Value
@@ -276,36 +276,38 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertEqual(str(ts), 'tshirt/s')
 
     def testIter(self):
-        data = np.arange(5) * fu.ns
+        from fastunits.like_pylabrad_units import ns, kg
+        data = np.arange(5) * ns
         for x in data:
             self.assertIsInstance(x, fu.Value)
         with self.assertRaises(TypeError):
-            for _ in 5*fu.kg:
+            for _ in 5*kg:
                 pass
 
     def testIsCompatible(self):
-        x = 5*fu.ns
+        from fastunits.like_pylabrad_units import ns, kg, s
+        x = 5 * ns
         self.assertTrue(x.isCompatible('s'))
-        self.assertFalse(x.isCompatible(fu.kg))
-        self.assertTrue(fu.ns.isCompatible(fu.s))
-        self.assertTrue(fu.ns.isCompatible(fu.ns))
-        self.assertTrue(fu.ns.isCompatible(fu.ns*2.0))
-        self.assertFalse(fu.ns.isCompatible(fu.kg))
-        self.assertFalse(fu.ns.isCompatible(fu.kg*2.0))
+        self.assertFalse(x.isCompatible(kg))
+        self.assertTrue(ns.isCompatible(s))
+        self.assertTrue(ns.isCompatible(ns))
+        self.assertTrue(ns.isCompatible(ns * 2.0))
+        self.assertFalse(ns.isCompatible(kg))
+        self.assertFalse(ns.isCompatible(kg * 2.0))
         self.assertFalse(x.isCompatible(4))
-        self.assertTrue((x / fu.ns).isCompatible(4))
+        self.assertTrue((x / ns).isCompatible(4))
         with self.assertRaises(Exception):
             x.isCompatible(dict())
 
     def testScaledGetItem(self):
-        from fastunits import ns, s
+        from fastunits.like_pylabrad_units import ns, s
         v = s*1.0
         self.assertEquals(v[ns], 10**9)
         self.assertEquals(v[ns*2], 10**9/2)
         self.assertEquals((v*3)[(ns*3)], 10 ** 9)
 
     def testCycles(self):
-        from fastunits import cyc, rad
+        from fastunits.like_pylabrad_units import cyc, rad
         self.assertAlmostEquals((3.14159265*rad)[cyc], 0.5)
         self.assertAlmostEquals((1.0*rad)[cyc], 0.15915494309)
         self.assertAlmostEquals((1.0*cyc)[2*rad], 3.14159265)

@@ -4,6 +4,7 @@ import unittest
 import fastunits as U
 from fastunits import Value, Unit, Complex, ValueArray, UnitMismatchError
 import numpy as np
+from fastunits.units import kilometer, meter, mm, second, us, ns
 
 
 class FastUnitsTests(unittest.TestCase):
@@ -14,7 +15,7 @@ class FastUnitsTests(unittest.TestCase):
         self.assertIsInstance(y, Value)
         self.assertTrue(x.isDimensionless())
         self.assertIsInstance(3j*x, Complex)
-        self.assertIsInstance(U.ns*np.arange(5), ValueArray)
+        self.assertIsInstance(ns*np.arange(5), ValueArray)
 
     def testDimensionless(self):
         """Test that dimensionless values act like floats"""
@@ -26,12 +27,12 @@ class FastUnitsTests(unittest.TestCase):
         self.assertEqual(y, 1500.)
 
     def testValueArraySlicing(self):
-        x = np.arange(5)*U.ns
+        x = np.arange(5)*ns
         self.assertTrue(np.allclose(x[::2]['ns'], np.array([0., 2., 4.])))
 
     def testAddition(self):
         n = Value(2, '')
-        x = Value(1.0, U.kilometer)
+        x = Value(1.0, kilometer)
         y = Value(3, 'meter')
         a = Value(20, 's')
         self.assertEqual(x + y, Value(1003, 'meter'))
@@ -48,24 +49,24 @@ class FastUnitsTests(unittest.TestCase):
 
     def testMultiplication(self):
         n = Value(2, '')
-        x = Value(1.0+2j, U.meter)
-        y = Value(3, U.mm)
-        z = np.arange(5)*U.ns
-        a = Value(20, U.second)
+        x = Value(1.0+2j, meter)
+        y = Value(3, mm)
+        z = np.arange(5)*ns
+        a = Value(20, second)
         self.assertEqual(a*x, x*a)
         self.assertTrue((x/y).isDimensionless())
-        self.assertTrue((z/U.ns).isDimensionless())
-        self.assertIsInstance(z/U.ns, ValueArray)
+        self.assertTrue((z/ns).isDimensionless())
+        self.assertIsInstance(z/ns, ValueArray)
         self.assertTrue(np.allclose(z*Value(5, 'GHz'), z['ns']*5))
 
     def testPower(self):
-        x = 2*U.mm
-        y = 4*U.mm
+        x = 2*mm
+        y = 4*mm
         z = (x*y)**.5
-        self.assertLess(abs(z**2- Value(8, 'mm^2')),  Value(1e-6, U.mm**2))
+        self.assertLess(abs(z**2- Value(8, 'mm^2')),  Value(1e-6, mm**2))
 
     def testStringification(self):
-        x = Value(4, U.mm)
+        x = Value(4, mm)
         self.assertEqual(
             repr(x),
             "WithUnit.raw(4.0, 1, 1, -3, UnitArray.raw([('m', 1, 1)]), " +
@@ -73,10 +74,10 @@ class FastUnitsTests(unittest.TestCase):
         self.assertEqual(str(x), '4.0 mm')
 
     def testDivmod(self):
-        x = 4.001*U.us
-        self.assertEquals(x//(4*U.ns), 1000)
-        self.assertTrue(abs(x % (4*U.ns) - 1*U.ns) < .00001*U.ns)
-        y = divmod(x, 2*U.ns)
+        x = 4.001*us
+        self.assertEquals(x//(4*ns), 1000)
+        self.assertTrue(abs(x % (4*ns) - 1*ns) < .00001*ns)
+        y = divmod(x, 2*ns)
 
     def testConversion(self):
         x = Value(3, 'm')
@@ -85,7 +86,7 @@ class FastUnitsTests(unittest.TestCase):
             x['s']
         y = Value(1000, 'Mg')
         self.assertEquals(y.inBaseUnits().value, 1000000.0)
-        self.assertEquals(x.inUnitsOf('mm'), 3000*U.mm)
+        self.assertEquals(x.inUnitsOf('mm'), 3000*mm)
 
     def testHash(self):
         x = Value(3, 'ks')
