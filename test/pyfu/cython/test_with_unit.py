@@ -241,5 +241,16 @@ class WithUnitTests(unittest.TestCase):
         self.assertEquals(d[v], 5)
         self.assertEquals(d[w], "b")
 
+    def testStr(self):
+        self.assertEquals(str(WithUnit.raw(2, 3, 5, 7, s, h)), '2.0 s^3600')
+        self.assertEquals(str(WithUnit.raw(2, 3, 5, 7, h, s)), '2.0 s')
+        self.assertEquals(str(WithUnit.raw(2, 1, 1, 0, s, s)), '2.0 s')
+        self.assertEquals(str(WithUnit.raw(2j, 1, 1, 0, s, s)), '2j s')
+        self.assertEquals(str(WithUnit.raw(1, 1, 1, 0, h, s)), 's')
+        self.assertEquals(str(WithUnit.raw(np.array([2, 3, 5]), 1, 1, 0, h, m)),
+                          '[2 3 5] m')
+        self.assertEquals(str(WithUnit.raw(np.array([2, 3]), 1, 1, 0, h, mps)),
+                          '[2 3] m/s')
+
 if __name__ == "__main__":
     unittest.main()

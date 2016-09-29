@@ -303,7 +303,8 @@ cdef class WithUnit:
 
     def __str__(self):
         unit_str = str(self.display_units)
-        if self.value == 1 and unit_str != '':
+        if not isinstance(self.value, np.ndarray) \
+                and self.value == 1 and unit_str != '':
             return unit_str
         return ("%s %s" % (str(self.value), unit_str)).strip()
 
