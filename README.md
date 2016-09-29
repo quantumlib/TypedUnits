@@ -9,10 +9,20 @@ Defines SI units, SI prefixes, and some derived units.
 ## Example
 
 ```python
-from pyfu import Value, meter, km
+>>> import pyfu
+>>> from pyfu.units import meter, km, N
 
-print 2 * km / Value(3, 's')
-print 3*meter + 5*meter
+>>> print(5*meter + km)
+1005.0 meter
+
+>>> print(N/meter)
+N/meter
+
+>>> print((N/meter).inBaseUnits())
+kg/s^2
+
+>>> print(2*km / pyfu.Value(3, 's'))
+0.666666666667 km/s
 ```
 
 # Building
