@@ -5,8 +5,8 @@ import random
 import time
 import numpy as np
 
-import fastunits.units as U
-import fastunits
+import pyfu.unit as unit
+from pyfu.units import ns, GHz, m, nm
 
 
 def perf_goal(avg_micros, repeats=100):
@@ -36,8 +36,7 @@ def perf_goal(avg_micros, repeats=100):
 
 
 # noinspection PyProtectedMember
-unit_list = \
-    [v for k, v in fastunits.unit.default_unit_database.known_units.items()]
+unit_list = [v for k, v in unit.default_unit_database.known_units.items()]
 
 
 def random_unit():
@@ -60,33 +59,33 @@ def test_perf_multiply_values():
 
 @perf_goal(avg_micros=10)
 def test_perf_multiply_cached_units():
-    return U.ns * U.GHz
+    return ns * GHz
 
 
 @perf_goal(avg_micros=15)
 def test_perf_multiply_cached_values():
-    return (1.0 * U.ns) * (1.0 * U.GHz)
+    return (1.0 * ns) * (1.0 * GHz)
 
 
 @perf_goal(avg_micros=20)
 def test_perf_add_values_with_same_cached_unit():
-    return 2 * U.m + 3 * U.m
+    return 2 * m + 3 * m
 
 
 @perf_goal(avg_micros=20)
 def test_perf_add_values_with_different_cached_units():
-    return 2 * U.nm + 3 * U.m
+    return 2 * nm + 3 * m
 
 
 @perf_goal(avg_micros=100*1000, repeats=1)
 def test_perf_envelope_unit():
     n = 1000
-    t = np.arange(20 * n) * U.ns
-    t_cos = np.arange(20) * U.ns
-    w_cos = np.pi * 2 * U.GHz / 20
+    t = np.arange(20 * n) * ns
+    t_cos = np.arange(20) * ns
+    w_cos = np.pi * 2 * GHz / 20
     z = np.zeros(20 * n, dtype=np.complex128)
     for i in range(n):
-        w = random.random() * .1 * U.GHz
+        w = random.random() * .1 * GHz
         phi = random.random() * np.pi
         z[i * 20:(i + 1) * 20] = \
             (1 - np.cos(t_cos * w_cos)) \
@@ -111,8 +110,8 @@ def test_perf_envelope_no_unit():
 
 @perf_goal(avg_micros=100)
 def test_perf_multiply_unit_array():
-    a1 = np.arange(1000) * U.ns
-    a2 = np.arange(1000) * U.GHz
+    a1 = np.arange(1000) * ns
+    a2 = np.arange(1000) * GHz
     return a1 * a2
 
 

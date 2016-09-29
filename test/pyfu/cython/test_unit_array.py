@@ -1,7 +1,7 @@
 #!/usr/bin/python
 import pickle
 import unittest
-from fastunits import UnitArray, DimensionlessUnit
+from pyfu import UnitArray, DimensionlessUnit
 
 
 class UnitsArrayTests(unittest.TestCase):

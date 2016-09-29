@@ -1,17 +1,17 @@
-## pythonunits
+## Pyfu - Fast Python Units
 
 [![Build Status](https://matrix-reloaded.physics.ucsb.edu/teamcity/app/rest/builds/buildType:pythonunits_Pythonunits/statusIcon)](https://matrix-reloaded.physics.ucsb.edu/teamcity/project.html?projectId=pythonunits&tab=projectOverview)
 
-Implements faster unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
+Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
 Defines SI units, SI prefixes, and some derived units.
 
 ## Example
 
 ```python
-from fastunits import Value, meter
+from pyfu import Value, meter, km
 
-print Value(2, 'km') / Value(3, 's')
+print 2 * km / Value(3, 's')
 print 3*meter + 5*meter
 ```
 
@@ -24,8 +24,10 @@ print 3*meter + 5*meter
         pip install pyparsing
         pip install Cython
 
-2. **Produce `pyc` files**
+2. **Cythonize**
 
-    In the `pythonunits` directory, run:
+    `python setup.py build_ext --inplace`
 
-        python setup.py build_ext --inplace
+3. **Test**
+
+    `py.test`

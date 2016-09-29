@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 import unittest
-import fastunits.__all_cythonized as u
+import pyfu.__all_cythonized as u
 
 
 class UnitsArrayUtilTests(unittest.TestCase):

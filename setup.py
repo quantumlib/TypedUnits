@@ -1,10 +1,9 @@
 from distutils.core import setup
-from setuptools import Extension
-from Cython.Distutils import build_ext
+from Cython.Build import cythonize
+import os.path
+
+os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
 
 setup(
-    ext_modules=[Extension(
-        "fastunits.__all_cythonized",
-        ["fastunits/cython/__all_cythonized.pyx"])],
-    requires=['Cython', 'numpy'],
-    cmdclass={'build_ext': build_ext})
+    ext_modules=cythonize("pyfu/__all_cythonized.pyx"),
+    requires=['Cython', 'numpy'])

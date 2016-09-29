@@ -1,6 +1,6 @@
 #!/usr/bin/python
 import unittest
-from fastunits import Value
+from pyfu import Value
 
 
 class UsageTests(unittest.TestCase):

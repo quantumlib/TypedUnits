@@ -16,8 +16,8 @@ import unittest
 import numpy as np
 
 import cPickle
-import fastunits.like_pylabrad_units as fu
-from fastunits import UnitMismatchError
+import pyfu as fu
+from pyfu import UnitMismatchError
 ValueArray = fu.ValueArray
 Value = fu.Value
 
@@ -276,7 +276,7 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertEqual(str(ts), 'tshirt/s')
 
     def testIter(self):
-        from fastunits.like_pylabrad_units import ns, kg
+        from pyfu.like_pylabrad_units import ns, kg
         data = np.arange(5) * ns
         for x in data:
             self.assertIsInstance(x, fu.Value)
@@ -285,7 +285,7 @@ class LabradUnitsTests(unittest.TestCase):
                 pass
 
     def testIsCompatible(self):
-        from fastunits.like_pylabrad_units import ns, kg, s
+        from pyfu.like_pylabrad_units import ns, kg, s
         x = 5 * ns
         self.assertTrue(x.isCompatible('s'))
         self.assertFalse(x.isCompatible(kg))
@@ -300,14 +300,14 @@ class LabradUnitsTests(unittest.TestCase):
             x.isCompatible(dict())
 
     def testScaledGetItem(self):
-        from fastunits.like_pylabrad_units import ns, s
+        from pyfu.like_pylabrad_units import ns, s
         v = s*1.0
         self.assertEquals(v[ns], 10**9)
         self.assertEquals(v[ns*2], 10**9/2)
         self.assertEquals((v*3)[(ns*3)], 10 ** 9)
 
     def testCycles(self):
-        from fastunits.like_pylabrad_units import cyc, rad
+        from pyfu.like_pylabrad_units import cyc, rad
         self.assertAlmostEquals((3.14159265*rad)[cyc], 0.5)
         self.assertAlmostEquals((1.0*rad)[cyc], 0.15915494309)
         self.assertAlmostEquals((1.0*cyc)[2*rad], 3.14159265)

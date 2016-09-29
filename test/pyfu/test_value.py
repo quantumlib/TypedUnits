@@ -1,10 +1,9 @@
 #!/usr/bin/python
 
 import unittest
-import fastunits as U
-from fastunits import Value, Unit, Complex, ValueArray, UnitMismatchError
+from pyfu import Value, Unit, Complex, ValueArray, UnitMismatchError
 import numpy as np
-from fastunits.units import kilometer, meter, mm, second, us, ns
+from pyfu.units import kilometer, meter, mm, second, us, ns
 
 
 class FastUnitsTests(unittest.TestCase):

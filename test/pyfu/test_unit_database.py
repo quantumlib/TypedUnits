@@ -1,10 +1,10 @@
 #!/usr/bin/python
 import unittest
-from fastunits import UnitArray, WithUnit
-from fastunits.unit_database import UnitDatabase
-from fastunits.base_unit_data import BaseUnitData
-from fastunits.derived_unit_data import DerivedUnitData
-from fastunits.prefix_data import PrefixData, SI_PREFIXES
+from pyfu import UnitArray, WithUnit
+from pyfu.unit_database import UnitDatabase
+from pyfu.base_unit_data import BaseUnitData
+from pyfu.derived_unit_data import DerivedUnitData
+from pyfu.prefix_data import PrefixData, SI_PREFIXES
 from pyparsing import ParseException
 
 
