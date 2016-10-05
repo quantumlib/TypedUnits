@@ -1,6 +1,6 @@
 import unittest
 from pyfu import ValueArray, UnitMismatchError, UnitArray
-from pyfu.__all_cythonized import raw_UnitArray
+from pyfu._all_cythonized import raw_UnitArray
 import numpy as np
 
 

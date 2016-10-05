@@ -3,7 +3,7 @@ import numpy as np
 import pickle
 import unittest
 from pyfu import WithUnit, DimensionlessUnit as du, UnitMismatchError
-from pyfu.__all_cythonized import raw_WithUnit, raw_UnitArray
+from pyfu._all_cythonized import raw_WithUnit, raw_UnitArray
 
 s = raw_UnitArray([('s', 1, 1)])
 h = raw_UnitArray([('s', 3600, 1)])  # Note: is s**3600, not 3600 seconds.

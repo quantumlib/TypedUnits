@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+
+
 class BaseUnitData:
     """
     Describes the properties of a base unit.

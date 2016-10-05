@@ -1,5 +1,5 @@
 import unittest
-import pyfu.__all_cythonized as u
+import pyfu._all_cythonized as u
 
 
 class FracUtilTests(unittest.TestCase):

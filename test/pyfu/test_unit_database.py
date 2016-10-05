@@ -1,6 +1,5 @@
 import unittest
-from pyfu import UnitArray
-from pyfu.__all_cythonized import raw_WithUnit, raw_UnitArray
+from pyfu._all_cythonized import raw_WithUnit, raw_UnitArray
 from pyfu.unit_database import UnitDatabase
 from pyfu.base_unit_data import BaseUnitData
 from pyfu.derived_unit_data import DerivedUnitData

@@ -1,7 +1,7 @@
 import pickle
 import unittest
 from pyfu import UnitArray, DimensionlessUnit as du
-from pyfu.__all_cythonized import raw_UnitArray
+from pyfu._all_cythonized import raw_UnitArray
 
 
 class UnitArrayTests(unittest.TestCase):

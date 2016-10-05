@@ -1,19 +1,22 @@
-import __all_cythonized
-from __all_cythonized import Value, WithUnit
-from base_unit_data import ALL_BASE_UNITS
-from derived_unit_data import ALL_DERIVED_UNITS
-from prefix_data import SI_PREFIXES
+from __future__ import absolute_import
+from . import (_all_cythonized,
+               base_unit_data,
+               derived_unit_data,
+               prefix_data,
+               unit_database)
 import numpy as np
-from unit_database import UnitDatabase
+
+WithUnit = _all_cythonized.WithUnit
+Value = _all_cythonized.Value
 
 
 def _make_unit_database_from_unit_data():
-    db = UnitDatabase()
+    db = unit_database.UnitDatabase()
     db.add_unit('', WithUnit(1))
-    for base in ALL_BASE_UNITS:
-        db.add_base_unit_data(base, SI_PREFIXES)
-    for data in ALL_DERIVED_UNITS:
-        db.add_derived_unit_data(data, SI_PREFIXES)
+    for base in base_unit_data.ALL_BASE_UNITS:
+        db.add_base_unit_data(base, prefix_data.SI_PREFIXES)
+    for data in derived_unit_data.ALL_DERIVED_UNITS:
+        db.add_derived_unit_data(data, prefix_data.SI_PREFIXES)
     return db
 
 default_unit_database = _make_unit_database_from_unit_data()
@@ -34,7 +37,7 @@ def _try_interpret_as_with_unit(obj):
         return WithUnit(obj)
     return None
 
-__all_cythonized.init_base_unit_functions(_try_interpret_as_with_unit)
+_all_cythonized.init_base_unit_functions(_try_interpret_as_with_unit)
 
 
 class Unit(Value):
@@ -53,7 +56,7 @@ def add_non_standard_unit(name, use_prefixes=False):
     """
     default_unit_database.add_root_unit(name)
     if use_prefixes:
-        for data in SI_PREFIXES:
+        for data in prefix_data.SI_PREFIXES:
             for prefix in [data.name, data.symbol]:
                 default_unit_database.add_scaled_unit(
                     prefix + name,

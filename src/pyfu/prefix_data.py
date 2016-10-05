@@ -1,3 +1,6 @@
+from __future__ import absolute_import
+
+
 class PrefixData:
     """
     Describes the properties of a unit prefix.

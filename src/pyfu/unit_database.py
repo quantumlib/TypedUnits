@@ -1,5 +1,5 @@
-from __all_cythonized import WithUnit, UnitArray, raw_WithUnit
-import unit_grammar
+from __future__ import absolute_import
+from . import _all_cythonized, unit_grammar
 
 
 class UnitDatabase(object):
@@ -34,7 +34,7 @@ class UnitDatabase(object):
         if formula == '':
             return self.get_unit('')
         parsed = unit_grammar.unit.parseString(formula)
-        result = WithUnit(1)
+        result = _all_cythonized.WithUnit(1)
         for item in parsed.posexp:
             result *= self._parse_unit_item(item, +1)
         for item in parsed.negexp:
@@ -53,7 +53,7 @@ class UnitDatabase(object):
         :param str unit_name:
         :param WithUnit unit_base_value:
         """
-        if not isinstance(unit_base_value, WithUnit):
+        if not isinstance(unit_base_value, _all_cythonized.WithUnit):
             raise TypeError('unit_base_value must be a WithUnit')
         if unit_name in self.known_units:
             raise RuntimeError("Unit name already taken: " + repr(unit_name))
@@ -63,8 +63,8 @@ class UnitDatabase(object):
         """
         :param str unit_name:
         """
-        ua = UnitArray(unit_name)
-        unit = raw_WithUnit(1, 1, 1, 0, ua, ua)
+        ua = _all_cythonized.UnitArray(unit_name)
+        unit = _all_cythonized.raw_WithUnit(1, 1, 1, 0, ua, ua)
         self.add_unit(unit_name, unit)
 
     def add_scaled_unit(self,
@@ -88,13 +88,13 @@ class UnitDatabase(object):
         denom *= base_unit.denom
         exp10 += base_unit.exp10
 
-        unit = raw_WithUnit(
+        unit = _all_cythonized.raw_WithUnit(
             value,
             numer,
             denom,
             exp10,
             base_unit.base_units,
-            UnitArray(unit_name))
+            _all_cythonized.UnitArray(unit_name))
 
         self.add_unit(unit_name, unit)
 
