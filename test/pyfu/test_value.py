@@ -1,20 +1,19 @@
 #!/usr/bin/python
 
 import unittest
-from pyfu import Value, Unit, Complex, ValueArray, UnitMismatchError
+from pyfu import Value, Unit, Complex, UnitMismatchError
 import numpy as np
 from pyfu.units import kilometer, meter, mm, second, us, ns
 
 
 class FastUnitsTests(unittest.TestCase):
     def testConstruction(self):
-        x = 2*Unit('')
+        x = 2 * Unit('')
         y = Value(5, 'ns')
         self.assertIsInstance(x, Value)
         self.assertIsInstance(y, Value)
         self.assertTrue(x.isDimensionless())
-        self.assertIsInstance(3j*x, Complex)
-        self.assertIsInstance(ns*np.arange(5), ValueArray)
+        self.assertIsInstance(3j * x, Complex)
 
     def testDimensionless(self):
         """Test that dimensionless values act like floats"""
@@ -24,10 +23,6 @@ class FastUnitsTests(unittest.TestCase):
         self.assertEqual(np.ceil(x), 2.)
         self.assertEqual(np.floor(x), 1.)
         self.assertEqual(y, 1500.)
-
-    def testValueArraySlicing(self):
-        x = np.arange(5)*ns
-        self.assertTrue(np.allclose(x[::2]['ns'], np.array([0., 2., 4.])))
 
     def testAddition(self):
         n = Value(2, '')
@@ -48,15 +43,11 @@ class FastUnitsTests(unittest.TestCase):
 
     def testMultiplication(self):
         n = Value(2, '')
-        x = Value(1.0+2j, meter)
+        x = Value(1.0 + 2j, meter)
         y = Value(3, mm)
-        z = np.arange(5)*ns
         a = Value(20, second)
-        self.assertEqual(a*x, x*a)
-        self.assertTrue((x/y).isDimensionless())
-        self.assertTrue((z/ns).isDimensionless())
-        self.assertIsInstance(z/ns, ValueArray)
-        self.assertTrue(np.allclose(z*Value(5, 'GHz'), z['ns']*5))
+        self.assertEqual(a * x, x * a)
+        self.assertTrue((x / y).isDimensionless())
 
     def testPower(self):
         x = 2*mm
@@ -64,13 +55,15 @@ class FastUnitsTests(unittest.TestCase):
         z = (x*y)**.5
         self.assertLess(abs(z**2- Value(8, 'mm^2')),  Value(1e-6, mm**2))
 
-    def testStringification(self):
-        x = Value(4, mm)
-        self.assertEqual(
-            repr(x),
-            "WithUnit.raw(4.0, 1, 1, -3, UnitArray.raw([('m', 1, 1)]), " +
-            "UnitArray.raw([('mm', 1, 1)]))")
-        self.assertEqual(str(x), '4.0 mm')
+    def testRepr(self):
+        from pyfu.units import km, kg
+        self.assertEqual(repr(Value(1, mm)), "Value(1.0, 'mm')")
+        self.assertEqual(repr(Value(4, mm)), "Value(4.0, 'mm')")
+        self.assertEqual(repr(Value(1j+5, km * kg)), "Value((5+1j), 'kg*km')")
+
+    def testStr(self):
+        self.assertEqual(str(Value(1, mm)), 'mm')
+        self.assertEqual(str(Value(4, mm)), '4.0 mm')
 
     def testDivmod(self):
         x = 4.001*us
@@ -85,7 +78,7 @@ class FastUnitsTests(unittest.TestCase):
             x['s']
         y = Value(1000, 'Mg')
         self.assertEquals(y.inBaseUnits().value, 1000000.0)
-        self.assertEquals(x.inUnitsOf('mm'), 3000*mm)
+        self.assertEquals(x.inUnitsOf('mm'), 3000 * mm)
 
     def testHash(self):
         x = Value(3, 'ks')

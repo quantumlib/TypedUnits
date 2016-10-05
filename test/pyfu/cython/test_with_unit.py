@@ -15,9 +15,10 @@ kph = UnitArray.raw([('m', 1000, 1), ('s', -1, 3600)])
 
 class WithUnitTests(unittest.TestCase):
     def assertNumpyArrayEqual(self, a, b):
+        # noinspection PyTypeChecker
         if len(a) != len(b) or not np.all(a == b):
-            standardMsg = 'not np.all(%s == %s)' % (repr(a), repr(b))
-            msg = self._formatMessage(None, standardMsg)
+            msg = 'not np.all(%s == %s)' % (repr(a), repr(b))
+            msg = self._formatMessage(None, msg)
             raise self.failureException(msg)
 
     def testRawVersusProperties(self):

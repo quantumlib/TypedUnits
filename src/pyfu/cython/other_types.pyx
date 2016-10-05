@@ -31,7 +31,7 @@ class ValueArray(WithUnit):
             yield self.__with_value(e)
 
     def __len__(self):
-        return len(self._value)
+        return len(self.value)
 
     @property
     def dtype(self):

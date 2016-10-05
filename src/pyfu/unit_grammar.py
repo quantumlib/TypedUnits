@@ -2,7 +2,6 @@
 
 from pyparsing import (Word,
                        Literal,
-                       Group,
                        Forward,
                        Optional,
                        alphas,
@@ -10,30 +9,46 @@ from pyparsing import (Word,
                        alphanums,
                        stringEnd)
 
-to_int = lambda s, l, t: [int(t[0])]
 
-number = Word(nums).setParseAction(to_int)
-name = Word(alphas + '%"\'\xE6\xF8', alphanums + '%"\'\xE6\xF8') # degree and mu
+def out(key, token):
+    """
+    :param str key:
+    :param ParserElement token:
+    :return ParserElement:
+    """
+    return token.setResultsName(key)
 
-power = Literal('^').suppress()
-times = Literal('*').suppress()
-divide = Literal('/').suppress()
-minus = Literal('-').setResultsName('neg')
-one = Literal('1').suppress()
-lparen = Literal('(').suppress()
-rparen = Literal(')').suppress()
-exponent = Optional(minus) + number.setResultsName('num') ^ \
-           Optional(minus) + number.setResultsName('num') + divide \
-                           + number.setResultsName('denom')
 
-single_unit = name.setResultsName('name') + Optional(power + exponent)
-bare_unit = Group(single_unit).setResultsName('posexp', listAllMatches=True)
-num_unit = Group(times + single_unit).setResultsName('posexp', listAllMatches=True)
-denom_unit = Group(divide + single_unit).setResultsName('negexp', listAllMatches=True)
+def all_out(key, token):
+    """
+    :param str key:
+    :param ParserElement token:
+    :return ParserElement:
+    """
+    return token.setResultsName(key, listAllMatches=True)
+
+
+def maybe_parens(token):
+    """
+    :param ParserElement token:
+    :return ParserElement:
+    """
+    return token ^ ('(' + token + ')')
+
+number = Word(nums).setParseAction(lambda s, l, t: [int(t[0])])
+# degree and mu
+name = Word(alphas + '%"\'\xE6\xF8', alphanums + '%"\'\xE6\xF8')
+
+negatable = Optional(out('neg', Literal('-')))
+exponent = maybe_parens(negatable + maybe_parens(out('num', number) + Optional('/' + out('denom', number))))
+
+single_unit = out('name', name) + Optional('^' + exponent)
+bare_unit = all_out('posexp', single_unit)
+times_unit = all_out('posexp', '*' + single_unit)
+over_unit = all_out('negexp', '/' + single_unit)
 
 later_units = Forward()
-later_units << (num_unit + Optional(later_units) |
-                denom_unit + Optional(later_units))
+later_units <<= (times_unit | over_unit) + Optional(later_units)
 
 unit = Forward()
-unit << ((bare_unit | one + denom_unit) + Optional(later_units) + stringEnd)
+unit <<= (bare_unit | '1' + over_unit) + Optional(later_units) + stringEnd

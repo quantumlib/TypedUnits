@@ -8,6 +8,10 @@ import numpy as np
 from libc.math cimport pow as c_pow
 
 
+def isOrAllTrue(x):
+    return np.all(x) if isinstance(x, np.ndarray) else x
+
+
 cdef long long inv_root(long long x, int exponent_denom):
     cdef long long tmp = <long long>c_pow(x, 1.0/exponent_denom)
     if c_pow(tmp, exponent_denom) != x:
@@ -266,6 +270,7 @@ cdef class WithUnit:
 
         # Check units.
         if left.base_units != right.base_units:
+            # For arrays we want a list of true/false comparisons.
             shaped_false = (left.value == right.value) & False
             if op == Py_EQ:
                 return shaped_false
@@ -309,6 +314,26 @@ cdef class WithUnit:
         return ("%s %s" % (str(self.value), unit_str)).strip()
 
     def __repr__(self):
+        # If the default unit database is capable of correctly parsing our
+        # units, use a nice output. Else use a gross but correct output.
+
+        cdef WithUnit parse_attempt
+        try:
+            parse_attempt = type(self)(self.value, str(self.display_units))
+            if (parse_attempt.base_units == self.base_units
+                    and parse_attempt.display_units == self.display_units
+                    and parse_attempt.ratio.numer == self.ratio.numer
+                    and parse_attempt.ratio.denom == self.ratio.denom
+                    and parse_attempt.exp10 == self.exp10
+                    and isOrAllTrue(parse_attempt.value == self.value)):
+                return "%s(%s, '%s')" % (
+                    type(self).__name__,
+                    repr(self.value),
+                    str(self.display_units))
+        except:
+            # Some kind of non-standard unit? Fall back to raw output.
+            pass
+
         return "WithUnit.raw(%s)" % ', '.join(repr(e) for e in [
             self.value,
             self.ratio.numer,
