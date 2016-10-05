@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-
 from pyparsing import (Word,
                        Literal,
                        Forward,

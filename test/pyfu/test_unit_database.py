@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import unittest
 from pyfu import UnitArray, WithUnit
 from pyfu.unit_database import UnitDatabase

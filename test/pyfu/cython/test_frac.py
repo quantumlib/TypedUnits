@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import unittest
 import pyfu.__all_cythonized as u
 

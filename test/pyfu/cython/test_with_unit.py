@@ -1,11 +1,9 @@
-#!/usr/bin/python
 import copy
 import numpy as np
 import pickle
 import unittest
-from pyfu import WithUnit, UnitArray, DimensionlessUnit, UnitMismatchError
+from pyfu import WithUnit, UnitArray, DimensionlessUnit as du, UnitMismatchError
 
-du = DimensionlessUnit
 s = UnitArray.raw([('s', 1, 1)])
 h = UnitArray.raw([('s', 3600, 1)])
 m = UnitArray.raw([('m', 1, 1)])

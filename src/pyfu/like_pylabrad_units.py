@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 """
 A compatibility layer that tries to expose the same API as pylabrad's unit
 library.
@@ -9,7 +8,7 @@ import unit as __unit
 
 # Expose the type/method API.
 Unit = __unit.Unit
-addNonSI = __unit.add_non_si
+addNonSI = __unit.add_non_standard_unit
 Complex = __all_cythonized.Complex
 DimensionlessUnit = __all_cythonized.DimensionlessUnit
 UnitArray = __all_cythonized.UnitArray

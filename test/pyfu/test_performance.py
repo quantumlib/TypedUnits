@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import unittest
 import random
 import time
@@ -34,8 +32,6 @@ def perf_goal(avg_micros, repeats=100):
         return wrapped
     return decorate
 
-
-# noinspection PyProtectedMember
 unit_list = [v for k, v in unit.default_unit_database.known_units.items()]
 
 

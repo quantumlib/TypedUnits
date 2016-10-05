@@ -1,4 +1,8 @@
-#!/usr/bin/env python
+"""
+Exposes standard units as module variables.
+
+For example, '1/units.millisecond' is equal to 'units.kHz'.
+"""
 
 import unit as __unit
 

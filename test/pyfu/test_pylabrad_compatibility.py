@@ -306,11 +306,5 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertEquals(v[ns*2], 10**9/2)
         self.assertEquals((v*3)[(ns*3)], 10 ** 9)
 
-    def testCycles(self):
-        from pyfu.like_pylabrad_units import cyc, rad
-        self.assertAlmostEquals((3.14159265*rad)[cyc], 0.5)
-        self.assertAlmostEquals((1.0*rad)[cyc], 0.15915494309)
-        self.assertAlmostEquals((1.0*cyc)[2*rad], 3.14159265)
-
 if __name__ == "__main__":
     unittest.main()

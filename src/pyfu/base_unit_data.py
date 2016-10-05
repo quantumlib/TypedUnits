@@ -14,7 +14,7 @@ class BaseUnitData:
 
 __SI_BASE_UNITS = [
     BaseUnitData('m', 'meter'),
-    BaseUnitData('kg', 'kilogram'),  # Note: causes special-cased prefix behavior.
+    BaseUnitData('kg', 'kilogram'),  # Note: has special-cased prefix behavior.
     BaseUnitData('s', 'second'),
     BaseUnitData('A', 'ampere'),
     BaseUnitData('K', 'kelvin'),
@@ -24,7 +24,7 @@ __SI_BASE_UNITS = [
 ]
 
 __OTHER_BASE_UNITS = [
-    BaseUnitData('dB', 'decibel', False),
+    BaseUnitData('dB', 'decibel', use_prefixes=False),
 ]
 
 ALL_BASE_UNITS = __SI_BASE_UNITS + __OTHER_BASE_UNITS

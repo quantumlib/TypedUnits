@@ -1,7 +1,6 @@
-#!/usr/bin/python
 import pickle
 import unittest
-from pyfu import UnitArray, DimensionlessUnit
+from pyfu import UnitArray, DimensionlessUnit as du
 
 
 class UnitsArrayTests(unittest.TestCase):
@@ -34,7 +33,7 @@ class UnitsArrayTests(unittest.TestCase):
         self.assertEqual(list(raw2), [('a', 3, 7), ('b', 2, 5)])
 
     def testRepr(self):
-        self.assertEqual(repr(DimensionlessUnit), 'UnitArray.raw([])')
+        self.assertEqual(repr(du), 'UnitArray.raw([])')
         self.assertEqual(repr(UnitArray('a')), "UnitArray.raw([('a', 1, 1)])")
 
         self.assertEqual(
@@ -48,7 +47,7 @@ class UnitsArrayTests(unittest.TestCase):
             "UnitArray.raw([('a', 2, 3), ('b', -5, 7)])")
 
     def testStr(self):
-        self.assertEqual(str(DimensionlessUnit), '')
+        self.assertEqual(str(du), '')
         self.assertEqual(str(UnitArray('a')), 'a')
 
         self.assertEqual(
@@ -75,7 +74,7 @@ class UnitsArrayTests(unittest.TestCase):
             [UnitsArrayTests],
             [None],
 
-            [DimensionlessUnit, UnitArray(), UnitArray.raw([])],
+            [du, UnitArray(), UnitArray.raw([])],
             [UnitArray('a'), UnitArray.raw([('a', 1, 1)])],
             [UnitArray.raw([('a', 2, 1)]), UnitArray.raw([('a', 6, 3)])],
             [UnitArray.raw([('b', 2, 1)]), UnitArray.raw([('b', -6, -3)])],
@@ -101,12 +100,12 @@ class UnitsArrayTests(unittest.TestCase):
         various = [
             UnitArray('a'),
             UnitArray.raw([('a', 2, 3), ('b', 1, 1)]),
-            DimensionlessUnit
+            du
         ]
         for e in various:
-            self.assertEqual(DimensionlessUnit * e, e)
-            self.assertEqual(e * DimensionlessUnit, e)
-            self.assertEqual(e / DimensionlessUnit, e)
+            self.assertEqual(du * e, e)
+            self.assertEqual(e * du, e)
+            self.assertEqual(e / du, e)
 
     def testMultiplication(self):
         self.assertEqual(UnitArray('a') * UnitArray('b'),
@@ -124,7 +123,7 @@ class UnitsArrayTests(unittest.TestCase):
             UnitArray.raw([('b', 2, 5), ('a', 1, 1)]))
 
     def testDivision(self):
-        self.assertEqual(DimensionlessUnit / UnitArray('b'),
+        self.assertEqual(du / UnitArray('b'),
                          UnitArray.raw([('b', -1, 1)]))
         self.assertEqual(UnitArray('a') / UnitArray('b'),
                          UnitArray.raw([('a', 1, 1), ('b', -1, 1)]))
@@ -141,8 +140,8 @@ class UnitsArrayTests(unittest.TestCase):
             UnitArray.raw([('b', -8, 5), ('a', 1, 1)]))
 
     def testPow(self):
-        self.assertEqual(DimensionlessUnit**2, DimensionlessUnit)
-        self.assertEqual(UnitArray('a')**0, DimensionlessUnit)
+        self.assertEqual(du**2, du)
+        self.assertEqual(UnitArray('a')**0, du)
         self.assertEqual(UnitArray('a')**2, UnitArray.raw([('a', 2, 1)]))
         self.assertEqual(UnitArray('a')**-1, UnitArray.raw([('a', -1, 1)]))
         self.assertEqual(UnitArray('a')**(1.0/3), UnitArray.raw([('a', 1, 3)]))
@@ -154,7 +153,7 @@ class UnitsArrayTests(unittest.TestCase):
 
     def testPickling(self):
         examples = [
-            DimensionlessUnit,
+            du,
             UnitArray.raw([('a', 2, 7)]),
             UnitArray.raw([('a', 2, 7), ('b', 1, 3)])
         ]
@@ -163,4 +162,3 @@ class UnitsArrayTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-

@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
-from __all_cythonized import WithUnit, Value, init_base_unit_functions
+import __all_cythonized
+from __all_cythonized import Value, WithUnit
 from base_unit_data import ALL_BASE_UNITS
 from derived_unit_data import ALL_DERIVED_UNITS
 from prefix_data import SI_PREFIXES
@@ -8,7 +7,7 @@ import numpy as np
 from unit_database import UnitDatabase
 
 
-def make_unit_database_from_unit_data():
+def _make_unit_database_from_unit_data():
     db = UnitDatabase()
     db.add_unit('', WithUnit(1))
     for base in ALL_BASE_UNITS:
@@ -17,17 +16,15 @@ def make_unit_database_from_unit_data():
         db.add_derived_unit_data(data, SI_PREFIXES)
     return db
 
-
-def _unit_val_from_str(formula):
-    return default_unit_database.get_unit(formula)
+default_unit_database = _make_unit_database_from_unit_data()
 
 
 def _try_interpret_as_with_unit(obj):
-    """Lookup a unit by name.
-
-    This is a helper called when WithUnit objects need to lookup a unit
-    string.  We return the underlying _value, because that is what the C
-    API knows how to handle."""
+    """
+    This method is given to WithUnit so that it can do a convenient conversion
+    from a user-given object (such as a string formula or a float or a WithUnit)
+    into just a WithUnit.
+    """
     if isinstance(obj, WithUnit):
         return obj
     if isinstance(obj, str):
@@ -36,6 +33,8 @@ def _try_interpret_as_with_unit(obj):
             or isinstance(obj, complex) or isinstance(obj, np.ndarray):
         return WithUnit(obj)
     return None
+
+__all_cythonized.init_base_unit_functions(_try_interpret_as_with_unit)
 
 
 class Unit(Value):
@@ -47,7 +46,7 @@ class Unit(Value):
         super(Value, self).__init__(unit)
 
 
-def add_non_si(name, use_prefixes=False):
+def add_non_standard_unit(name, use_prefixes=False):
     """
     :param str name:
     :param bool use_prefixes:
@@ -60,7 +59,3 @@ def add_non_si(name, use_prefixes=False):
                     prefix + name,
                     name,
                     exp10=data.exp10)
-
-
-default_unit_database = make_unit_database_from_unit_data()
-init_base_unit_functions(_try_interpret_as_with_unit)

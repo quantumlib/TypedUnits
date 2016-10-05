@@ -58,16 +58,22 @@ __SI_DERIVED_UNITS = [
 ]
 
 __OTHER_UNITS = [
-    DerivedUnitData('in', 'inch', 'cm', 1, -2, 254, 1, False),
-    DerivedUnitData('h', 'hour', 's', 1, 2, 36, 1, False),
-    DerivedUnitData('min', 'minute', 's', 1, 1, 6, 1, False),
-    DerivedUnitData('cyc', 'cycle', 'rad', 2 * math.pi, 0, 1, 1, False),
+    DerivedUnitData(
+        'in', 'inch', 'cm', numerator=254, exp10=-2, use_prefixes=False),
+    DerivedUnitData(
+        'h', 'hour', 's', numerator=36, exp10=2, use_prefixes=False),
+    DerivedUnitData(
+        'min', 'minute', 's', numerator=6, exp10=1, use_prefixes=False),
+    DerivedUnitData(
+        'cyc', 'cycle', 'rad', 2 * math.pi, use_prefixes=False),
 ]
 
 # Units that aren't technically exact, but close enough for our purposes.
 __APPROXIMATE_CIVIL_UNITS = [
-    DerivedUnitData('d', 'day', 's', 1, 2, 864, 1, False),
-    DerivedUnitData('yr', 'year', 'day', 1, -2, 36525, 1, False),
+    DerivedUnitData(
+        'd', 'day', 's', numerator=864, exp10=2, use_prefixes=False),
+    DerivedUnitData(
+        'yr', 'year', 'day', numerator=36525, exp10=-2, use_prefixes=False),
 ]
 
 ALL_DERIVED_UNITS = (__SI_REDUNDANT_BASE_UNITS +
