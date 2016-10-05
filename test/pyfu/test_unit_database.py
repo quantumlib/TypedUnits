@@ -1,5 +1,6 @@
 import unittest
-from pyfu import UnitArray, WithUnit
+from pyfu import UnitArray
+from pyfu.__all_cythonized import raw_WithUnit, raw_UnitArray
 from pyfu.unit_database import UnitDatabase
 from pyfu.base_unit_data import BaseUnitData
 from pyfu.derived_unit_data import DerivedUnitData
@@ -20,14 +21,14 @@ class UnitDatabaseTests(unittest.TestCase):
         db = UnitDatabase(auto_create_units=False)
         db.add_root_unit('cats')
         c = db.get_unit('cats')
-        u = UnitArray.raw([('cats', 1, 1)])
+        u = raw_UnitArray([('cats', 1, 1)])
         self.assertEquals(c.base_units, u)
         self.assertEquals(c.display_units, u)
         self.assertEquals(c.numer, 1)
         self.assertEquals(c.denom, 1)
         self.assertEquals(c.exp10, 0)
         self.assertEquals(c.value, 1)
-        self.assertEquals(c, WithUnit.raw(1, 1, 1, 0, u, u))
+        self.assertEquals(c, raw_WithUnit(1, 1, 1, 0, u, u))
 
         # No dups.
         with self.assertRaises(RuntimeError):
@@ -42,8 +43,8 @@ class UnitDatabaseTests(unittest.TestCase):
                 PrefixData('q_', 'qu_', 2),
             ])
 
-        u = UnitArray.raw([('b', 1, 1)])
-        v = WithUnit.raw(1, 1, 1, 0, u, u)
+        u = raw_UnitArray([('b', 1, 1)])
+        v = raw_WithUnit(1, 1, 1, 0, u, u)
 
         self.assertEquals(db.get_unit('base'), v)
         self.assertEquals(db.get_unit('b'), v)
@@ -65,8 +66,8 @@ class UnitDatabaseTests(unittest.TestCase):
                 PrefixData('q_', 'qu_', 2),
             ])
 
-        u = UnitArray.raw([('b', 1, 1)])
-        v = WithUnit.raw(1, 1, 1, 0, u, u)
+        u = raw_UnitArray([('b', 1, 1)])
+        v = raw_WithUnit(1, 1, 1, 0, u, u)
 
         self.assertEquals(db.get_unit('base'), v)
         self.assertEquals(db.get_unit('b'), v)
@@ -153,7 +154,7 @@ class UnitDatabaseTests(unittest.TestCase):
         db.add_base_unit_data(BaseUnitData('kg', 'kilogram'), SI_PREFIXES)
         self.assertEquals(
             db.get_unit('g').base_units,
-            UnitArray.raw([('kg', 1, 1)]))
+            raw_UnitArray([('kg', 1, 1)]))
         self.assertEquals(db.get_unit('g') * 1000, db.get_unit('kg'))
         self.assertEquals(db.get_unit('kg') * 1000, db.get_unit('Mg'))
 

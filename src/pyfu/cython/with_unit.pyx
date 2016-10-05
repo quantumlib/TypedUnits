@@ -19,12 +19,17 @@ cdef long long inv_root(long long x, int exponent_denom):
     return tmp
 
 
-cdef raw_WithUnit(value,
-                  long long numer,
-                  long long denom,
-                  int exp10,
-                  UnitArray base_units,
-                  UnitArray display_units):
+cpdef raw_WithUnit(value,
+                   long long numer,
+                   long long denom,
+                   int exp10,
+                   UnitArray base_units,
+                   UnitArray display_units):
+    """
+    A factory method the creates and directly sets the properties of a WithUnit.
+    (__init__ couldn't play this role for backwards-compatibility reasons.)
+    """
+
     if not (numer > 0 and denom > 0):
         raise ValueError("Numerator and denominator must both be positive.")
 
@@ -334,7 +339,7 @@ cdef class WithUnit:
             # Some kind of non-standard unit? Fall back to raw output.
             pass
 
-        return "WithUnit.raw(%s)" % ', '.join(repr(e) for e in [
+        return "raw_WithUnit(%s)" % ', '.join(repr(e) for e in [
             self.value,
             self.ratio.numer,
             self.ratio.denom,
@@ -352,7 +357,8 @@ cdef class WithUnit:
     def inBaseUnits(self):
         factor = self._scale_to_double()
         new_value = self.value * factor
-        return WithUnit.raw(new_value, 1, 1, 0, self.base_units, self.base_units)
+        return raw_WithUnit(
+            new_value, 1, 1, 0, self.base_units, self.base_units)
 
     def isDimensionless(self):
         return self.base_units.unit_count == 0
@@ -426,12 +432,9 @@ def init_base_unit_functions(try_interpret_as_with_unit):
     __try_interpret_as_with_unit = try_interpret_as_with_unit
 
 
-def __unpickle_WithUnit(*x):
-    return WithUnit.raw(*x)
-
 copy_reg.pickle(
     WithUnit,
-    lambda e: (__unpickle_WithUnit, (
+    lambda e: (raw_WithUnit, (
         e.value,
         e.numer,
         e.denom,

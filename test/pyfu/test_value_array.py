@@ -1,5 +1,6 @@
 import unittest
 from pyfu import ValueArray, UnitMismatchError, UnitArray
+from pyfu.__all_cythonized import raw_UnitArray
 import numpy as np
 
 
@@ -59,12 +60,12 @@ class FastUnitsTests(unittest.TestCase):
 
         # Fallback case.
         v = ValueArray.raw([1, 2, 3], 2, 5, 10,
-                           UnitArray.raw([('muffin', 1, 1)]),
-                           UnitArray.raw([('cookie', 1, 1)]))
+                           raw_UnitArray([('muffin', 1, 1)]),
+                           raw_UnitArray([('cookie', 1, 1)]))
         self.assertEqual(repr(v),
-                         "WithUnit.raw(array([1, 2, 3]), 2, 5, 10, "
-                         "UnitArray.raw([('muffin', 1, 1)]), "
-                         "UnitArray.raw([('cookie', 1, 1)]))")
+                         "raw_WithUnit(array([1, 2, 3]), 2, 5, 10, "
+                         "raw_UnitArray([('muffin', 1, 1)]), "
+                         "raw_UnitArray([('cookie', 1, 1)]))")
 
     def testStr(self):
         from pyfu.units import mm

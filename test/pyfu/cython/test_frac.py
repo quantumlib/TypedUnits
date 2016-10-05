@@ -2,7 +2,7 @@ import unittest
 import pyfu.__all_cythonized as u
 
 
-class UnitsArrayUtilTests(unittest.TestCase):
+class FracUtilTests(unittest.TestCase):
     def testGcd(self):
         self.assertRaises(TypeError, lambda: u.gcd("a", "b"))
 

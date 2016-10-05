@@ -11,6 +11,35 @@ cdef struct UnitTerm:
     frac power
 
 
+cpdef raw_UnitArray(name_numer_denom_tuples):
+    """
+    A factory method the creates and directly sets the items of a UnitArray.
+    (__init__ couldn't play this role for backwards-compatibility reasons.)
+
+    :param list((name, power.numer, power.denom)) name_numer_denom_tuples:
+        The list of properties that units in the resulting list should have.
+    :return UnitArray:
+    """
+    cdef int n = len(name_numer_denom_tuples)
+    cdef UnitArray result = UnitArray()
+    result.units = <UnitTerm *>PyMem_Malloc(sizeof(UnitTerm) * n)
+    if result.units == NULL:
+        raise RuntimeError("Malloc failed")
+
+    cdef str name
+    cdef long long numer
+    cdef long long denom
+    cdef UnitTerm* dst
+    for name, numer, denom in name_numer_denom_tuples:
+        dst = result.units + result.unit_count
+        dst.power = frac_least_terms(numer, denom)
+        dst.name = <PyObject *>name
+        Py_INCREF(name)
+        result.unit_count += 1
+
+    return result
+
+
 cdef class UnitArray:
     """
     A list of physical units raised to various powers.
@@ -31,32 +60,6 @@ cdef class UnitArray:
             self.units[0].power.denom = 1
         # else default to empty unit array
         # (the calling Cython code may do some non-empty initialization)
-
-    @staticmethod
-    def raw(name_numer_denom_tuples):
-        """
-        :param list((name, power.numer, power.denom)) name_numer_denom_tuples:
-            The list of properties that units in the resulting list should have.
-        :return UnitArray:
-        """
-        cdef int n = len(name_numer_denom_tuples)
-        cdef UnitArray result = UnitArray()
-        result.units = <UnitTerm *>PyMem_Malloc(sizeof(UnitTerm) * n)
-        if result.units == NULL:
-            raise RuntimeError("Malloc failed")
-
-        cdef str name
-        cdef long long numer
-        cdef long long denom
-        cdef UnitTerm* dst
-        for name, numer, denom in name_numer_denom_tuples:
-            dst = result.units + result.unit_count
-            dst.power = frac_least_terms(numer, denom)
-            dst.name = <PyObject *>name
-            Py_INCREF(name)
-            result.unit_count += 1
-
-        return result
 
     def __dealloc__(self):
         cdef int i
@@ -80,7 +83,7 @@ cdef class UnitArray:
             yield self[i]
 
     def __repr__(self):
-        return 'UnitArray.raw(%s)' % repr(list(self))
+        return 'raw_UnitArray(%s)' % repr(list(self))
 
     def __str__(self):
         def tup_str(tup):
@@ -217,9 +220,6 @@ cdef class UnitArray:
 DimensionlessUnit = UnitArray()
 
 
-def __unpickle_UnitArray(x):
-    return UnitArray.raw(x)
-
 copy_reg.pickle(
     UnitArray,
-    lambda e: (__unpickle_UnitArray, (list(e),)))
+    lambda e: (raw_UnitArray, (list(e),)))

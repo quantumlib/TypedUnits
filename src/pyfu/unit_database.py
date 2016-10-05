@@ -1,4 +1,4 @@
-from __all_cythonized import WithUnit, UnitArray
+from __all_cythonized import WithUnit, UnitArray, raw_WithUnit
 import unit_grammar
 
 
@@ -64,7 +64,7 @@ class UnitDatabase(object):
         :param str unit_name:
         """
         ua = UnitArray(unit_name)
-        unit = WithUnit.raw(1, 1, 1, 0, ua, ua)
+        unit = raw_WithUnit(1, 1, 1, 0, ua, ua)
         self.add_unit(unit_name, unit)
 
     def add_scaled_unit(self,
@@ -88,7 +88,7 @@ class UnitDatabase(object):
         denom *= base_unit.denom
         exp10 += base_unit.exp10
 
-        unit = WithUnit.raw(
+        unit = raw_WithUnit(
             value,
             numer,
             denom,
