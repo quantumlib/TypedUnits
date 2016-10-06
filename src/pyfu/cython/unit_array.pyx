@@ -21,6 +21,8 @@ cpdef raw_UnitArray(name_numer_denom_tuples):
     :return UnitArray:
     """
     cdef int n = len(name_numer_denom_tuples)
+    if n == 0:
+        return DimensionlessUnit
     cdef UnitArray result = UnitArray()
     result.units = <UnitTerm *>PyMem_Malloc(sizeof(UnitTerm) * n)
     if result.units == NULL:
@@ -128,6 +130,11 @@ cdef class UnitArray:
         return a.__times_div(b, -1)
 
     def __times_div(UnitArray left, UnitArray right, int sign_r):
+        if right.unit_count == 0:
+            return left
+        if left.unit_count == 0 and sign_r == 1:
+            return right
+
         # Compute the needed array size
         cdef UnitTerm *a = left.units
         cdef UnitTerm *b = right.units
