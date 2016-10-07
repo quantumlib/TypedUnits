@@ -45,11 +45,8 @@ cpdef frac frac_times(frac a, frac b):
     return f
 
 
-# Returns the quotient of the two given fractions, in least terms.
 @cython.cdivision(True)
-cpdef frac frac_div(frac a, frac b) except *:
-    if b.numer == 0:
-        raise ZeroDivisionError()
+cdef frac frac_div_not_zero(frac a, frac b):
     cdef long long d1 = gcd(a.numer, b.numer)
     cdef long long d2 = gcd(b.denom, a.denom)
     cdef frac f
@@ -59,6 +56,14 @@ cpdef frac frac_div(frac a, frac b) except *:
         f.numer *= -1
         f.denom *= -1
     return f
+
+
+# Returns the quotient of the two given fractions, in least terms.
+@cython.cdivision(True)
+cpdef frac frac_div(frac a, frac b) except *:
+    if b.numer == 0:
+        raise ZeroDivisionError()
+    return frac_div_not_zero(a, b)
 
 
 # Recognizes floats corresponding to twelths. Returns them as a fraction.

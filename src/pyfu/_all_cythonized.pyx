@@ -2,6 +2,7 @@
 # a single thing (and have access to their respective fast cdefs).
 
 include "cython/frac.pyx"
+include "cython/conversion.pyx"
 include "cython/unit_array.pyx"
 include "cython/with_unit.pyx"
 include "cython/other_types.pyx"
