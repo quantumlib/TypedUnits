@@ -22,7 +22,7 @@ cpdef raw_UnitArray(name_numer_denom_tuples):
     """
     cdef int n = len(name_numer_denom_tuples)
     if n == 0:
-        return DimensionlessUnit
+        return _EmptyUnit
     cdef UnitArray result = UnitArray()
     result.units = <UnitTerm *>PyMem_Malloc(sizeof(UnitTerm) * n)
     if result.units == NULL:
@@ -204,7 +204,7 @@ cdef class UnitArray:
 
     cdef pow_frac(UnitArray self, frac exponent):
         if exponent.numer == 0:
-            return DimensionlessUnit
+            return _EmptyUnit
         cdef UnitArray result = UnitArray()
         result.units = <UnitTerm*>PyMem_Malloc(sizeof(UnitTerm)*self.unit_count)
         if result.units == NULL:
@@ -224,7 +224,7 @@ cdef class UnitArray:
             raise ValueError("UnitArray power does not support third argument")
         return self.pow_frac(float_to_twelths_frac(exponent));
 
-DimensionlessUnit = UnitArray()
+_EmptyUnit = UnitArray()
 
 
 copy_reg.pickle(

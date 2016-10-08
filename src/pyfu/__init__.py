@@ -6,7 +6,6 @@ from . import _all_cythonized, unit as _unit, units as _units
 Unit = _unit.Unit
 addNonSI = _unit.add_non_standard_unit
 Complex = _all_cythonized.Complex
-DimensionlessUnit = _all_cythonized.DimensionlessUnit
 UnitMismatchError = _all_cythonized.UnitMismatchError
 Value = _all_cythonized.Value
 ValueArray = _all_cythonized.ValueArray

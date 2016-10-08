@@ -93,8 +93,8 @@ cdef class WithUnit:
             value = np.array(value)
         if unit is None and not isinstance(value, WithUnit):
             self.value = value
-            self.base_units = DimensionlessUnit
-            self.display_units = DimensionlessUnit
+            self.base_units = _EmptyUnit
+            self.display_units = _EmptyUnit
             self.exp10 = 0
             self.ratio.numer = 1
             self.ratio.denom = 1
@@ -133,7 +133,7 @@ cdef class WithUnit:
         """
         if isinstance(obj, WithUnit):
             return obj
-        return raw_WithUnit(obj, 1, 1, 0, DimensionlessUnit, DimensionlessUnit)
+        return raw_WithUnit(obj, 1, 1, 0, _EmptyUnit, _EmptyUnit)
 
     cdef __with_value(self, new_value):
         return raw_WithUnit(
