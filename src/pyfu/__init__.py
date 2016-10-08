@@ -7,7 +7,6 @@ Unit = _unit.Unit
 addNonSI = _unit.add_non_standard_unit
 Complex = _all_cythonized.Complex
 DimensionlessUnit = _all_cythonized.DimensionlessUnit
-UnitArray = _all_cythonized.UnitArray
 UnitMismatchError = _all_cythonized.UnitMismatchError
 Value = _all_cythonized.Value
 ValueArray = _all_cythonized.ValueArray
