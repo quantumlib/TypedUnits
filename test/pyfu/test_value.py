@@ -40,7 +40,6 @@ class ValueTests(unittest.TestCase):
         self.assertEqual(n+1, 3)
 
     def testMultiplication(self):
-        n = Value(2, '')
         x = Value(1.0 + 2j, meter)
         y = Value(3, mm)
         a = Value(20, second)
@@ -48,10 +47,16 @@ class ValueTests(unittest.TestCase):
         self.assertTrue((x / y).isDimensionless())
 
     def testPower(self):
-        x = 2*mm
-        y = 4*mm
-        z = (x*y)**.5
-        self.assertLess(abs(z**2- Value(8, 'mm^2')),  Value(1e-6, mm**2))
+        from pyfu.units import km, m, minute, s, um
+        x = 2 * mm
+        y = 4 * mm
+        z = (x * y)**.5
+        self.assertLess(abs(z**2 - Value(8, 'mm^2')), Value(1e-6, mm**2))
+        self.assertEqual(Value(16000000, 'um^2') ** 0.5, 4 * mm)
+        self.assertEqual((16 * um * m)**0.5, 4 * mm)
+        self.assertEqual((minute**2) ** 0.5, minute)
+        self.assertEqual((1000 * m * km)**0.5, km)
+        self.assertEqual((60 * s * minute) ** 0.5, minute)
 
     def testRepr(self):
         from pyfu.units import km, kg
@@ -65,16 +70,18 @@ class ValueTests(unittest.TestCase):
         self.assertEqual(str(2 * meter * kilometer), '2.0 km*m')
 
     def testDivmod(self):
-        x = 4.001*us
-        self.assertEquals(x//(4*ns), 1000)
-        self.assertTrue(abs(x % (4*ns) - 1*ns) < .00001*ns)
-        y = divmod(x, 2*ns)
+        x = 4.0009765625 * us
+        self.assertEquals(x // (4 * ns), 1000)
+        self.assertEquals(x % (4 * ns), 0.9765625 * ns)
+        q, r = divmod(x, 2 * ns)
+        self.assertEquals(q, 2000)
+        self.assertEquals(r, x - 4 * us)
 
     def testConversion(self):
         x = Value(3, 'm')
         self.assertEquals(x['mm'], 3000.0)
         with self.assertRaises(UnitMismatchError):
-            x['s']
+            _ = x['s']
         y = Value(1000, 'Mg')
         self.assertEquals(y.inBaseUnits().value, 1000000.0)
         self.assertEquals(x.inUnitsOf('mm'), 3000 * mm)
