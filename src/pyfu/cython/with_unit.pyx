@@ -12,34 +12,21 @@ def isOrAllTrue(x):
     return np.all(x) if isinstance(x, np.ndarray) else x
 
 
-cdef long long inv_root(long long x, int exponent_denom):
-    cdef long long tmp = <long long>c_pow(x, 1.0/exponent_denom)
-    if c_pow(tmp, exponent_denom) != x:
-        raise ValueError("%s root of %s not an integer" % (exponent_denom, x))
-    return tmp
-
-
 cpdef raw_WithUnit(value,
-                   long long numer,
-                   long long denom,
-                   int exp10,
+                   conversion conv,
                    UnitArray base_units,
                    UnitArray display_units):
     """
-    A factory method the creates and directly sets the properties of a WithUnit.
+    A factory method that directly sets the properties of a WithUnit.
     (__init__ couldn't play this role for backwards-compatibility reasons.)
-    """
 
-    if not (numer > 0 and denom > 0):
-        raise ValueError("Numerator and denominator must both be positive.")
+    (Python-visible for testing and unit database bootstrapping.)
+    """
 
     # Choose derived class type.
     if isinstance(value, complex):
         val = value
         target_type = Complex
-    elif isinstance(value, np.ndarray):
-        val = value
-        target_type = ValueArray
     elif isinstance(value, list) or isinstance(value, np.ndarray):
         val = np.array(value)
         target_type = ValueArray
@@ -49,10 +36,8 @@ cpdef raw_WithUnit(value,
     else:
         raise ValueError("Unrecognized value type: " + type(value))
 
-    cdef WithUnit result = target_type(0)
-    result.value = val
-    result.ratio = frac_least_terms(numer, denom)
-    result.exp10 = exp10
+    cdef WithUnit result = target_type(val)
+    result.conv = conv
     result.base_units = base_units
     result.display_units = display_units
     return result
@@ -65,7 +50,7 @@ def _in_WithUnit(obj):
     """
     if isinstance(obj, WithUnit):
         return obj
-    return raw_WithUnit(obj, 1, 1, 0, _EmptyUnit, _EmptyUnit)
+    return raw_WithUnit(obj, identity_conversion(), _EmptyUnit, _EmptyUnit)
 
 
 cdef class WithUnit:
@@ -75,10 +60,8 @@ cdef class WithUnit:
 
     """Floating point value"""
     cdef readonly value
-    """Fractional part of ratio between base and display units"""
-    cdef frac ratio
-    """Power of 10 ratio between base and display units"""
-    cdef readonly int exp10
+    """Conversion details to go from display units to base units."""
+    cdef conversion conv
     """Units in base units"""
     cdef readonly UnitArray base_units
     """Units for display"""
@@ -86,10 +69,16 @@ cdef class WithUnit:
 
     property numer:
         def __get__(self):
-            return self.ratio.numer
+            return self.conv.ratio.numer
     property denom:
         def __get__(self):
-            return self.ratio.denom
+            return self.conv.ratio.denom
+    property factor:
+        def __get__(self):
+            return self.conv.factor
+    property exp10:
+        def __get__(self):
+            return self.conv.exp10
 
     def __init__(WithUnit self, value, unit=None):
         """
@@ -103,11 +92,9 @@ cdef class WithUnit:
             value = np.array(value)
         if unit is None and not isinstance(value, WithUnit):
             self.value = value
+            self.conv = identity_conversion()
             self.base_units = _EmptyUnit
             self.display_units = _EmptyUnit
-            self.exp10 = 0
-            self.ratio.numer = 1
-            self.ratio.denom = 1
             return
 
         cdef WithUnit unit_val = WithUnit(1) if unit is None else \
@@ -116,36 +103,19 @@ cdef class WithUnit:
             raise ValueError("Bad WithUnit scaling value: " + repr(value))
         unit_val *= value
         self.value = unit_val.value
+        self.conv = unit_val.conv
         self.base_units = unit_val.base_units
         self.display_units = unit_val.display_units
-        self.exp10 = unit_val.exp10
-        self.ratio = unit_val.ratio
-
-    @staticmethod
-    def raw(value,
-            long long numer,
-            long long denom,
-            int exp10,
-            UnitArray base_units not None,
-            UnitArray display_units not None):
-        """
-        Creates a WithUnit instance, of the appropriate type for the given
-        value, with the given properties.
-        """
-        return raw_WithUnit(value, numer, denom, exp10, base_units,
-                            display_units)
 
     cdef __with_value(self, new_value):
         return raw_WithUnit(
             new_value,
-            self.ratio.numer,
-            self.ratio.denom,
-            self.exp10,
+            self.conv,
             self.base_units,
             self.display_units)
 
     cdef double _scale_to_double(self):
-        return frac_to_double(self.ratio) * c_pow(10.0, self.exp10)
+        return conversion_to_double(self.conv)
 
     def __neg__(self):
         return self.__with_value(-self.value)
@@ -166,8 +136,8 @@ cdef class WithUnit:
         if left.base_units != right.base_units:
             raise UnitMismatchError()
 
-        cdef double fL = left._scale_to_double()
-        cdef double fR = right._scale_to_double()
+        cdef double fL = conversion_to_double(left.conv)
+        cdef double fR = conversion_to_double(right.conv)
         # Prefer finer grained display units.
         if fL < fR:
             return left.__with_value(left.value + right.value * (fR/fL))
@@ -179,22 +149,16 @@ cdef class WithUnit:
     def __mul__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)
-        cdef frac ratio = frac_times(left.ratio, right.ratio)
         return raw_WithUnit(left.value * right.value,
-                            ratio.numer,
-                            ratio.denom,
-                            left.exp10 + right.exp10,
+                            conversion_times(left.conv, right.conv),
                             left.base_units * right.base_units,
                             left.display_units * right.display_units)
 
     def __div__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)
-        cdef frac ratio = frac_div(left.ratio, right.ratio)
         return raw_WithUnit(left.value / right.value,
-                            ratio.numer,
-                            ratio.denom,
-                            left.exp10 - right.exp10,
+                            conversion_div(left.conv, right.conv),
                             left.base_units / right.base_units,
                             left.display_units / right.display_units)
 
@@ -202,12 +166,14 @@ cdef class WithUnit:
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)
         if left.base_units != right.base_units:
-            raise UnitMismatchError()
+            raise UnitMismatchError(
+                "Only dimensionless quotients make sense for __divmod__.")
 
-        cdef double f = left._scale_to_double() / right._scale_to_double()
-        divmod_result = divmod(left.value * f, right.value)
-        remainder = right.__with_value(divmod_result[1])
-        return divmod_result[0], right.__with_value(divmod_result[1])
+        cdef double c = conversion_to_double(conversion_div(left.conv,
+                                                            right.conv))
+
+        q, r = divmod(left.value * c, right.value)
+        return q, right.__with_value(r)
 
     def __floordiv__(a, b):
         return divmod(a, b)[0]
@@ -215,42 +181,20 @@ cdef class WithUnit:
     def __mod__(a, b):
         return divmod(a, b)[1]
 
-    def __pow__(WithUnit left not None, exponent, modulo):
+    def __pow__(WithUnit self not None, exponent, modulo):
         """
         Raises the given value to the given power, assuming the exponent can
         be broken down into twelths.
         """
         if modulo is not None:
-            raise ValueError("WithUnit power does not support third argument")
+            raise ValueError("WithUnit.__pow__ doesn't support modulo argument")
 
-        cdef frac pow_frac = float_to_twelths_frac(exponent)
-        cdef int abs_numer = pow_frac.numer
-        cdef int pow_sign = 1
-        if abs_numer < 0:
-            abs_numer *= -1
-            pow_sign = -1
+        cdef frac exponent_frac = float_to_twelths_frac(exponent)
 
-        if (left.exp10 * pow_frac.numer) % pow_frac.denom:
-            raise RuntimeError("Unable to take root of specified unit")
-
-        cdef long long numer = <long long>c_pow(
-            inv_root(left.ratio.numer, pow_frac.denom), abs_numer)
-        cdef long long denom = <long long>c_pow(
-            inv_root(left.ratio.denom, pow_frac.denom), abs_numer)
-        if pow_sign == -1:
-            numer, denom = denom, numer
-
-        val = left.value ** exponent
-        cdef int exp10 = left.exp10 * pow_frac.numer / pow_frac.denom
-
-        cdef UnitArray base_units = left.base_units.pow_frac(pow_frac)
-        cdef UnitArray display_units = left.display_units.pow_frac(pow_frac)
-        return raw_WithUnit(val,
-                            numer,
-                            denom,
-                            exp10,
-                            base_units,
-                            display_units)
+        return raw_WithUnit(self.value ** exponent,
+                            conversion_raise_to(self.conv, exponent_frac),
+                            self.base_units.pow_frac(exponent_frac),
+                            self.display_units.pow_frac(exponent_frac))
 
     def __float__(self):
         if self.base_units.unit_count != 0:
@@ -284,16 +228,17 @@ cdef class WithUnit:
             raise UnitMismatchError("Comparands have different units.")
 
         # Compute scaled comparand values, without dividing.
-        u = left.value
-        v = right.value
-        cdef frac f = frac_div(left.ratio, right.ratio)
+        cdef conversion c
+        u = left.value * left.conv.factor
+        v = right.value * right.conv.factor
+        cdef frac f = frac_div(left.conv.ratio, right.conv.ratio)
         cdef int e = left.exp10 - right.exp10
         if e > 0:
-            u = u * (f.numer * c_pow(10, e))
-            v = v * f.denom
+            u *= f.numer * c_pow(10, e)
+            v *= f.denom
         else:
-            u = u * f.numer
-            v = v * (f.denom * c_pow(10, -e))
+            u *= f.numer
+            v *= f.denom * c_pow(10, -e)
 
         # Delegate to value comparison.
         if op == Py_EQ:
@@ -318,7 +263,7 @@ cdef class WithUnit:
             return unit_str
         return ("%s %s" % (str(self.value), unit_str)).strip()
 
-    def __repr__(self):
+    def __repr__(WithUnit self):
         # If the default unit database is capable of correctly parsing our
         # units, use a nice output. Else use a gross but correct output.
 
@@ -327,9 +272,10 @@ cdef class WithUnit:
             parse_attempt = type(self)(self.value, str(self.display_units))
             if (parse_attempt.base_units == self.base_units
                     and parse_attempt.display_units == self.display_units
-                    and parse_attempt.ratio.numer == self.ratio.numer
-                    and parse_attempt.ratio.denom == self.ratio.denom
-                    and parse_attempt.exp10 == self.exp10
+                    and parse_attempt.conv.ratio.numer == self.conv.ratio.numer
+                    and parse_attempt.conv.ratio.denom == self.conv.ratio.denom
+                    and parse_attempt.conv.exp10 == self.conv.exp10
+                    and parse_attempt.conv.factor == self.conv.factor
                     and isOrAllTrue(parse_attempt.value == self.value)):
                 return "%s(%s, '%s')" % (
                     type(self).__name__,
@@ -339,14 +285,8 @@ cdef class WithUnit:
             # Some kind of non-standard unit? Fall back to raw output.
             pass
 
-        return "raw_WithUnit(%s)" % ', '.join(repr(e) for e in [
-            self.value,
-            self.ratio.numer,
-            self.ratio.denom,
-            self.exp10,
-            self.base_units,
-            self.display_units
-        ])
+        return "raw_WithUnit(%s)" % ', '.join(
+            repr(e) for e in _pickle_WithUnit(self)[1])
 
     def __copy__(self):
         return self
@@ -354,11 +294,12 @@ cdef class WithUnit:
     def __deepcopy__(self, memo):
         return self
 
-    def inBaseUnits(self):
-        factor = self._scale_to_double()
-        new_value = self.value * factor
+    def inBaseUnits(WithUnit self):
         return raw_WithUnit(
-            new_value, 1, 1, 0, self.base_units, self.base_units)
+            self.value * conversion_to_double(self.conv),
+            identity_conversion(),
+            self.base_units,
+            self.base_units)
 
     def isDimensionless(self):
         return self.base_units.unit_count == 0
@@ -375,7 +316,7 @@ cdef class WithUnit:
         def __get__(self):
             return self.isAngle()
 
-    def __getitem__(self, key):
+    def __getitem__(WithUnit self, key):
         if isinstance(key, int) or isinstance(key, slice):
             return self.__with_value(self.value[key])
 
@@ -393,8 +334,7 @@ cdef class WithUnit:
             raise UnitMismatchError("Unit key doesn't match value's units.")
 
         return (self.value
-            * frac_to_double(frac_div(self.ratio, unit_val.ratio))
-            * c_pow(10.0, self.exp10 - unit_val.exp10)
+            * conversion_to_double(conversion_div(self.conv, unit_val.conv))
             / unit_val.value)
 
     def isCompatible(self, unit):
@@ -407,7 +347,12 @@ cdef class WithUnit:
         cdef WithUnit unit_val = __try_interpret_as_with_unit(unit)
         if unit_val is None:
             raise ValueError("Bad unit key: " + repr(unit))
-        return unit_val.__with_value(self[unit_val])
+        if self.base_units != unit_val.base_units:
+            raise UnitMismatchError("Unit doesn't match value's units.")
+
+        return unit_val.__with_value(self.value
+             * conversion_to_double(conversion_div(self.conv, unit_val.conv))
+             / unit_val.value)
 
     def __hash__(self):
         # Note: Anyone calling this, except in the case where they're using a
@@ -431,13 +376,15 @@ def init_base_unit_functions(try_interpret_as_with_unit):
     global __try_interpret_as_with_unit
     __try_interpret_as_with_unit = try_interpret_as_with_unit
 
-
-copy_reg.pickle(
-    WithUnit,
-    lambda e: (raw_WithUnit, (
+def _pickle_WithUnit(WithUnit e):
+    return raw_WithUnit, (
         e.value,
-        e.numer,
-        e.denom,
-        e.exp10,
+        {
+            'factor': e.conv.factor,
+            'ratio': {'numer': e.conv.ratio.numer, 'denom': e.conv.ratio.denom},
+            'exp10': e.conv.exp10
+        },
         e.base_units,
-        e.display_units)))
+        e.display_units)
+
+copy_reg.pickle(WithUnit, _pickle_WithUnit)

@@ -28,17 +28,11 @@ def val(value,
         conv=conv(),
         units=dimensionless,
         display_units=None):
-    v = raw_WithUnit(
+    return raw_WithUnit(
         value,
-        conv['ratio']['numer'],
-        conv['ratio']['denom'],
-        conv['exp10'],
+        conv,
         units,
         units if display_units is None else display_units)
-    # Note: WithUnit gains factor in a followup change.
-    if conv['factor'] != 1:
-        v *= conv['factor']
-    return v
 
 
 class WithUnitTests(unittest.TestCase):
@@ -49,6 +43,7 @@ class WithUnitTests(unittest.TestCase):
             self.assertEqual(a, b)
         self.assertEqual(a.numer, b.numer)
         self.assertEqual(a.denom, b.denom)
+        self.assertEqual(a.factor, b.factor)
         self.assertEqual(a.exp10, b.exp10)
         if isinstance(a, ValueArray):
             self.assertNumpyArrayEqual(a.value, b.value)
@@ -81,7 +76,8 @@ class WithUnitTests(unittest.TestCase):
 
     def testRawVersusProperties(self):
         x = val(2, conv(factor=3, numer=4, denom=5, exp10=6), mps, kph)
-        self.assertEqual(x.value, 6)
+        self.assertEqual(x.value, 2)
+        self.assertEqual(x.factor, 3)
         self.assertEqual(x.numer, 4)
         self.assertEqual(x.denom, 5)
         self.assertEqual(x.exp10, 6)
@@ -425,6 +421,8 @@ class WithUnitTests(unittest.TestCase):
 
         # Conversion keeping/losing precision.
         self.assertDeepEqual(val(4, conv(numer=4))**0.5, val(2, conv(numer=2)))
+        self.assertDeepEqual(val(4, conv(numer=2))**0.5,
+                             val(2, conv(factor=2**0.5)))
 
     def testNumpyMethod_isFinite(self):
         with self.assertRaises(UnitMismatchError):
@@ -486,8 +484,8 @@ class WithUnitTests(unittest.TestCase):
         self.assertEquals(d[w], "b")
 
     def testStr(self):
-        self.assertEquals(str(val(2, conv(1, 4, 5, 6), s, m)), '2.0 m')
-        self.assertEquals(str(val(2j, conv(1, 4, 5, 6), s)), '2j s')
+        self.assertEquals(str(val(2, conv(3, 4, 5, 6), s, m)), '2.0 m')
+        self.assertEquals(str(val(2j, conv(3, 4, 5, 6), s)), '2j s')
         self.assertEquals(str(val(1, units=m, display_units=s)), 's')
         self.assertEquals(str(val(1, units=m)), 'm')
         self.assertEquals(str(val(1, units=h)), 's^3600')
@@ -519,9 +517,19 @@ class WithUnitTests(unittest.TestCase):
         self.assertFalse(val(1, units=rad**2).isAngle())
         self.assertFalse(val(1, units=rad**2).is_angle)
 
+    def testInUnitsOf(self):
+        with self.assertRaises(UnitMismatchError):
+            val(1, units=m).inUnitsOf(val(2, units=s))
+
+        self.assertEqual(val(5).inUnitsOf(8), 0.625)
+        self.assertDeepEqual(
+            val(5, conv(3), units=m, display_units=s).inUnitsOf(
+                val(8, conv(denom=7), units=m, display_units=kg)),
+            val(13.125, conv(denom=7), units=m, display_units=kg))
+
     def testUnit(self):
         self.assertDeepEqual(val(7, conv(2, 3, 4, 5), m, s).unit,
-                             val(1, conv(1, 3, 4, 5), m, s))
+                             val(1, conv(2, 3, 4, 5), m, s))
 
 if __name__ == "__main__":
     unittest.main()

@@ -51,7 +51,7 @@ __SI_DERIVED_UNITS = [
     DerivedUnitData('S', 'siemens', 'A/V'),
     DerivedUnitData('Wb', 'weber', 'V*s'),
     DerivedUnitData('T', 'tesla', 'Wb/m^2'),
-    DerivedUnitData('Gauss', 'gauss', 'T', -4),
+    DerivedUnitData('Gauss', 'gauss', 'T', exp10=-4),
     DerivedUnitData('H', 'henry', 'Wb/A'),
     DerivedUnitData('lm', 'lumen', 'cd*sr'),
     DerivedUnitData('lx', 'lux', 'lm/m^2'),

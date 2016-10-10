@@ -72,7 +72,11 @@ class UnitDatabase(object):
         :param str unit_name: Key and unit array entry for the new unit.
         """
         ua = _all_cythonized.UnitArray(unit_name)
-        unit = _all_cythonized.raw_WithUnit(1, 1, 1, 0, ua, ua)
+        unit = _all_cythonized.raw_WithUnit(
+            1,
+            {'factor': 1.0, 'ratio': {'numer': 1, 'denom': 1}, 'exp10': 0},
+            ua,
+            ua)
         self.add_unit(unit_name, unit)
 
     def add_alternate_unit_name(self, alternate_name, unit_name):
@@ -104,10 +108,15 @@ class UnitDatabase(object):
         parent = self.parse_unit_formula(formula)
 
         unit = _all_cythonized.raw_WithUnit(
-            factor * parent.value,
-            numer * parent.numer,
-            denom * parent.denom,
-            exp10 + parent.exp10,
+            1,
+            {
+                'factor': factor * parent.factor * parent.value,
+                'ratio': {
+                    'numer': numer * parent.numer,
+                    'denom': denom * parent.denom
+                },
+                'exp10': exp10 + parent.exp10
+            },
             parent.base_units,
             _all_cythonized.UnitArray(unit_name))
 

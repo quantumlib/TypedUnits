@@ -23,13 +23,6 @@ Value = fu.Value
 
 
 class LabradUnitsTests(unittest.TestCase):
-    def testParsing(self):
-        # prefixes
-        # multiplication
-        # division
-        # powers
-        pass
-
     def testArithmetic(self):
         m = fu.Unit('m')
         kg = fu.Unit('kg')
@@ -38,11 +31,14 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertEqual(fu.Value(5.0, None)*m, 5.0*m)
 
         # addition
-        self.assertEqual(1.0*kg + 0.0*kg, 1.0*kg)
-        with self.assertRaises(fu.UnitMismatchError): _ = 1.0*kg + 1.0*m
-        with self.assertRaises(fu.UnitMismatchError): _ = 1.0*kg + 2.0
-        self.assertAlmostEqual(1.0*km/m + 5.0, 1005)
-        self.assertNotEqual(1.0*kg, None)
+        self.assertEqual(1.0 * kg + 0.0 * kg, 1.0 * kg)
+        with self.assertRaises(fu.UnitMismatchError):
+            _ = 1.0 * kg + 1.0 * m
+        with self.assertRaises(fu.UnitMismatchError):
+            _ = 1.0 * kg + 2.0
+        self.assertEqual(km, 1000*m)
+        self.assertAlmostEqual(1.0 * km / m + 5.0, 1005)
+        self.assertNotEqual(1.0 * kg, None)
 
     def testValueArray(self):
         # Slicing

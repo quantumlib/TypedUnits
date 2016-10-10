@@ -4,7 +4,7 @@ import numpy as np
 from pyfu.units import kilometer, meter, mm, second, us, ns
 
 
-class FastUnitsTests(unittest.TestCase):
+class ValueTests(unittest.TestCase):
     def testConstruction(self):
         x = 2 * Unit('')
         y = Value(5, 'ns')

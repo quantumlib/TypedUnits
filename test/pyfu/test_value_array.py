@@ -1,10 +1,10 @@
 import unittest
 from pyfu import ValueArray, UnitMismatchError
-from pyfu._all_cythonized import raw_UnitArray
+from pyfu._all_cythonized import raw_WithUnit, raw_UnitArray
 import numpy as np
 
 
-class FastUnitsTests(unittest.TestCase):
+class ValueArrayTests(unittest.TestCase):
     def assertNumpyArrayEqual(self, a, b):
         if len(a) != len(b) or not np.all(a == b):
             msg = 'not np.all(%s == %s)' % (repr(a), repr(b))
@@ -59,11 +59,22 @@ class FastUnitsTests(unittest.TestCase):
                          "ValueArray(array([-1.]), 'km^(2/3)*s/kg^3')")
 
         # Fallback case.
-        v = ValueArray.raw([1, 2, 3], 2, 5, 10,
-                           raw_UnitArray([('muffin', 1, 1)]),
-                           raw_UnitArray([('cookie', 1, 1)]))
+        v = raw_WithUnit([1, 2, 3],
+                         {
+                             'factor': 3.0,
+                             'ratio': {
+                                 'numer': 2,
+                                 'denom': 5,
+                             },
+                             'exp10': 10
+                         },
+                         raw_UnitArray([('muffin', 1, 1)]),
+                         raw_UnitArray([('cookie', 1, 1)]))
         self.assertEqual(repr(v),
-                         "raw_WithUnit(array([1, 2, 3]), 2, 5, 10, "
+                         "raw_WithUnit(array([1, 2, 3]), "
+                         "{'exp10': 10, "
+                         "'ratio': {'numer': 2, 'denom': 5}, "
+                         "'factor': 3.0}, "
                          "raw_UnitArray([('muffin', 1, 1)]), "
                          "raw_UnitArray([('cookie', 1, 1)]))")
 
