@@ -55,7 +55,7 @@ cdef long long round(double d):
 
 
 @cython.cdivision(True)
-cdef conversion inverse_conversion(conversion c):
+cpdef conversion inverse_conversion(conversion c):
     cdef conversion result
     result.factor = 1 / c.factor
     result.ratio.numer = c.ratio.denom

@@ -79,6 +79,29 @@ class ConversionTests(unittest.TestCase):
                 conv(factor=2.71, numer=2, denom=15, exp10=-5)),
             conv(factor=3.14 / 2.71, numer=25, denom=8, exp10=7))
 
+    def testInverseConversion(self):
+        # Identity.
+        self.assertEqual(u.inverse_conversion(conv()), conv())
+
+        # Single elements.
+        self.assertEqual(
+            u.inverse_conversion(conv(factor=2)),
+            conv(factor=0.5))
+        self.assertEqual(
+            u.inverse_conversion(conv(numer=3)),
+            conv(denom=3))
+        self.assertEqual(
+            u.inverse_conversion(conv(denom=5)),
+            conv(numer=5))
+        self.assertEqual(
+            u.inverse_conversion(conv(exp10=7)),
+            conv(exp10=-7))
+
+        # All elements.
+        self.assertEqual(
+            u.inverse_conversion(conv(factor=3.14, numer=5, denom=12, exp10=2)),
+            conv(factor=1 / 3.14, numer=12, denom=5, exp10=-2))
+
     def testConversionRaiseTo(self):
         # Identity.
         self.assertEqual(

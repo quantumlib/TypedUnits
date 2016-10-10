@@ -321,6 +321,12 @@ class WithUnitTests(unittest.TestCase):
         v2 = val(1, conv(exp10=3), units=m, display_units=s)
         self.assertEqual(1.0 * v2 / v1 + 5.0, 1005)
 
+        # Tricky precision.
+        a = val(1, conv(denom=101))
+        b = val(1, conv(denom=101 * 103))
+        self.assertDeepEqual(a + b, val(104, conv(denom=101 * 103)))
+        self.assertDeepEqual(b + a, val(104, conv(denom=101 * 103)))
+
     def testSubtraction(self):
         with self.assertRaises(UnitMismatchError):
             _ = val(2, units=m) - val(3, units=s)

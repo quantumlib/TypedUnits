@@ -114,9 +114,6 @@ cdef class WithUnit:
             self.base_units,
             self.display_units)
 
-    cdef double _scale_to_double(self):
-        return conversion_to_double(self.conv)
-
     def __neg__(self):
         return self.__with_value(-self.value)
 
@@ -136,12 +133,15 @@ cdef class WithUnit:
         if left.base_units != right.base_units:
             raise UnitMismatchError()
 
-        cdef double fL = conversion_to_double(left.conv)
-        cdef double fR = conversion_to_double(right.conv)
-        # Prefer finer grained display units.
-        if fL < fR:
-            return left.__with_value(left.value + right.value * (fR/fL))
-        return right.__with_value(right.value + left.value * (fL/fR))
+        cdef conversion left_to_right = conversion_div(left.conv, right.conv)
+        cdef double c = conversion_to_double(left_to_right)
+
+        # Prefer scaling up, not down.
+        if c > -1 and c < 1:
+            c = conversion_to_double(inverse_conversion(left_to_right))
+            return left.__with_value(left.value + right.value * c)
+
+        return right.__with_value(left.value * c + right.value)
 
     def __sub__(a, b):
         return a + -b
@@ -200,13 +200,13 @@ cdef class WithUnit:
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
                 "Only dimensionless values can be stripped into a float.")
-        return self._scale_to_double() * float(self.value)
+        return conversion_to_double(self.conv) * float(self.value)
 
     def __complex__(self):
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
                 "Only dimensionless values can be stripped into a complex.")
-        return self._scale_to_double() * complex(self.value)
+        return conversion_to_double(self.conv) * complex(self.value)
 
     def __richcmp__(a, b, int op):
         cdef WithUnit left
@@ -367,7 +367,7 @@ cdef class WithUnit:
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
                 "Only dimensionless values can be stripped into an array.")
-        return np.array(self._scale_to_double() * self.value)
+        return np.array(conversion_to_double(self.conv) * self.value)
 
     __array_priority__ = 15
 
