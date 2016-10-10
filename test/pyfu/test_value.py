@@ -62,6 +62,7 @@ class FastUnitsTests(unittest.TestCase):
     def testStr(self):
         self.assertEqual(str(Value(1, mm)), 'mm')
         self.assertEqual(str(Value(4, mm)), '4.0 mm')
+        self.assertEqual(str(2 * meter * kilometer), '2.0 km*m')
 
     def testDivmod(self):
         x = 4.001*us

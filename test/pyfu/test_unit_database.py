@@ -19,15 +19,15 @@ class UnitDatabaseTests(unittest.TestCase):
     def testAddRootUnit(self):
         db = UnitDatabase(auto_create_units=False)
         db.add_root_unit('cats')
+
+        # Root unit is simple.
         c = db.get_unit('cats')
-        u = raw_UnitArray([('cats', 1, 1)])
-        self.assertEquals(c.base_units, u)
-        self.assertEquals(c.display_units, u)
+        self.assertEquals(c.base_units, raw_UnitArray([('cats', 1, 1)]))
+        self.assertEquals(c.display_units, raw_UnitArray([('cats', 1, 1)]))
         self.assertEquals(c.numer, 1)
         self.assertEquals(c.denom, 1)
         self.assertEquals(c.exp10, 0)
         self.assertEquals(c.value, 1)
-        self.assertEquals(c, raw_WithUnit(1, 1, 1, 0, u, u))
 
         # No dups.
         with self.assertRaises(RuntimeError):
@@ -42,15 +42,25 @@ class UnitDatabaseTests(unittest.TestCase):
                 PrefixData('q_', 'qu_', 2),
             ])
 
-        u = raw_UnitArray([('b', 1, 1)])
-        v = raw_WithUnit(1, 1, 1, 0, u, u)
+        # Long form *is* short form.
+        self.assertIs(db.get_unit('base'), db.get_unit('b'))
+        self.assertIs(db.get_unit('pre_base'), db.get_unit('p_b'))
+        self.assertIs(db.get_unit('qu_base'), db.get_unit('q_b'))
 
-        self.assertEquals(db.get_unit('base'), v)
-        self.assertEquals(db.get_unit('b'), v)
-        self.assertEquals(db.get_unit('p_b'), v * 10)
-        self.assertEquals(db.get_unit('q_b'), v * 100)
-        self.assertEquals(db.get_unit('pre_base'), v * 10)
-        self.assertEquals(db.get_unit('qu_base'), v * 100)
+        # Root unit is simple.
+        u = db.get_unit('b')
+        self.assertEquals(u.base_units, raw_UnitArray([('b', 1, 1)]))
+        self.assertEquals(u.display_units, raw_UnitArray([('b', 1, 1)]))
+        self.assertEquals(u.numer, 1)
+        self.assertEquals(u.denom, 1)
+        self.assertEquals(u.exp10, 0)
+        self.assertEquals(u.value, 1)
+
+        # Prefixes do scaling.
+        self.assertEquals(db.get_unit('p_b'), u * 10)
+        self.assertEquals(db.get_unit('q_b'), u * 100)
+
+        # No mixing long prefixes with short units or vice versa.
         with self.assertRaises(KeyError):
             db.get_unit('p_base')
         with self.assertRaises(KeyError):
@@ -65,11 +75,19 @@ class UnitDatabaseTests(unittest.TestCase):
                 PrefixData('q_', 'qu_', 2),
             ])
 
-        u = raw_UnitArray([('b', 1, 1)])
-        v = raw_WithUnit(1, 1, 1, 0, u, u)
+        # Long form *is* short form.
+        self.assertIs(db.get_unit('base'), db.get_unit('b'))
 
-        self.assertEquals(db.get_unit('base'), v)
-        self.assertEquals(db.get_unit('b'), v)
+        # Root unit is simple.
+        u = db.get_unit('b')
+        self.assertEquals(u.base_units, raw_UnitArray([('b', 1, 1)]))
+        self.assertEquals(u.display_units, raw_UnitArray([('b', 1, 1)]))
+        self.assertEquals(u.numer, 1)
+        self.assertEquals(u.denom, 1)
+        self.assertEquals(u.exp10, 0)
+        self.assertEquals(u.value, 1)
+
+        # No prefixing.
         with self.assertRaises(KeyError):
             db.get_unit('p_b')
         with self.assertRaises(KeyError):
@@ -96,7 +114,7 @@ class UnitDatabaseTests(unittest.TestCase):
                 't',
                 'tails',
                 'shirts',
-                value=7j,
+                value=7.0,
                 exp10=5,
                 numerator=3,
                 denominator=2,
@@ -106,7 +124,7 @@ class UnitDatabaseTests(unittest.TestCase):
                 PrefixData('d_', 'duper_', 2),
             ])
 
-        v = db.get_unit('shirts') * 7j * (10**5 * 3) / 2
+        v = db.get_unit('shirts') * 7.0 * (10**5 * 3) / 2
 
         self.assertEquals(db.get_unit('tails'), v)
         self.assertEquals(db.get_unit('t'), v)
@@ -128,14 +146,14 @@ class UnitDatabaseTests(unittest.TestCase):
                 't',
                 'tails',
                 'shirts',
-                value=7j,
+                value=7.0,
                 exp10=5,
                 numerator=3,
                 denominator=2,
                 use_prefixes=False),
             [PrefixData('s_', 'super_', 1)])
 
-        v = db.get_unit('shirts') * 7j * (10**5 * 3) / 2
+        v = db.get_unit('shirts') * 7 * (10**5 * 3) / 2
 
         self.assertEquals(db.get_unit('tails'), v)
         self.assertEquals(db.get_unit('t'), v)
