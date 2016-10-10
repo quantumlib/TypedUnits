@@ -17,8 +17,8 @@ class ValueArray(WithUnit):
         cdef WithUnit right = _in_WithUnit(val)
         if self.base_units != right.base_units:
             raise UnitMismatchError("Item's units don't match array's units.")
-        cdef double f = self._scale_to_double() / right._scale_to_double()
-        self.value[key] = right.value * f
+        cdef conversion conv = conversion_div(right.conv, self.conv)
+        self.value[key] = right.value * conversion_to_double(conv)
 
     def __copy__(WithUnit self):
         return self.__with_value(copy.copy(self.value))

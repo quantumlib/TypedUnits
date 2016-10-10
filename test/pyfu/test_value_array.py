@@ -21,6 +21,18 @@ class ValueArrayTests(unittest.TestCase):
         self.assertNumpyArrayEqual(([0, 1, 2, 3, 4] * ms)[3:], [3, 4] * ms)
         self.assertNumpyArrayEqual(([0, 1, 2, 3, 4] * ns)[::2], [0, 2, 4] * ns)
 
+    def testSetItem(self):
+        from pyfu.units import km, m, s
+        v = [1, 2, 3] * km
+
+        with self.assertRaises(UnitMismatchError):
+            v[0] = 2 * s
+
+        v[0] = 2 * km
+        v[1] = 16 * m
+
+        self.assertNumpyArrayEqual(v, [2000, 16, 3000] * m)
+
     def testAddition(self):
         from pyfu.units import km, m
         self.assertNumpyArrayEqual([1, 2, 3] * km + [2, 3, 5] * m,
