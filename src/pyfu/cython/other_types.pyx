@@ -14,7 +14,7 @@ class Complex(WithUnit):
 class ValueArray(WithUnit):
     """ A numpy array with associated units. """
     def __setitem__(WithUnit self, key, val):
-        cdef WithUnit right = WithUnit.wrap(val)
+        cdef WithUnit right = _in_WithUnit(val)
         if self.base_units != right.base_units:
             raise UnitMismatchError("Item's units don't match array's units.")
         cdef double f = self._scale_to_double() / right._scale_to_double()

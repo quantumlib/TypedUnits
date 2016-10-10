@@ -58,6 +58,16 @@ cpdef raw_WithUnit(value,
     return result
 
 
+def _in_WithUnit(obj):
+    """
+    Wraps the given object into a WithUnit instance, unless it's already
+    a WithUnit.
+    """
+    if isinstance(obj, WithUnit):
+        return obj
+    return raw_WithUnit(obj, 1, 1, 0, _EmptyUnit, _EmptyUnit)
+
+
 cdef class WithUnit:
     """
     A value with associated physical units.
@@ -125,16 +135,6 @@ cdef class WithUnit:
         return raw_WithUnit(value, numer, denom, exp10, base_units,
                             display_units)
 
-    @staticmethod
-    def wrap(obj):
-        """
-        Wraps the given object into a WithUnit instance, unless it's already
-        a WithUnit.
-        """
-        if isinstance(obj, WithUnit):
-            return obj
-        return raw_WithUnit(obj, 1, 1, 0, _EmptyUnit, _EmptyUnit)
-
     cdef __with_value(self, new_value):
         return raw_WithUnit(
             new_value,
@@ -160,8 +160,8 @@ cdef class WithUnit:
         return bool(self.value)
 
     def __add__(a, b):
-        cdef WithUnit left = WithUnit.wrap(a)
-        cdef WithUnit right = WithUnit.wrap(b)
+        cdef WithUnit left = _in_WithUnit(a)
+        cdef WithUnit right = _in_WithUnit(b)
 
         if left.base_units != right.base_units:
             raise UnitMismatchError()
@@ -177,8 +177,8 @@ cdef class WithUnit:
         return a + -b
 
     def __mul__(a, b):
-        cdef WithUnit left = WithUnit.wrap(a)
-        cdef WithUnit right = WithUnit.wrap(b)
+        cdef WithUnit left = _in_WithUnit(a)
+        cdef WithUnit right = _in_WithUnit(b)
         cdef frac ratio = frac_times(left.ratio, right.ratio)
         return raw_WithUnit(left.value * right.value,
                             ratio.numer,
@@ -188,8 +188,8 @@ cdef class WithUnit:
                             left.display_units * right.display_units)
 
     def __div__(a, b):
-        cdef WithUnit left = WithUnit.wrap(a)
-        cdef WithUnit right = WithUnit.wrap(b)
+        cdef WithUnit left = _in_WithUnit(a)
+        cdef WithUnit right = _in_WithUnit(b)
         cdef frac ratio = frac_div(left.ratio, right.ratio)
         return raw_WithUnit(left.value / right.value,
                             ratio.numer,
@@ -199,8 +199,8 @@ cdef class WithUnit:
                             left.display_units / right.display_units)
 
     def __divmod__(a, b):
-        cdef WithUnit left = WithUnit.wrap(a)
-        cdef WithUnit right = WithUnit.wrap(b)
+        cdef WithUnit left = _in_WithUnit(a)
+        cdef WithUnit right = _in_WithUnit(b)
         if left.base_units != right.base_units:
             raise UnitMismatchError()
 
@@ -268,8 +268,8 @@ cdef class WithUnit:
         cdef WithUnit left
         cdef WithUnit right
         try:
-            left = WithUnit.wrap(a)
-            right = WithUnit.wrap(b)
+            left = _in_WithUnit(a)
+            right = _in_WithUnit(b)
         except:
             return NotImplemented
 
