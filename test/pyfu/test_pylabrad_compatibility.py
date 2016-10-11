@@ -301,6 +301,7 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertEquals(v[ns], 10**9)
         self.assertEquals(v[ns*2], 10**9/2)
         self.assertEquals((v*3)[(ns*3)], 10 ** 9)
+        self.assertEquals((5 * s / ns)[''], 5 * 10**9)
 
 if __name__ == "__main__":
     unittest.main()

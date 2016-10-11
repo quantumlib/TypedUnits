@@ -162,6 +162,11 @@ cdef class WithUnit:
                             left.base_units / right.base_units,
                             left.display_units / right.display_units)
 
+    def __truediv__(a, b):
+        cdef WithUnit left = _in_WithUnit(a)
+        cdef WithUnit right = _in_WithUnit(b)
+        return left.__div__(right)
+
     def __divmod__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)

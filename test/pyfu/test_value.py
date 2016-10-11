@@ -105,6 +105,23 @@ class ValueTests(unittest.TestCase):
         self.assertEqual(Value(32, 'rad')*Value(2, 'sr'), Value(16, 'sr')**1.5)
         self.assertEqual(Value(1, 'rad')**(4/3.0), Value(1, 'sr')**(2/3.0))
 
+    def testDivision(self):
+        from pyfu.units import km, s, m
+
+        self.assertEqual(5 * km / (2 * s), Value(2500, 'm/s'))
+        with self.assertRaises(UnitMismatchError):
+            _ = 5 * km // (2 * s)
+        self.assertEqual((5 * km).__div__(2 * s), Value(2500, 'm/s'))
+        self.assertEqual((5 * km).__truediv__(2 * s), Value(2500, 'm/s'))
+        with self.assertRaises(UnitMismatchError):
+            self.assertEqual((5 * km).__floordiv__(2 * s), Value(2500, 'm/s'))
+
+        self.assertEqual((5 * km) / (64 * m), 78.125)
+        self.assertEqual((5 * km) // (64 * m), 78)
+        self.assertEqual((5 * km).__div__(64 * m), 78.125)
+        self.assertEqual((5 * km).__truediv__(64 * m), 78.125)
+        self.assertEqual((5 * km).__floordiv__(64 * m), 78)
+
     def testCycles(self):
         from pyfu.units import cyc, rad
         self.assertAlmostEquals((3.14159265*rad)[cyc], 0.5)
