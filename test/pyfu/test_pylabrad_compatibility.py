@@ -210,13 +210,6 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertEqual(round_trip(5*GHz*ns), 5)  # Dimensionless
         self.assertIsInstance(round_trip(3*blank), type(3*blank)) # Don't loose dimensionless type
 
-    def testUnitCreation(self):
-        # Unit creation is different in fastuntis, need to fix this
-        pass
-        #test0 = fu.Unit._new_derived_unit('test0', fu.hplanck/(2*fu.e))
-        #self.assertIsInstance(test0, fu.Unit)
-        #self.assertTrue((fu.Unit('phi0')**2).isCompatible(fu.Unit('phi0^2')))
-
     def testInUnitsOf(self):
         s = fu.Unit('s')
         ms = fu.Unit('ms')
@@ -277,8 +270,11 @@ class LabradUnitsTests(unittest.TestCase):
         for x in data:
             self.assertIsInstance(x, fu.Value)
         with self.assertRaises(TypeError):
-            for _ in 5*kg:
+            iter(5 * kg)
+        with self.assertRaises(TypeError):
+            for _ in 5 * kg:
                 pass
+        self.assertFalse(np.iterable(5 * kg))
 
     def testIsCompatible(self):
         from pyfu.like_pylabrad_units import ns, kg, s
@@ -297,7 +293,7 @@ class LabradUnitsTests(unittest.TestCase):
 
     def testScaledGetItem(self):
         from pyfu.like_pylabrad_units import ns, s
-        v = s*1.0
+        v = s * 1.0
         self.assertEquals(v[ns], 10**9)
         self.assertEquals(v[ns*2], 10**9/2)
         self.assertEquals((v*3)[(ns*3)], 10 ** 9)

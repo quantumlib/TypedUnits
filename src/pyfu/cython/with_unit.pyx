@@ -342,6 +342,13 @@ cdef class WithUnit:
             * conversion_to_double(conversion_div(self.conv, unit_val.conv))
             / unit_val.value)
 
+    def __iter__(self):
+        # Hack: We want calls to 'iter' to see that __iter__ exists and try to
+        # use it, instead of falling back to checking if __getitem__ exists,
+        # assuming scalars are iterable, and returning an iterator that only
+        # blows up later. So we define this do-nothing method.
+        raise TypeError("'WithUnit' object is not iterable")
+
     def isCompatible(self, unit):
         cdef WithUnit other = __try_interpret_as_with_unit(unit)
         if other is None:

@@ -30,22 +30,22 @@ class ValueArray(WithUnit):
         for e in self.value:
             yield self.__with_value(e)
 
-    def __len__(self):
+    def __len__(WithUnit self):
         return len(self.value)
 
     @property
-    def dtype(self):
+    def dtype(WithUnit self):
         return self.value.dtype
 
     @property
-    def ndim(self):
+    def ndim(WithUnit self):
         return self.value.ndim
 
     @property
-    def shape(self):
+    def shape(WithUnit self):
         return self.value.shape
 
-    def allclose(self, other, *args, **kw):
+    def allclose(WithUnit self, other, *args, **kw):
         return np.allclose(self.value, other[self.unit], *args, **kw)
 
 
