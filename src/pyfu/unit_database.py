@@ -64,6 +64,8 @@ class UnitDatabase(object):
             raise TypeError('unit_base_value must be a WithUnit')
         if unit_name in self.known_units:
             raise RuntimeError("Unit name already taken: " + repr(unit_name))
+        if unit_base_value.value != 1:
+            raise ValueError("Units must have a value of 1.")
         self.known_units[unit_name] = unit_base_value
 
     def add_root_unit(self, unit_name):
@@ -175,3 +177,44 @@ class UnitDatabase(object):
                                      data.exp10 + pre.exp10)
                 self.add_alternate_unit_name(pre.name + data.name,
                                              pre.symbol + data.symbol)
+
+    def _expected_value_for_unit_array(self, unit_array):
+        """
+        Determines the expected conversion factor for the given UnitArray by
+        looking up its unit names in the database and multiplying up each of
+        their contributions.
+
+        :param (str, int, int) unit_array: An array of unit names and exponents.
+        :return Value: A value containing the net conversion factor.
+        """
+        result = _all_cythonized.Value(1)
+        for name, exp_numer, exp_denom in unit_array:
+            if name not in self.known_units:
+                return None
+            result *= self.known_units[name] ** (float(exp_numer) / exp_denom)
+        return result
+
+    def is_value_consistent_with_database(self, value):
+        """
+        Determines if the value's base and display units are known and that
+        the conversion factor between them is consistent with the known unit
+        scales.
+
+        :param WithUnit value:
+        :return bool:
+        """
+        base = self._expected_value_for_unit_array(value.base_units)
+        display = self._expected_value_for_unit_array(value.display_units)
+
+        # Any unknown units?
+        if base is None or display is None:
+            return False
+
+        # Any units mapped to a different base unit?
+        if display.base_units != value.base_units:
+            return False
+
+        # Conversion makes sense?
+        conv = value.unit * base / display
+        c = conv.numer / conv.denom * (10**conv.exp10) * conv.factor
+        return abs(c - 1) < 0.0001

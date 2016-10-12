@@ -7,6 +7,30 @@ from pyfu.prefix_data import PrefixData, SI_PREFIXES
 from pyparsing import ParseException
 
 
+def frac(numer=1, denom=1):
+    return {'numer': numer, 'denom': denom}
+
+
+def unit(key):
+    return raw_UnitArray([(key, 1, 1)])
+
+
+def conv(factor=1.0, numer=1, denom=1, exp10=0):
+    return {'factor': factor, 'ratio': frac(numer, denom), 'exp10': exp10}
+
+
+# noinspection PyShadowingNames
+def val(value,
+        conv=conv(),
+        units=raw_UnitArray([]),
+        display_units=None):
+    return raw_WithUnit(
+        value,
+        conv,
+        units,
+        units if display_units is None else display_units)
+
+
 class UnitDatabaseTests(unittest.TestCase):
     def testAutoCreate(self):
         with self.assertRaises(KeyError):
@@ -196,6 +220,102 @@ class UnitDatabaseTests(unittest.TestCase):
         self.assertEquals(db.parse_unit_formula('cats/dogs^2'), cats / dogs**2)
         self.assertEquals(
             db.parse_unit_formula('cats/dogs*mice'), (cats / dogs) * mice)
+
+    def testIsConsistentWithDatabase(self):
+        db = UnitDatabase(auto_create_units=True)
+
+        # Empty.
+        self.assertTrue(db.is_value_consistent_with_database(val(5)))
+
+        # Missing.
+        self.assertFalse(db.is_value_consistent_with_database(val(
+            6,
+            units=unit('theorems'))))
+
+        # Present.
+        db.add_root_unit('theorems')
+        self.assertTrue(db.is_value_consistent_with_database(val(
+            6,
+            units=unit('theorems'))))
+
+        # Self-contradictory conversion.
+        self.assertFalse(db.is_value_consistent_with_database(val(
+            6,
+            conv=conv(3),
+            units=unit('theorems'))))
+
+        # Inconsistent conversion.
+        db.add_scaled_unit('kilo_theorems', 'theorems', exp10=3)
+        self.assertFalse(db.is_value_consistent_with_database(val(
+            6,
+            units=unit('theorems'),
+            display_units=unit('kilo_theorems'))))
+
+        # Consistent conversion.
+        self.assertTrue(db.is_value_consistent_with_database(val(
+            6,
+            conv=conv(numer=1000),
+            units=unit('theorems'),
+            display_units=unit('kilo_theorems'))))
+        self.assertTrue(db.is_value_consistent_with_database(val(
+            6,
+            conv=conv(exp10=3),
+            units=unit('theorems'),
+            display_units=unit('kilo_theorems'))))
+
+        # Disagreement over what the root unit is.
+        self.assertFalse(db.is_value_consistent_with_database(val(
+            6,
+            conv=conv(exp10=-3),
+            units=unit('kilo_theorems'),
+            display_units=unit('theorems'))))
+
+        # Nearly consistent conversion.
+        db.add_scaled_unit('factoids', 'theorems', 3.141, 3, 5, -7)
+        self.assertTrue(db.is_value_consistent_with_database(val(
+            10,
+            conv(3.141, 3, 5, -7),
+            unit('theorems'),
+            unit('factoids'))))
+        self.assertTrue(db.is_value_consistent_with_database(val(
+            10,
+            conv(3.14100000000001, 3, 5, -7),
+            unit('theorems'),
+            unit('factoids'))))
+
+        # Combinations.
+        self.assertFalse(db.is_value_consistent_with_database(val(
+            10,
+            conv(-3),
+            unit('theorems') * unit('theorems'),
+            unit('kilo_theorems'))))
+        self.assertFalse(db.is_value_consistent_with_database(val(
+            10,
+            conv(-3),
+            unit('theorems') * unit('theorems'),
+            unit('kilo_theorems') * unit('factoids'))))
+        self.assertTrue(db.is_value_consistent_with_database(val(
+            10,
+            conv(3.141, 3, 5, -4),
+            unit('theorems') * unit('theorems'),
+            unit('kilo_theorems') * unit('factoids'))))
+
+        # Exponents.
+        self.assertFalse(db.is_value_consistent_with_database(val(
+            10,
+            conv(exp10=-3),
+            unit('theorems')**2,
+            unit('kilo_theorems')**2)))
+        self.assertTrue(db.is_value_consistent_with_database(val(
+            10,
+            conv(exp10=6),
+            unit('theorems')**2,
+            unit('kilo_theorems')**2)))
+        self.assertTrue(db.is_value_consistent_with_database(val(
+            10,
+            conv(exp10=1),
+            unit('theorems')**(1 / 3.0),
+            unit('kilo_theorems')**(1 / 3.0))))
 
 if __name__ == "__main__":
     unittest.main()

@@ -269,26 +269,11 @@ cdef class WithUnit:
         return ("%s %s" % (str(self.value), unit_str)).strip()
 
     def __repr__(WithUnit self):
-        # If the default unit database is capable of correctly parsing our
-        # units, use a nice output. Else use a gross but correct output.
-
-        cdef WithUnit parse_attempt
-        try:
-            parse_attempt = type(self)(self.value, str(self.display_units))
-            if (parse_attempt.base_units == self.base_units
-                    and parse_attempt.display_units == self.display_units
-                    and parse_attempt.conv.ratio.numer == self.conv.ratio.numer
-                    and parse_attempt.conv.ratio.denom == self.conv.ratio.denom
-                    and parse_attempt.conv.exp10 == self.conv.exp10
-                    and parse_attempt.conv.factor == self.conv.factor
-                    and isOrAllTrue(parse_attempt.value == self.value)):
-                return "%s(%s, '%s')" % (
-                    type(self).__name__,
-                    repr(self.value),
-                    str(self.display_units))
-        except:
-            # Some kind of non-standard unit? Fall back to raw output.
-            pass
+        if __is_value_consistent_with_default_unit_database(self):
+            return "%s(%s, '%s')" % (
+                type(self).__name__,
+                repr(self.value),
+                str(self.display_units))
 
         return "raw_WithUnit(%s)" % ', '.join(
             repr(e) for e in _pickle_WithUnit(self)[1])
@@ -384,9 +369,15 @@ cdef class WithUnit:
     __array_priority__ = 15
 
 __try_interpret_as_with_unit = None
-def init_base_unit_functions(try_interpret_as_with_unit):
+__is_value_consistent_with_default_unit_database = None
+def init_base_unit_functions(
+        try_interpret_as_with_unit,
+        is_value_consistent_with_default_unit_database):
     global __try_interpret_as_with_unit
+    global __is_value_consistent_with_default_unit_database
     __try_interpret_as_with_unit = try_interpret_as_with_unit
+    __is_value_consistent_with_default_unit_database = \
+            is_value_consistent_with_default_unit_database
 
 def _pickle_WithUnit(WithUnit e):
     return raw_WithUnit, (

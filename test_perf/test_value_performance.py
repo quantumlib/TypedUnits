@@ -38,8 +38,7 @@ def test_perf_str(a):
     return str(a)
 
 
-# Note: another PR improves this 20X.
-@perf_goal(avg_micros=500, args=[a_random_unit_val])
+@perf_goal(avg_micros=80, args=[a_random_unit_val])
 def test_perf_repr(a):
     return repr(a)
 

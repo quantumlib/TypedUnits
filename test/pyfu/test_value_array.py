@@ -70,6 +70,13 @@ class ValueArrayTests(unittest.TestCase):
         self.assertEqual(repr([-1] * km**(2/3.0) / kg**3 * s),
                          "ValueArray(array([-1.]), 'km^(2/3)*s/kg^3')")
 
+        # Numpy abbreviation is allowed.
+        self.assertEqual(
+            repr(list(range(50000)) * km),
+            "ValueArray(array([  0.00000000e+00,   1.00000000e+00,   "
+            "2.00000000e+00, ...,\n         4.99970000e+04,   "
+            "4.99980000e+04,   4.99990000e+04]), 'km')")
+
         # Fallback case.
         v = raw_WithUnit([1, 2, 3],
                          {

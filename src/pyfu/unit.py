@@ -37,7 +37,9 @@ def _try_interpret_as_with_unit(obj):
         return WithUnit(obj)
     return None
 
-_all_cythonized.init_base_unit_functions(_try_interpret_as_with_unit)
+_all_cythonized.init_base_unit_functions(
+    _try_interpret_as_with_unit,
+    default_unit_database.is_value_consistent_with_database)
 
 
 class Unit(Value):

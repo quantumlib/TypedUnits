@@ -65,9 +65,14 @@ class ValueTests(unittest.TestCase):
         self.assertEqual(repr(Value(1j+5, km * kg)), "Value((5+1j), 'kg*km')")
 
     def testStr(self):
+        from pyfu.units import mm, meter, kilometer, rad, cyc
         self.assertEqual(str(Value(1, mm)), 'mm')
         self.assertEqual(str(Value(4, mm)), '4.0 mm')
         self.assertEqual(str(2 * meter * kilometer), '2.0 km*m')
+        self.assertEqual(str(cyc), 'cyc')
+        self.assertEqual(str(3.25 * cyc**2), '3.25 cyc^2')
+        self.assertEqual(str(3.25 * cyc * rad), '3.25 cyc*rad')
+        self.assertEqual(str((4 * kilometer)**0.5), '2.0 km^(1/2)')
 
     def testDivmod(self):
         x = 4.0009765625 * us
