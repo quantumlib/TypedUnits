@@ -102,5 +102,21 @@ class ValueArrayTests(unittest.TestCase):
         self.assertEqual(str([] * mm**3), '[] mm^3')
         self.assertEqual(str([2, 3, 5] * mm), '[ 2.  3.  5.] mm')
 
+    def testArrayDType(self):
+        from pyfu.units import dekahertz, s
+        a = np.array(s * [1, 2, 3] * dekahertz, dtype=np.complex)
+        a += 1j
+        self.assertNumpyArrayEqual(
+            a,
+            [10 + 1j, 20 + 1j, 30 + 1j])
+
+        b = np.array(s * [1, 2, 3] * dekahertz, dtype=np.float64)
+        with self.assertRaises(TypeError):
+            b += 1j
+
+        c = np.array(s * [1, 2, 3] * dekahertz)  # infer not complex
+        with self.assertRaises(TypeError):
+            c += 1j
+
 if __name__ == "__main__":
     unittest.main()

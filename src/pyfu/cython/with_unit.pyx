@@ -352,11 +352,13 @@ cdef class WithUnit:
         def __get__(self):
             return self.__with_value(1)
 
-    def __array__(self):
+    def __array__(self, dtype=None):
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
                 "Only dimensionless values can be stripped into an array.")
-        return np.array(conversion_to_double(self.conv) * self.value)
+        return np.array(
+            conversion_to_double(self.conv) * self.value,
+            dtype=dtype)
 
     __array_priority__ = 15
 
