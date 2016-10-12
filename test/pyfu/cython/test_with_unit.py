@@ -88,6 +88,15 @@ class WithUnitTests(unittest.TestCase):
         self.assertIsInstance(val(2j), Complex)
         self.assertIsInstance(val([2]), ValueArray)
 
+    def testAbs(self):
+        self.assertEqual(abs(val(2)), val(2))
+
+        # If we have a negative unit, abs is w.r.t. the derived unit.
+        self.assertEqual(abs(val(-2)), val(2))
+        self.assertEqual(abs(val(2, conv(-1.5))), val(-3))
+        self.assertEqual(abs(val(2, conv(numer=-2))), val(-4))
+        self.assertEqual(abs(val(2, conv(-1.5, numer=-2))), val(6))
+
     def testEquality(self):
         equivalence_groups = [
             [""],

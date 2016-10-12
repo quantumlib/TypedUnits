@@ -114,13 +114,13 @@ cdef class WithUnit:
             self.base_units,
             self.display_units)
 
-    def __neg__(self):
+    def __neg__(WithUnit self):
         return self.__with_value(-self.value)
 
     def __pos__(self):
         return self
 
-    def __abs__(self):
+    def __abs__(WithUnit self):
         return self.__with_value(abs(self.value))
 
     def __nonzero__(self):
@@ -233,17 +233,15 @@ cdef class WithUnit:
             raise UnitMismatchError("Comparands have different units.")
 
         # Compute scaled comparand values, without dividing.
-        cdef conversion c
-        u = left.value * left.conv.factor
-        v = right.value * right.conv.factor
         cdef frac f = frac_div(left.conv.ratio, right.conv.ratio)
+        u = left.value * left.conv.factor * f.numer
+        v = right.value * right.conv.factor * f.denom
         cdef int e = left.exp10 - right.exp10
         if e > 0:
-            u *= f.numer * c_pow(10, e)
-            v *= f.denom
+            # Note: don't use *=. Numpy will do an inplace modification.
+            u = u * c_pow(10, e)
         else:
-            u *= f.numer
-            v *= f.denom * c_pow(10, -e)
+            v = v * c_pow(10, -e)
 
         # Delegate to value comparison.
         if op == Py_EQ:

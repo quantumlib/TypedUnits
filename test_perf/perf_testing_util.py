@@ -97,7 +97,7 @@ unit_list = [v for k, v in pyfu.unit.default_unit_database.known_units.items()]
 
 
 def sample_random_unit_combo():
-    r = random.random()
+    r = 10 * (random.random() + 0.01) * (-1 if random.random() < 0.5 else +1)
     r *= random.choice(unit_list)
     r *= random.choice(unit_list)
     r /= random.choice(unit_list)
