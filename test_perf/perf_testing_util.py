@@ -3,6 +3,19 @@ import pyfu
 import random
 import time
 
+
+def _perf_bar_text(avg, stddev, n=20):
+    """
+    Returns an ascii progress bar showing the average relative to 1 with '#'s
+    and two standard deviations with '~'s. E.g. '#####~~~~~       '.
+    """
+    if avg > 1:
+        return '!' * n
+    n_avg = int(avg * n)
+    n_2dev = min(int((avg + stddev * 2) * n), n) - n_avg
+    return ('#' * n_avg + '~' * n_2dev).ljust(n, ' ')
+
+
 _perf_goal_results = []
 def perf_goal(avg_micros, repeats=100, args=None):
     """
@@ -17,11 +30,14 @@ def perf_goal(avg_micros, repeats=100, args=None):
     _perf_goal_results.append(None)
 
     def decorate(f):
+        name = f.__name__.replace('test_perf_', '')
+
         def wrapped():
             try:
-                _perf_goal_results[index] = '[fail] ' + f.__name__
+                _perf_goal_results[index] = '[fail] ' + name
 
                 total = 0.0
+                squares_total = 0.0
                 for _ in range(repeats):
                     ctx = dict()
                     arg_vals = [e.sample_function(ctx)
@@ -32,20 +48,28 @@ def perf_goal(avg_micros, repeats=100, args=None):
                     f(*arg_vals)
                     duration = time.clock() - start_time
                     total += duration
-                mean_duration = total / repeats
+                    squares_total += duration**2
 
-                did_fail = mean_duration * 10**6 > avg_micros
+                mean_duration = total / repeats
+                # Note: keep in mind that perf measurements aren't normally
+                # distributed, and are more volatile than this number implies.
+                std_dev = (squares_total / repeats - mean_duration**2)**0.5
+
+                avg_ratio = mean_duration * 10**6 / avg_micros
+                std_dev_ratio = std_dev * 10**6 / avg_micros
+                did_fail = avg_ratio > 1
                 _perf_goal_results[index] = (
-                    "averaged %d%%%s of target (%s us) for %s" % (
-                        mean_duration * 10 ** 8 / avg_micros,
-                        ' (!)' if did_fail else '',
-                        avg_micros,
-                        f.__name__))
+                    u"[%s] %s%% \u00B1%s%% of target (%s us) for %s" % (
+                        _perf_bar_text(avg_ratio, std_dev_ratio),
+                        str(int(avg_ratio * 100)).rjust(3, ' '),
+                        str(int(std_dev_ratio * 100)).rjust(2, ' '),
+                        str(avg_micros).rjust(3),
+                        name))
 
                 if did_fail:
                     raise AssertionError(
                         "%s took too long. Mean (%s us) over target (%s us)." %
-                        (f.__name__, mean_duration * 10 ** 6, avg_micros))
+                        (name, mean_duration * 10 ** 6, avg_micros))
             finally:
                 # Because tests can run out of order, we defer the printing
                 # until we have all the results and can print in order.
