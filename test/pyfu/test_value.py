@@ -1,12 +1,12 @@
 import unittest
-from pyfu import Value, Unit, Complex, UnitMismatchError
+from pyfu import Value, Complex, UnitMismatchError
 import numpy as np
 from pyfu.units import kilometer, meter, mm, second, us, ns
 
 
 class ValueTests(unittest.TestCase):
     def testConstruction(self):
-        x = 2 * Unit('')
+        x = 2 * Value(1, '')
         y = Value(5, 'ns')
         self.assertIsInstance(x, Value)
         self.assertIsInstance(y, Value)

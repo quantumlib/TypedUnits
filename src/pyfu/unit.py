@@ -42,15 +42,6 @@ _all_cythonized.init_base_unit_functions(
     default_unit_database.is_value_consistent_with_database)
 
 
-class Unit(Value):
-    """
-    Just a Value (WithValue), but with a constructor that accepts formulas.
-    """
-    def __init__(self, obj):
-        unit = default_unit_database.parse_unit_formula(obj)
-        super(Value, self).__init__(unit)
-
-
 def add_non_standard_unit(name, use_prefixes=False):
     """
     :param str name:

@@ -16,8 +16,8 @@ import unittest
 import numpy as np
 
 import cPickle
-import pyfu as fu
-from pyfu import UnitMismatchError
+import pyfu.like_pylabrad_units as fu
+from pyfu.like_pylabrad_units import UnitMismatchError
 ValueArray = fu.ValueArray
 Value = fu.Value
 
@@ -60,6 +60,13 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertTrue((ValueArray([2, 3], 'm')**2 == ValueArray([4, 9], 'm^2')).all())
 
         self.assertTrue((ValueArray([2, 3], 'GHz') * Value(3, 'ns')).dtype == np.float64)
+
+    def testDimensionlessArray(self):
+        a = np.array(fu.DimensionlessArray([1, 2, 3]))
+        self.assertEqual(len(a), 3)
+        self.assertEqual(a[0], 1)
+        self.assertEqual(a[1], 2)
+        self.assertEqual(a[2], 3)
 
     def testIsFinite(self):
         self.assertTrue(np.isfinite(ValueArray([1, 2], '')).all())
@@ -147,7 +154,7 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertTrue(10000*ms > 1*s, '10000*ms < 1*s')
         self.assertTrue(10000*ms >= 1*s, '10000*ms <= 1*s')
         with self.assertRaises(TypeError):
-            nogood = 1*s > 1*kg
+            _ = 1*s > 1*kg
 
         self.assertFalse(1*s == 1*kg)
         self.assertTrue(0*s == 0*ms)
