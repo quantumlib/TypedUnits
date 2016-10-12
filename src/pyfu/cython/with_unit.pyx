@@ -308,15 +308,9 @@ cdef class WithUnit:
         if isinstance(key, int) or isinstance(key, slice):
             return self.__with_value(self.value[key])
 
-        cdef WithUnit unit_val = __try_interpret_as_with_unit(key)
+        cdef WithUnit unit_val = __try_interpret_as_with_unit(key, True)
         if unit_val is None:
             raise TypeError("Bad unit key: " + repr(key))
-
-        # We could interpret the dimensionless value like the others, but x[1.0]
-        # is uncomfortably close to x[1] yet acts differently so for now we will
-        # disallow it.
-        if unit_val.isDimensionless() and not isinstance(key, str):
-            raise TypeError("Ambiguous unit key: " + repr(key))
 
         if self.base_units != unit_val.base_units:
             raise UnitMismatchError("Unit key doesn't match value's units.")

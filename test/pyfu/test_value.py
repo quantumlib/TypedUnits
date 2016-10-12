@@ -127,6 +127,15 @@ class ValueTests(unittest.TestCase):
         self.assertEqual((5 * km).__truediv__(64 * m), 78.125)
         self.assertEqual((5 * km).__floordiv__(64 * m), 78)
 
+    def testGetItem(self):
+        from pyfu.units import ns, s
+        with self.assertRaises(TypeError):
+            _ = (ns / s)[2 * s / ns]
+        with self.assertRaises(TypeError):
+            _ = (ns / s)[Value(3, '')]
+        self.assertEqual(Value(1, '')[Value(1, '')], 1)
+        self.assertEqual(Value(1, '')[ns / s], 10 ** 9)
+
     def testCycles(self):
         from pyfu.units import cyc, rad
         self.assertAlmostEquals((3.14159265*rad)[cyc], 0.5)

@@ -468,7 +468,8 @@ class WithUnitTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             _ = u[1]
         with self.assertRaises(TypeError):
-            _ = u[v / v]
+            _ = u[2 * v / v]
+        self.assertEqual(u[v / v], 10)
 
         # Wrong unit.
         with self.assertRaises(UnitMismatchError):
