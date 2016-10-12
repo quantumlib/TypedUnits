@@ -128,6 +128,11 @@ class ValueTests(unittest.TestCase):
         self.assertAlmostEquals((1.0*rad)[cyc], 0.15915494309)
         self.assertAlmostEquals((1.0*cyc)[2*rad], 3.14159265)
 
+    def testDecibelsVsDecibelMilliwatts(self):
+        from pyfu.units import dBm, dB, W
+        self.assertNotEqual(dBm, dB * W)
+        self.assertFalse(dBm.isCompatible(dB * W))
+
     def testHash(self):
         x = Value(3, 'ks')
         y = Value(3000, 's')

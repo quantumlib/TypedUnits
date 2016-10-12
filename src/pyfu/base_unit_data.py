@@ -28,6 +28,7 @@ __SI_BASE_UNITS = [
 
 __OTHER_BASE_UNITS = [
     BaseUnitData('dB', 'decibel', use_prefixes=False),
+    BaseUnitData('dBm', 'decibel-milliwatt', use_prefixes=False),
 ]
 
 ALL_BASE_UNITS = __SI_BASE_UNITS + __OTHER_BASE_UNITS
