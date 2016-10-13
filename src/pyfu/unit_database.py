@@ -32,8 +32,8 @@ class UnitDatabase(object):
         :param str formula: Describes a combination of units.
         :return WithUnit: The value described by the formula.
         """
-        if formula == '':
-            return self.get_unit('')
+        if formula in self.known_units:
+            return self.known_units[formula]
         parsed = unit_grammar.unit.parseString(formula)
         result = _all_cythonized.WithUnit(1)
         for item in parsed.posexp:
