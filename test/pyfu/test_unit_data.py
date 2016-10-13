@@ -47,6 +47,14 @@ class UnitDataTests(unittest.TestCase):
         self.assertEqual(quart - pint - cup - tablespoon, 45 * teaspoon)
         self.assertAlmostEqual(33.814 * fluid_ounce / liter, 1, places=5)
 
+    def testMasses(self):
+        from pyfu.units import (ounce,
+                                pound,
+                                ton,
+                                megagram)
+        self.assertAlmostEqual(
+            (ounce + pound + ton) / megagram, 0.9077, places=4)
+
 
 if __name__ == "__main__":
     unittest.main()

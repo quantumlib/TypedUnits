@@ -81,6 +81,10 @@ __OTHER_UNITS = [
     DerivedUnitData('qt', 'quart', 'pint', 2),
     DerivedUnitData('galUS', 'us_gallon', 'qt', 4),
     DerivedUnitData('galUK', 'british_gallon', 'l', 4.54609),
+    # Mass.
+    DerivedUnitData('oz', 'ounce', 'g', 28.349523125),
+    DerivedUnitData('lb', 'pound', 'oz', 16),
+    DerivedUnitData('ton', None, 'lb', 2000),
 ]
 
 # Units that aren't technically exact, but close enough for our purposes.
