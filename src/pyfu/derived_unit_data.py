@@ -14,7 +14,7 @@ class DerivedUnitData:
                  exp10=0,
                  numerator=1,
                  denominator=1,
-                 use_prefixes=True):
+                 use_prefixes=False):
         """
         :param str symbol: The short name for the unit (e.g. 'm' for meter).
         :param str name: The full name of the unit (e.g. 'meter').
@@ -35,46 +35,40 @@ class DerivedUnitData:
         self.use_prefixes = use_prefixes
 
 __SI_REDUNDANT_BASE_UNITS = [
-    DerivedUnitData('sr', 'steradian', 'rad^2'),
+    DerivedUnitData('sr', 'steradian', 'rad^2', use_prefixes=True),
 ]
 
 __SI_DERIVED_UNITS = [
-    DerivedUnitData('Hz', 'hertz', '1/s'),
-    DerivedUnitData('N', 'newton', 'kg*m/s^2'),
-    DerivedUnitData('Pa', 'pascal', 'N/m^2'),
-    DerivedUnitData('J', 'joule', 'N*m'),
-    DerivedUnitData('W', 'watt', 'J/s'),
-    DerivedUnitData('C', 'coulomb', 'A*s'),
-    DerivedUnitData('V', 'volt', 'W/A'),
-    DerivedUnitData('F', 'farad', 'C/V'),
-    DerivedUnitData('Ohm', 'ohm', 'V/A'),
-    DerivedUnitData('S', 'siemens', 'A/V'),
-    DerivedUnitData('Wb', 'weber', 'V*s'),
-    DerivedUnitData('T', 'tesla', 'Wb/m^2'),
-    DerivedUnitData('Gauss', 'gauss', 'T', exp10=-4),
-    DerivedUnitData('H', 'henry', 'Wb/A'),
-    DerivedUnitData('lm', 'lumen', 'cd*sr'),
-    DerivedUnitData('lx', 'lux', 'lm/m^2'),
-    DerivedUnitData('Bq', 'becquerel', 'Hz'),
+    DerivedUnitData('Hz', 'hertz', '1/s', use_prefixes=True),
+    DerivedUnitData('N', 'newton', 'kg*m/s^2', use_prefixes=True),
+    DerivedUnitData('Pa', 'pascal', 'N/m^2', use_prefixes=True),
+    DerivedUnitData('J', 'joule', 'N*m', use_prefixes=True),
+    DerivedUnitData('W', 'watt', 'J/s', use_prefixes=True),
+    DerivedUnitData('C', 'coulomb', 'A*s', use_prefixes=True),
+    DerivedUnitData('V', 'volt', 'W/A', use_prefixes=True),
+    DerivedUnitData('F', 'farad', 'C/V', use_prefixes=True),
+    DerivedUnitData('Ohm', 'ohm', 'V/A', use_prefixes=True),
+    DerivedUnitData('S', 'siemens', 'A/V', use_prefixes=True),
+    DerivedUnitData('Wb', 'weber', 'V*s', use_prefixes=True),
+    DerivedUnitData('T', 'tesla', 'Wb/m^2', use_prefixes=True),
+    DerivedUnitData('Gauss', 'gauss', 'T', exp10=-4, use_prefixes=True),
+    DerivedUnitData('H', 'henry', 'Wb/A', use_prefixes=True),
+    DerivedUnitData('lm', 'lumen', 'cd*sr', use_prefixes=True),
+    DerivedUnitData('lx', 'lux', 'lm/m^2', use_prefixes=True),
+    DerivedUnitData('Bq', 'becquerel', 'Hz', use_prefixes=True),
 ]
 
 __OTHER_UNITS = [
-    DerivedUnitData(
-        'in', 'inch', 'cm', numerator=254, exp10=-2, use_prefixes=False),
-    DerivedUnitData(
-        'h', 'hour', 's', numerator=36, exp10=2, use_prefixes=False),
-    DerivedUnitData(
-        'min', 'minute', 's', numerator=6, exp10=1, use_prefixes=False),
-    DerivedUnitData(
-        'cyc', 'cycle', 'rad', 2 * math.pi, use_prefixes=False),
+    DerivedUnitData('in', 'inch', 'cm', numerator=254, exp10=-2),
+    DerivedUnitData('h', 'hour', 's', numerator=36, exp10=2),
+    DerivedUnitData('min', 'minute', 's', numerator=6, exp10=1),
+    DerivedUnitData('cyc', 'cycle', 'rad', 2 * math.pi),
 ]
 
 # Units that aren't technically exact, but close enough for our purposes.
 __APPROXIMATE_CIVIL_UNITS = [
-    DerivedUnitData(
-        'd', 'day', 's', numerator=864, exp10=2, use_prefixes=False),
-    DerivedUnitData(
-        'yr', 'year', 'day', numerator=36525, exp10=-2, use_prefixes=False),
+    DerivedUnitData('d', 'day', 's', numerator=864, exp10=2),
+    DerivedUnitData('yr', 'year', 'day', numerator=36525, exp10=-2),
 ]
 
 ALL_DERIVED_UNITS = (__SI_REDUNDANT_BASE_UNITS +
