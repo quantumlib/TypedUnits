@@ -46,7 +46,7 @@ __SI_DERIVED_UNITS = [
     DerivedUnitData('W', 'watt', 'J/s'),
     DerivedUnitData('C', 'coulomb', 'A*s'),
     DerivedUnitData('V', 'volt', 'W/A'),
-    DerivedUnitData('F', 'farad', 'J/C'),
+    DerivedUnitData('F', 'farad', 'C/V'),
     DerivedUnitData('Ohm', 'ohm', 'V/A'),
     DerivedUnitData('S', 'siemens', 'A/V'),
     DerivedUnitData('Wb', 'weber', 'V*s'),
