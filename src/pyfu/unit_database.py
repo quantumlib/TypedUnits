@@ -63,7 +63,9 @@ class UnitDatabase(object):
         if not isinstance(unit_base_value, _all_cythonized.WithUnit):
             raise TypeError('unit_base_value must be a WithUnit')
         if unit_name in self.known_units:
-            raise RuntimeError("Unit name already taken: " + repr(unit_name))
+            raise RuntimeError(
+                "Unit name '%s' already taken by '%s'." %
+                    (unit_name, self.known_units[unit_name].inBaseUnits()))
         if unit_base_value.value != 1:
             raise ValueError("Units must have a value of 1.")
         self.known_units[unit_name] = unit_base_value
@@ -159,13 +161,14 @@ class UnitDatabase(object):
         :param DerivedUnitData data:
         :param list[PrefixData] prefixes:
         """
-        for key in [data.symbol, data.name]:
-            self.add_scaled_unit(key,
-                                 data.formula,
-                                 data.value,
-                                 data.numerator,
-                                 data.denominator,
-                                 data.exp10)
+        self.add_scaled_unit(data.symbol,
+                             data.formula,
+                             data.value,
+                             data.numerator,
+                             data.denominator,
+                             data.exp10)
+        if data.name is not None:
+            self.add_alternate_unit_name(data.name, data.symbol)
 
         if data.use_prefixes:
             for pre in prefixes:
@@ -175,8 +178,9 @@ class UnitDatabase(object):
                                      data.numerator,
                                      data.denominator,
                                      data.exp10 + pre.exp10)
-                self.add_alternate_unit_name(pre.name + data.name,
-                                             pre.symbol + data.symbol)
+                if data.name is not None:
+                    self.add_alternate_unit_name(pre.name + data.name,
+                                                 pre.symbol + data.symbol)
 
     def _expected_value_for_unit_array(self, unit_array):
         """

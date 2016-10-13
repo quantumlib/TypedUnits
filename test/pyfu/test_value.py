@@ -56,7 +56,7 @@ class ValueTests(unittest.TestCase):
         self.assertEqual((16 * um * m)**0.5, 4 * mm)
         self.assertEqual((minute**2) ** 0.5, minute)
         self.assertEqual((1000 * m * km)**0.5, km)
-        self.assertEqual((60 * s * minute) ** 0.5, minute)
+        self.assertAlmostEqual((60 * s * minute) ** 0.5 / s, minute / s)
 
     def testRepr(self):
         from pyfu.units import km, kg

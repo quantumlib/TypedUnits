@@ -17,7 +17,7 @@ class DerivedUnitData:
                  use_prefixes=False):
         """
         :param str symbol: The short name for the unit (e.g. 'm' for meter).
-        :param str name: The full name of the unit (e.g. 'meter').
+        :param str None|name: A full name for the unit (e.g. 'meter').
         :param str formula: A formula defining the unit in terms of others.
         :param int|float|complex value: A floating-point scale factor.
         :param int exp10: An integer power-of-10 exponent scale factor.
@@ -59,16 +59,25 @@ __SI_DERIVED_UNITS = [
 ]
 
 __OTHER_UNITS = [
-    DerivedUnitData('in', 'inch', 'cm', numerator=254, exp10=-2),
-    DerivedUnitData('h', 'hour', 's', numerator=36, exp10=2),
-    DerivedUnitData('min', 'minute', 's', numerator=6, exp10=1),
+    # Lengths.
+    DerivedUnitData('in', 'inch', 'cm', 2, numerator=127, exp10=-2),
+    DerivedUnitData('ft', 'foot', 'in', 4, numerator=3),
+    DerivedUnitData('yd', 'yard', 'ft', numerator=3),
+    DerivedUnitData('nmi', 'nautical_mile', 'm', 1852),
+    DerivedUnitData('Ang', 'angstrom', 'm', exp10=-10),
+    # Durations.
+    DerivedUnitData('h', 'hour', 's', 4, numerator=9, exp10=2),
+    DerivedUnitData('min', 'minute', 's', 2, numerator=3, exp10=1),
+    # Angles.
     DerivedUnitData('cyc', 'cycle', 'rad', 2 * math.pi),
+    DerivedUnitData('deg', None, 'rad', math.pi / 180),
 ]
 
 # Units that aren't technically exact, but close enough for our purposes.
 __APPROXIMATE_CIVIL_UNITS = [
-    DerivedUnitData('d', 'day', 's', numerator=864, exp10=2),
-    DerivedUnitData('yr', 'year', 'day', numerator=36525, exp10=-2),
+    DerivedUnitData('d', 'day', 's', 32, numerator=27, exp10=2),
+    DerivedUnitData('wk', 'week', 'day', numerator=7),
+    DerivedUnitData('yr', 'year', 'day', 365.25),
 ]
 
 ALL_DERIVED_UNITS = (__SI_REDUNDANT_BASE_UNITS +
