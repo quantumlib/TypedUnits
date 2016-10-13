@@ -56,6 +56,7 @@ __SI_DERIVED_UNITS = [
     DerivedUnitData('lm', 'lumen', 'cd*sr', use_prefixes=True),
     DerivedUnitData('lx', 'lux', 'lm/m^2', use_prefixes=True),
     DerivedUnitData('Bq', 'becquerel', 'Hz', use_prefixes=True),
+    DerivedUnitData('l', 'liter', 'm^3', exp10=-3, use_prefixes=True),
 ]
 
 __OTHER_UNITS = [
@@ -71,6 +72,15 @@ __OTHER_UNITS = [
     # Angles.
     DerivedUnitData('cyc', 'cycle', 'rad', 2 * math.pi),
     DerivedUnitData('deg', None, 'rad', math.pi / 180),
+    # Volumes.
+    DerivedUnitData('tsp', 'teaspoon', 'ml', 4.92892159375),
+    DerivedUnitData('tbsp', 'tablespoon', 'tsp', numerator=3),
+    DerivedUnitData('floz', 'fluid_ounce', 'tbsp', 2),
+    DerivedUnitData('cup', None, 'floz', 8),
+    DerivedUnitData('pint', None, 'floz', 16),
+    DerivedUnitData('qt', 'quart', 'pint', 2),
+    DerivedUnitData('galUS', 'us_gallon', 'qt', 4),
+    DerivedUnitData('galUK', 'british_gallon', 'l', 4.54609),
 ]
 
 # Units that aren't technically exact, but close enough for our purposes.

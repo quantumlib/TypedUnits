@@ -30,5 +30,23 @@ class UnitDataTests(unittest.TestCase):
         self.assertAlmostEqual((math.pi * rad)[deg], 180)
         self.assertAlmostEqual((math.pi * rad)[cyc], 0.5)
 
+    def testVolumes(self):
+        from pyfu.units import (teaspoon,
+                                tablespoon,
+                                fluid_ounce,
+                                cup,
+                                pint,
+                                quart,
+                                us_gallon,
+                                british_gallon,
+                                liter)
+        a = (teaspoon + tablespoon + fluid_ounce + cup + pint + quart +
+             us_gallon + british_gallon)
+        self.assertTrue(a.isCompatible(liter))
+        self.assertAlmostEqual(british_gallon / us_gallon, 1.20095, places=6)
+        self.assertEqual(quart - pint - cup - tablespoon, 45 * teaspoon)
+        self.assertAlmostEqual(33.814 * fluid_ounce / liter, 1, places=5)
+
+
 if __name__ == "__main__":
     unittest.main()
