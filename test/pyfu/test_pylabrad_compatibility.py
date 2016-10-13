@@ -283,6 +283,9 @@ class LabradUnitsTests(unittest.TestCase):
                 pass
         self.assertFalse(np.iterable(5 * kg))
 
+    def testName(self):
+        self.assertEqual(fu.ns.name, 'ns')
+
     def testIsCompatible(self):
         from pyfu.like_pylabrad_units import ns, kg, s
         x = 5 * ns

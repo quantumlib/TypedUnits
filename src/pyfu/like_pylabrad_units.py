@@ -23,10 +23,14 @@ class Unit(Value):
     Just a Value (WithValue), but with a constructor that accepts formulas.
     """
     def __init__(self, obj):
-        unit = _unit.default_unit_database.parse_unit_formula(obj)
-        super(Value, self).__init__(unit)
+        if not isinstance(obj, WithUnit):
+            obj = _unit.default_unit_database.parse_unit_formula(obj)
+        super(Value, self).__init__(obj)
 
+    @property
+    def name(self):
+        return str(self)
 
 # Expose defined units (e.g. 'meter', 'km', 'day') as module variables.
 for k, v in _unit.default_unit_database.known_units.items():
-    globals()[k] = v
+    globals()[k] = Unit(v)
