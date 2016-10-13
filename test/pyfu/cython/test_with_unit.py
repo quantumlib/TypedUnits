@@ -481,6 +481,22 @@ class WithUnitTests(unittest.TestCase):
         self.assertDeepEqual(val(4, conv(numer=2))**0.5,
                              val(2, conv(factor=2**0.5)))
 
+    def testPos(self):
+        self.assertDeepEqual(
+            +val(2, conv(3, 5, 7, 11), mps, kph),
+            val(2, conv(3, 5, 7, 11), mps, kph))
+
+    def testNeg(self):
+        self.assertDeepEqual(
+            -val(2, conv(3, 5, 7, 11), mps, kph),
+            val(-2, conv(3, 5, 7, 11), mps, kph))
+
+    def testNonZero(self):
+        self.assertFalse(bool(val(0, conv(3, 5, 7, 11), mps, kph)))
+        self.assertFalse(bool(val(0)))
+        self.assertTrue(bool(val(2, conv(3, 5, 7, 11), mps, kph)))
+        self.assertTrue(bool(val(2)))
+
     def testNumpyMethod_isFinite(self):
         with self.assertRaises(UnitMismatchError):
             np.isfinite(val([], units=m))
