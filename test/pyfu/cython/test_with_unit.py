@@ -232,6 +232,30 @@ class WithUnitTests(unittest.TestCase):
             val([2, 3, 4], units=m) > val([3, 3, 3], units=m),
             [False, False, True])
 
+    def testInt(self):
+        with self.assertRaises(TypeError):
+            int(val(1, units=mps))
+        with self.assertRaises(TypeError):
+            int(val(1j))
+        with self.assertRaises(TypeError):
+            int(val([1, 2]))
+
+        u = int(val(5))
+        self.assertIsInstance(u, int)
+        self.assertEqual(u, 5)
+
+        u = int(val(2.5))
+        self.assertIsInstance(u, int)
+        self.assertEqual(u, 2)
+
+        u = int(val(2.5, conv(2.5)))
+        self.assertIsInstance(u, int)
+        self.assertEqual(u, 6)
+
+        u = int(val(5, conv(2, 3, 4, 5)))
+        self.assertIsInstance(u, int)
+        self.assertEqual(u, 750000)
+
     def testFloat(self):
         with self.assertRaises(TypeError):
             float(val(1, units=mps))
@@ -244,9 +268,13 @@ class WithUnitTests(unittest.TestCase):
         self.assertIsInstance(u, float)
         self.assertEqual(u, 5)
 
-        v = float(val(5, conv(2, 3, 4, 5)))
-        self.assertIsInstance(v, float)
-        self.assertEqual(v, 750000)
+        u = float(val(2.5))
+        self.assertIsInstance(u, float)
+        self.assertEqual(u, 2.5)
+
+        u = float(val(5, conv(2, 3, 4, 5)))
+        self.assertIsInstance(u, float)
+        self.assertEqual(u, 750000)
 
     def testComplex(self):
         with self.assertRaises(TypeError):

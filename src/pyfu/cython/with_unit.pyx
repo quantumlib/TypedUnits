@@ -213,6 +213,12 @@ cdef class WithUnit:
                             self.base_units.pow_frac(exponent_frac),
                             self.display_units.pow_frac(exponent_frac))
 
+    def __int__(self):
+        if self.base_units.unit_count != 0:
+            raise UnitMismatchError(
+                "'%s' can't be stripped into an int; not dimensionless." % self)
+        return int(conversion_to_double(self.conv) * self.value)
+
     def __float__(self):
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
