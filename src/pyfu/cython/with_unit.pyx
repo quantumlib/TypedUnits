@@ -143,7 +143,7 @@ cdef class WithUnit:
             return left
 
         if left.base_units != right.base_units:
-            raise UnitMismatchError()
+            raise UnitMismatchError("Can't add '%s' and '%s'." % (left, right))
 
         cdef conversion left_to_right = conversion_div(left.conv, right.conv)
         cdef double c = conversion_to_double(left_to_right)
@@ -183,8 +183,8 @@ cdef class WithUnit:
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)
         if left.base_units != right.base_units:
-            raise UnitMismatchError(
-                "Only dimensionless quotients make sense for __divmod__.")
+            raise UnitMismatchError("Can't divmod '%s' by '%s'." %
+                (left, right))
 
         cdef double c = conversion_to_double(conversion_div(left.conv,
                                                             right.conv))
@@ -222,13 +222,15 @@ cdef class WithUnit:
     def __float__(self):
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
-                "Only dimensionless values can be stripped into a float.")
+                "'%s' can't be stripped into a float; not dimensionless." %
+                    self)
         return conversion_to_double(self.conv) * float(self.value)
 
     def __complex__(self):
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
-                "Only dimensionless values can be stripped into a complex.")
+                "'%s' can't be stripped into a complex; not dimensionless." %
+                    self)
         return conversion_to_double(self.conv) * complex(self.value)
 
     def __richcmp__(a, b, int op):
@@ -248,7 +250,8 @@ cdef class WithUnit:
                 return shaped_false
             if op == Py_NE:
                 return not shaped_false
-            raise UnitMismatchError("Comparands have different units.")
+            raise UnitMismatchError("Can't compare '%s' to '%s'." %
+                (left, right))
 
         # Compute scaled comparand values, without dividing.
         cdef frac f = frac_div(left.conv.ratio, right.conv.ratio)
@@ -331,7 +334,8 @@ cdef class WithUnit:
             raise TypeError("Bad unit key: " + repr(key))
 
         if self.base_units != unit_val.base_units:
-            raise UnitMismatchError("Unit key doesn't match value's units.")
+            raise UnitMismatchError("'%s' doesn't have units matching '%s'." %
+                (self, key))
 
         return (self.value
             * conversion_to_double(conversion_div(self.conv, unit_val.conv))
@@ -355,7 +359,8 @@ cdef class WithUnit:
         if unit_val is None:
             raise ValueError("Bad unit key: " + repr(unit))
         if self.base_units != unit_val.base_units:
-            raise UnitMismatchError("Unit doesn't match value's units.")
+            raise UnitMismatchError("'%s' doesn't have units matching '%s'." %
+                (self, unit))
 
         return unit_val.__with_value(self.value
              * conversion_to_double(conversion_div(self.conv, unit_val.conv))
@@ -373,7 +378,8 @@ cdef class WithUnit:
     def __array__(self, dtype=None):
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
-                "Only dimensionless values can be stripped into an array.")
+                "'%s' can't be stripped into an ndarray; not dimensionless." %
+                    self)
         return np.array(
             conversion_to_double(self.conv) * self.value,
             dtype=dtype)

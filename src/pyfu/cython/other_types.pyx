@@ -16,7 +16,9 @@ class ValueArray(WithUnit):
     def __setitem__(WithUnit self, key, val):
         cdef WithUnit right = _in_WithUnit(val)
         if self.base_units != right.base_units:
-            raise UnitMismatchError("Item's units don't match array's units.")
+            raise UnitMismatchError(
+                "'%s' can't be put in an array of '%s'." %
+                    (val, self.display_units))
         cdef conversion conv = conversion_div(right.conv, self.conv)
         self.value[key] = right.value * conversion_to_double(conv)
 

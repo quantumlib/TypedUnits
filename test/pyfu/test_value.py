@@ -134,7 +134,7 @@ class ValueTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             _ = (ns / s)[Value(3, '')]
         self.assertEqual(Value(1, '')[Value(1, '')], 1)
-        self.assertEqual(Value(1, '')[ns / s], 10 ** 9)
+        self.assertEqual(Value(1, '')[ns / s], 10**9)
 
     def testCycles(self):
         from pyfu.units import cyc, rad
