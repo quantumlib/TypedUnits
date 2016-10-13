@@ -53,6 +53,12 @@ def _in_WithUnit(obj):
     return raw_WithUnit(obj, identity_conversion(), _EmptyUnit, _EmptyUnit)
 
 
+def _is_dimensionless_zero(WithUnit u):
+    return (u.isDimensionless() and
+            not isinstance(u.value, np.ndarray) and
+            u.value == 0)
+
+
 cdef class WithUnit:
     """
     A value with associated physical units.
@@ -129,6 +135,12 @@ cdef class WithUnit:
     def __add__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)
+
+        # Adding dimensionless zero is always fine (but watch out for arrays).
+        if _is_dimensionless_zero(left):
+            return right
+        if _is_dimensionless_zero(right):
+            return left
 
         if left.base_units != right.base_units:
             raise UnitMismatchError()

@@ -336,6 +336,13 @@ class WithUnitTests(unittest.TestCase):
         self.assertDeepEqual(a + b, val(104, conv(denom=101 * 103)))
         self.assertDeepEqual(b + a, val(104, conv(denom=101 * 103)))
 
+        # Adding dimensionless zero is fine, even if units don't match.
+        self.assertDeepEqual(val(3, units=s) + 0, val(3, units=s))
+        self.assertDeepEqual(0.0 + val(3, units=s), val(3, units=s))
+        with self.assertRaises(UnitMismatchError):
+            _ = val(3, units=s) + val(0, units=m)
+            _ = val(0, units=s) + val(3, units=m)
+
     def testSubtraction(self):
         with self.assertRaises(UnitMismatchError):
             _ = val(2, units=m) - val(3, units=s)
@@ -350,6 +357,13 @@ class WithUnitTests(unittest.TestCase):
         a = val(7, conv(5), units=s)
         b = val(3, units=s)
         self.assertEqual(a - b, val(32, units=s))
+
+        # Subtracting dimensionless zero is fine, even if units don't match.
+        self.assertDeepEqual(val(3, units=s) - 0, val(3, units=s))
+        self.assertDeepEqual(0.0 - val(3, units=s), val(-3, units=s))
+        with self.assertRaises(UnitMismatchError):
+            _ = val(3, units=s) - val(0, units=m)
+            _ = val(0, units=s) - val(3, units=m)
 
     def testMultiplication(self):
         self.assertEqual(val(2) * val(5), 10)
