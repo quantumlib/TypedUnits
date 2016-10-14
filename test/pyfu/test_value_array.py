@@ -118,5 +118,19 @@ class ValueArrayTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             c += 1j
 
+    def testMultiIndexing(self):
+        from pyfu.units import m
+
+        self.assertEqual(
+            (m * [[2, 3], [4, 5], [6, 7]])[0, 0],
+            m * 2)
+
+        self.assertNumpyArrayEqual(
+            (m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]])[1:3, 0:2],
+            m * [[5, 6], [8, 9]])
+
+        with self.assertRaises(IndexError):
+            _ = (m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]])[1:3, 25483]
+
 if __name__ == "__main__":
     unittest.main()

@@ -329,20 +329,28 @@ cdef class WithUnit:
             return self.isAngle()
 
     def __getitem__(WithUnit self, key):
-        if isinstance(key, int) or isinstance(key, slice):
-            return self.__with_value(self.value[key])
+        """
+        Returns the number of given units needed to make up the receiving value,
+         or else returns the wrapped result of forwarding the key into the
+         receiving value's inner value's own __getitem__.
 
-        cdef WithUnit unit_val = __try_interpret_as_with_unit(key, True)
-        if unit_val is None:
-            raise TypeError("Bad unit key: " + repr(key))
+        :param str|WithUnit|* key: The unit, or formula representing a unit,
+        to compare the receiving unit against. Or else an index or slice or
+        other __getitem__ key to forward.
+        """
+        cdef WithUnit unit_val
+        if isinstance(key, WithUnit) or isinstance(key, str):
+            unit_val = __try_interpret_as_with_unit(key, True)
+            if unit_val is None:
+                raise TypeError("Bad unit key: " + repr(key))
+            if self.base_units != unit_val.base_units:
+                raise UnitMismatchError("'%s' doesn't match '%s'." %
+                    (self, key))
+            return (self.value
+                * conversion_to_double(conversion_div(self.conv, unit_val.conv))
+                / unit_val.value)
 
-        if self.base_units != unit_val.base_units:
-            raise UnitMismatchError("'%s' doesn't have units matching '%s'." %
-                (self, key))
-
-        return (self.value
-            * conversion_to_double(conversion_div(self.conv, unit_val.conv))
-            / unit_val.value)
+        return self.__with_value(self.value[key])
 
     def __iter__(self):
         # Hack: We want calls to 'iter' to see that __iter__ exists and try to
