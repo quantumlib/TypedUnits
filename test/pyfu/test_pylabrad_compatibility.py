@@ -299,6 +299,11 @@ class LabradUnitsTests(unittest.TestCase):
     def testName(self):
         self.assertEqual(fu.ns.name, 'ns')
 
+    def testSqrt(self):
+        from pyfu.like_pylabrad_units import kg, kiloliter, m
+        self.assertEqual((kg**2).sqrt(), kg)
+        self.assertEqual(kiloliter.sqrt(), m**1.5)
+
     def testIsCompatible(self):
         from pyfu.like_pylabrad_units import ns, kg, s
         x = 5 * ns

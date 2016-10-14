@@ -213,6 +213,9 @@ cdef class WithUnit:
                             self.base_units.pow_frac(exponent_frac),
                             self.display_units.pow_frac(exponent_frac))
 
+    def sqrt(WithUnit self):
+        return self ** 0.5
+
     def __int__(self):
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
