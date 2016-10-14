@@ -299,6 +299,23 @@ class LabradUnitsTests(unittest.TestCase):
     def testName(self):
         self.assertEqual(fu.ns.name, 'ns')
 
+    def testEqualityAgainstFormulas(self):
+        from pyfu.like_pylabrad_units import m, s, J
+        self.assertTrue(m == 'm')
+        self.assertTrue(m != 'km')
+        self.assertTrue(m != 's')
+        self.assertTrue('m' == m)
+
+        self.assertTrue(s == 's')
+        self.assertTrue(s != 'm')
+
+        self.assertTrue(J / s == 'W')
+        self.assertTrue(J / m**2 * s * s == 'kg')
+
+        # This behavior is specific to the compatibility layer.
+        from pyfu.units import kilogram as not_compatible_kilogram
+        self.assertFalse(not_compatible_kilogram == 'kg')
+
     def testSqrt(self):
         from pyfu.like_pylabrad_units import kg, kiloliter, m
         self.assertEqual((kg**2).sqrt(), kg)

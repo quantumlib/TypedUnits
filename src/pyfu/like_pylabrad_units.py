@@ -31,6 +31,30 @@ class Unit(Value):
     def name(self):
         return str(self)
 
+    def __eq__(self, other):
+        if isinstance(other, str):
+            other = _unit.default_unit_database.parse_unit_formula(other)
+        return Value(self) == other
+
+    def __ne__(self, other):
+        return not (self == other)
+
+    def __mul__(self, other):
+        product = Value(self) * other
+        return Unit(product) if isinstance(other, Unit) else product
+
+    def __truediv__(self, other):
+        quotient = Value(self) / other
+        return Unit(quotient) if isinstance(other, Unit) else quotient
+
+    def __div__(self, other):
+        quotient = Value(self) / other
+        return Unit(quotient) if isinstance(other, Unit) else quotient
+
+    def __pow__(self, exponent, modulus=None):
+        return Unit(Value(self).__pow__(exponent, modulus))
+
+
 # Expose defined units (e.g. 'meter', 'km', 'day') as module variables.
 for k, v in _unit.default_unit_database.known_units.items():
     globals()[k] = Unit(v)
