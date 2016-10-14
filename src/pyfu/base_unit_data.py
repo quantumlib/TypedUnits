@@ -1,3 +1,10 @@
+"""
+Defines named physical units exposed in the default unit database and as
+members of pyfu.units (and pyfu.like_pylabrad_units).
+
+Base units are defined just by their name, not by other units or quantities.
+"""
+
 from __future__ import absolute_import
 
 

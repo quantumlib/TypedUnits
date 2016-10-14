@@ -190,6 +190,38 @@ class UnitDatabaseTests(unittest.TestCase):
         with self.assertRaises(KeyError):
             db.get_unit('super_t')
 
+    def testAutoCreateDisabledWhenPurposefullyAddingUnits(self):
+        db = UnitDatabase(auto_create_units=True)
+
+        with self.assertRaises(KeyError):
+            db.add_derived_unit_data(
+                DerivedUnitData('d', 'der', 'missing'), [])
+
+        with self.assertRaises(KeyError):
+            db.add_scaled_unit('new', 'missing')
+
+        with self.assertRaises(KeyError):
+            db.add_alternate_unit_name('new', 'missing')
+
+    def testGetUnit_autoCreateOverride(self):
+        db_auto = UnitDatabase(auto_create_units=True)
+        db_manual = UnitDatabase(auto_create_units=False)
+
+        u = db_auto.get_unit('missing')
+        self.assertEqual(str(u), 'missing')
+        with self.assertRaises(KeyError):
+            db_manual.get_unit('missing')
+
+        with self.assertRaises(KeyError):
+            db_manual.get_unit('gone', auto_create=False)
+        with self.assertRaises(KeyError):
+            db_manual.get_unit('gone', auto_create=False)
+
+        u = db_auto.get_unit('empty', auto_create=True)
+        self.assertEqual(str(u), 'empty')
+        u = db_manual.get_unit('empty', auto_create=True)
+        self.assertEqual(str(u), 'empty')
+
     def testKilogramSpecialCase(self):
         db = UnitDatabase(auto_create_units=False)
         db.add_base_unit_data(BaseUnitData('kg', 'kilogram'), SI_PREFIXES)

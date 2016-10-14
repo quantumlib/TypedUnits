@@ -1,3 +1,13 @@
+"""
+Defines named physical units, specified in terms of other units, exposed in the
+default unit database and as members of pyfu.units (and
+pyfu.like_pylabrad_units).
+
+Derived units are defined by conversion parameters and unit formulas. The
+formulas can mention base units and earlier derived units (but not later derived
+units or physical constants).
+"""
+
 from __future__ import absolute_import
 import math
 

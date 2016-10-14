@@ -13,23 +13,35 @@ class UnitDatabase(object):
     def __init__(self, auto_create_units=True):
         """
         :param auto_create_units: Determines if unrecognized strings are
-        interpreted as new units or not.
+        interpreted as new units or not by default.
         """
         self.known_units = {}
         self.auto_create_units = auto_create_units
 
-    def get_unit(self, unit_name):
+    def get_unit(self, unit_name, auto_create=None):
         """
         :param str unit_name:
+        :param None|bool auto_create: If this is set, a missing unit will be
+        created and returned instead of causing an error. If not specified,
+        defaults to the 'auto_create_units' attribute of the receiving instance.
         :return WithUnit: The unit with the given name.
         """
-        if self.auto_create_units and unit_name not in self.known_units:
+        auto_create = (self.auto_create_units
+                       if auto_create is None
+                       else auto_create)
+        if unit_name not in self.known_units:
+            if not auto_create:
+                raise KeyError("No unit named '%s'." % unit_name)
             self.add_root_unit(unit_name)
         return self.known_units[unit_name]
 
-    def parse_unit_formula(self, formula):
+    def parse_unit_formula(self, formula, auto_create=None):
         """
         :param str formula: Describes a combination of units.
+        :param None|bool auto_create: If this is set, missing unit strings will
+        cause new units to be created and returned instead of causing an error.
+        If not specified, defaults to the 'auto_create_units' attribute of the
+        receiving instance.
         :return WithUnit: The value described by the formula.
         """
         if formula in self.known_units:
@@ -37,22 +49,23 @@ class UnitDatabase(object):
         parsed = unit_grammar.unit.parseString(formula)
         result = _all_cythonized.WithUnit(1)
         for item in parsed.posexp:
-            result *= self._parse_unit_item(item, +1)
+            result *= self._parse_unit_item(item, +1, auto_create)
         for item in parsed.negexp:
-            result *= self._parse_unit_item(item, -1)
+            result *= self._parse_unit_item(item, -1, auto_create)
         return result
 
-    def _parse_unit_item(self, item, neg):
+    def _parse_unit_item(self, item, neg, auto_create=None):
         """
         :param item: A unit+exponent group parsed by unit_grammar.
         :param neg: Are we multiplying (+1) or dividing (-1)?
-        :return WithValue: The value described by the group.
+        :param None|bool auto_create: see parse_unit_formula
         """
         unit_name = item.name
         numer = item.num or 1
         denom = item.denom or 1
         sign = neg * (-1 if item.neg else 1)
-        return self.get_unit(unit_name) ** (sign * float(numer) / denom)
+        unit_val = self.get_unit(unit_name, auto_create)
+        return unit_val ** (sign * float(numer) / denom)
 
     def add_unit(self, unit_name, unit_base_value):
         """
@@ -89,7 +102,9 @@ class UnitDatabase(object):
         :param str alternate_name: The new alternate name for the unit.
         :param str unit_name: The existing name for the unit.
         """
-        self.add_unit(alternate_name, self.get_unit(unit_name))
+        self.add_unit(
+            alternate_name,
+            self.get_unit(unit_name, auto_create=False))
 
     def add_scaled_unit(self,
                         unit_name,
@@ -109,7 +124,7 @@ class UnitDatabase(object):
         :param int denom: An exact divisor for converting to the base unit.
         :param int exp10: An exact power-of-10 for converting to the base unit.
         """
-        parent = self.parse_unit_formula(formula)
+        parent = self.parse_unit_formula(formula, auto_create=False)
 
         unit = _all_cythonized.raw_WithUnit(
             1,
