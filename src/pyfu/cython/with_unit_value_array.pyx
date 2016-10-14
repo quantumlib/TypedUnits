@@ -1,16 +1,6 @@
 import numpy as np
 
 
-class Value(WithUnit):
-    """ A floating-point value with associated units. """
-    pass
-
-
-class Complex(WithUnit):
-    """ A complex value with associated units. """
-    pass
-
-
 class ValueArray(WithUnit):
     """ A numpy array with associated units. """
     def __setitem__(WithUnit self, key, val):
@@ -49,8 +39,3 @@ class ValueArray(WithUnit):
 
     def allclose(WithUnit self, other, *args, **kw):
         return np.allclose(self.value, other[self.unit], *args, **kw)
-
-
-class UnitMismatchError(TypeError):
-    """ Incompatible units. """
-    pass
