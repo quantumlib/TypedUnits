@@ -34,7 +34,7 @@ cpdef raw_WithUnit(value,
         val = float(value)
         target_type = Value
     else:
-        raise ValueError("Unrecognized value type: " + type(value))
+        raise TypeError("Unrecognized value type: {}".format(type(value)))
 
     cdef WithUnit result = target_type(val)
     result.conv = conv
@@ -387,13 +387,20 @@ cdef class WithUnit:
             return self.__with_value(1)
 
     def __array__(self, dtype=None):
-        if self.base_units.unit_count != 0:
-            raise UnitMismatchError(
-                "'%s' can't be stripped into an ndarray; not dimensionless." %
-                    self)
-        return np.array(
-            conversion_to_double(self.conv) * self.value,
-            dtype=dtype)
+        if self.isDimensionless():
+            # Unwrap into raw numbers.
+            return np.array(
+                conversion_to_double(self.conv) * self.value,
+                dtype=dtype)
+
+        result = np.empty(dtype=np.object, shape=())
+        result[()] = self
+        return result
+
+    def __array_wrap__(WithUnit self, out_arr):
+        if out_arr.shape == ():
+            return out_arr[()]
+        return np.ndarray.__array_wrap__(self.value, out_arr)
 
     __array_priority__ = 15
 

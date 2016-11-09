@@ -1,7 +1,6 @@
 import unittest
 from pyfu import Value, Complex, UnitMismatchError
 import numpy as np
-from pyfu.units import kilometer, meter, mm, second, us, ns
 
 
 class ValueTests(unittest.TestCase):
@@ -23,6 +22,7 @@ class ValueTests(unittest.TestCase):
         self.assertEqual(y, 1500.)
 
     def testAddition(self):
+        from pyfu.units import kilometer
         n = Value(2, '')
         x = Value(1.0, kilometer)
         y = Value(3, 'meter')
@@ -40,6 +40,7 @@ class ValueTests(unittest.TestCase):
         self.assertEqual(n+1, 3)
 
     def testMultiplication(self):
+        from pyfu.units import meter, mm, second
         x = Value(1.0 + 2j, meter)
         y = Value(3, mm)
         a = Value(20, second)
@@ -47,7 +48,7 @@ class ValueTests(unittest.TestCase):
         self.assertTrue((x / y).isDimensionless())
 
     def testPower(self):
-        from pyfu.units import km, m, minute, s, um
+        from pyfu.units import km, m, minute, s, um, mm
         x = 2 * mm
         y = 4 * mm
         z = (x * y)**.5
@@ -59,7 +60,7 @@ class ValueTests(unittest.TestCase):
         self.assertAlmostEqual((60 * s * minute) ** 0.5 / s, minute / s)
 
     def testRepr(self):
-        from pyfu.units import km, kg
+        from pyfu.units import km, kg, mm
         self.assertEqual(repr(Value(1, mm)), "Value(1.0, 'mm')")
         self.assertEqual(repr(Value(4, mm)), "Value(4.0, 'mm')")
         self.assertEqual(repr(Value(1j+5, km * kg)), "Value((5+1j), 'kg*km')")
@@ -75,6 +76,7 @@ class ValueTests(unittest.TestCase):
         self.assertEqual(str((4 * kilometer)**0.5), '2.0 km^(1/2)')
 
     def testDivmod(self):
+        from pyfu.units import us, ns
         x = 4.0009765625 * us
         self.assertEquals(x // (4 * ns), 1000)
         self.assertEquals(x % (4 * ns), 0.9765625 * ns)
@@ -83,8 +85,10 @@ class ValueTests(unittest.TestCase):
         self.assertEquals(r, x - 4 * us)
 
     def testConversion(self):
+        from pyfu.units import mm
         x = Value(3, 'm')
         self.assertEquals(x['mm'], 3000.0)
+        self.assertEquals(x[mm], 3000.0)
         with self.assertRaises(UnitMismatchError):
             _ = x['s']
         y = Value(1000, 'Mg')
@@ -154,6 +158,18 @@ class ValueTests(unittest.TestCase):
         z = Value(3.1, '')
         self.assertEquals(hash(z), hash(3.1))
         hash(Value(4j, 'V'))
+
+    def testNumpySqrt(self):
+        from pyfu.units import m, km, cm
+        u = np.sqrt(8 * km * m) - cm
+        v = 8943.27191 * cm
+        self.assertAlmostEqual(u / v, 1)
+
+        u = np.sqrt(8 * km / m)
+        self.assertAlmostEqual(u, 89.4427191)
+
+        u = np.sqrt((8 * km / m).inBaseUnits())
+        self.assertAlmostEqual(u, 89.4427191)
 
 if __name__ == "__main__":
     unittest.main()

@@ -6,7 +6,7 @@ import numpy as np
 
 class ValueArrayTests(unittest.TestCase):
     def assertNumpyArrayEqual(self, a, b):
-        if len(a) != len(b) or not np.all(a == b):
+        if np.asarray(a).shape != np.asarray(b).shape or not np.all(a == b):
             msg = 'not np.all(%s == %s)' % (repr(a), repr(b))
             msg = self._formatMessage(None, msg)
             raise self.failureException(msg)
@@ -51,6 +51,16 @@ class ValueArrayTests(unittest.TestCase):
 
         self.assertNumpyArrayEqual(([1, 2, 3] * km) * 5j,
                                    [5j, 10j, 15j] * km)
+
+        u = [1, 2, 3] * km
+        self.assertIsInstance(u, ValueArray)
+        self.assertEqual(u.display_units, km.display_units)
+        self.assertEqual(u[1], 2 * km)
+
+        u = np.array([1., 2, 3]) * km
+        self.assertIsInstance(u, ValueArray)
+        self.assertEqual(u.display_units, km.display_units)
+        self.assertEqual(u[1], 2 * km)
 
     def testPower(self):
         from pyfu.units import s
@@ -131,6 +141,36 @@ class ValueArrayTests(unittest.TestCase):
 
         with self.assertRaises(IndexError):
             _ = (m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]])[1:3, 25483]
+
+    def testExtractUnit(self):
+        from pyfu.units import m
+
+        # Singleton.
+        u = ValueArray(np.array([m * 2]).reshape(()))
+        self.assertEqual(u.base_units, m.base_units)
+        self.assertNumpyArrayEqual(u, np.array([2]).reshape(()) * m)
+
+        # A line.
+        u = ValueArray([m * 2, m * 3])
+        self.assertEqual(u.base_units, m.base_units)
+        self.assertNumpyArrayEqual(u, [2, 3] * m)
+
+        # Multidimensional.
+        u = ValueArray(np.array([[m * 2, m * 3], [m * 4, m * 5]]))
+        self.assertEqual(u.base_units, m.base_units)
+        self.assertNumpyArrayEqual(u, np.array([[2, 3], [4, 5]]) * m)
+
+    def testNumpyKron(self):
+        from pyfu.units import km, ns
+
+        u = km * [2, 3, 5]
+        v = ns * [7, 11]
+        w = np.kron(u, v)
+        c = km * ns
+        self.assertNumpyArrayEqual(
+            w,
+            [14 * c, 22 * c, 21 * c, 33 * c, 35 * c, 55 * c])
+
 
 if __name__ == "__main__":
     unittest.main()

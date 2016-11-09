@@ -291,16 +291,23 @@ class WithUnitTests(unittest.TestCase):
         self.assertEqual(v, 750000 + 900000j)
 
     def testArray(self):
-        with self.assertRaises(TypeError):
-            np.array(val([1, 2], units=m))
+        u = np.array(val([1, 2], units=m))
+        self.assertIsInstance(u, np.ndarray)
+        self.assertIsInstance(u[0], Value)
+        self.assertNumpyArrayEqual([val(1, units=m), val(2, units=m)], u)
+
+        u = np.array(val([val(2, units=m), val(3, units=m)]))
+        self.assertIsInstance(u, np.ndarray)
+        self.assertIsInstance(u[0], float)
+        self.assertNumpyArrayEqual([2, 3], u)
 
         u = np.array(val([2, 3]))
         self.assertIsInstance(u, np.ndarray)
         self.assertNumpyArrayEqual([2, 3], u)
 
-        v = np.array(val([2, 3 + 1j], conv(2, 3, 4, 5)))
-        self.assertIsInstance(v, np.ndarray)
-        self.assertNumpyArrayEqual([300000, 450000 + 150000j], v)
+        u = np.array(val([2, 3 + 1j], conv(2, 3, 4, 5)))
+        self.assertIsInstance(u, np.ndarray)
+        self.assertNumpyArrayEqual([300000, 450000 + 150000j], u)
 
     def testCopy(self):
         a = val(2, conv(3, 4, 5, 6), mps, kph)
@@ -498,14 +505,20 @@ class WithUnitTests(unittest.TestCase):
         self.assertTrue(bool(val(2)))
 
     def testNumpyMethod_isFinite(self):
-        with self.assertRaises(UnitMismatchError):
+        with self.assertRaises(TypeError):
             np.isfinite(val([], units=m))
+        with self.assertRaises(TypeError):
             np.isfinite(val([1], units=m))
 
         v = val([2, 3, -2, float('nan'), float('inf')], conv(1, 2, 3, 4))
         self.assertNumpyArrayEqual(
             np.isfinite(v),
             [True, True, True, False, False])
+
+        v = val([[2, 3], [-2, float('nan')]])
+        self.assertNumpyArrayEqual(
+            np.isfinite(v),
+            [[True, True], [True, False]])
 
     def testGetItem(self):
         u = val(1, conv(exp10=1))

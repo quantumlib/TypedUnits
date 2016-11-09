@@ -344,6 +344,44 @@ class LabradUnitsTests(unittest.TestCase):
         self.assertEquals((v * 3)[(ns * 3)], 10 ** 9)
         self.assertEquals((5 * s / ns)[''], 5 * 10 ** 9)
 
+    def testFlattenValueUnits(self):
+        from pyfu.like_pylabrad_units import ns, m
+        self.assertEqual(Value(ns * 5, 'meter'), ns * 5 * m)
+
+    def testFlattenSharedUnitsIntoParent(self):
+        from pyfu.like_pylabrad_units import ns, m
+        with self.assertRaises(UnitMismatchError):
+            ValueArray([ns, m])
+
+        v = ValueArray([-5 * ns, 203 * ns, 0.2 * ns])
+        self.assertEqual(v.isDimensionless(), False)
+        self.assertEqual(v[0], -5 * ns)
+        self.assertEqual(v[1], 203 * ns)
+        self.assertEqual(v[2], 0.2 * ns)
+
+    def testAutoWrapInValueArray(self):
+        from pyfu.like_pylabrad_units import ns
+        self.assertEqual(np.min([3 * ns, 2 * ns, 5 * ns]), 2 * ns)
+
+    def testPutInArray(self):
+        from pyfu.like_pylabrad_units import ns
+
+        a = np.array(ns * 0)
+        self.assertEqual(a[()], ns * 0)
+
+        a = np.array([ns * 0])
+        self.assertEqual(len(a), 1)
+        self.assertEqual(a[0], ns * 0)
+
+    def testUnwrapValueArray(self):
+        from pyfu.like_pylabrad_units import ns
+        a = np.array([1, 2, 3, 4] * ns)
+        self.assertEqual(len(a), 4)
+        self.assertEqual(a[0], ns)
+        self.assertEqual(a[1], ns * 2)
+        self.assertEqual(a[2], ns * 3)
+        self.assertEqual(a[3], ns * 4)
+
 
 if __name__ == "__main__":
     unittest.main()
