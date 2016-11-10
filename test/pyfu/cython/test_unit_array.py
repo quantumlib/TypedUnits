@@ -1,166 +1,147 @@
 import pickle
-import unittest
+
+import pytest
+# noinspection PyProtectedMember
 from pyfu._all_cythonized import raw_UnitArray, UnitArray
 
 du = raw_UnitArray([])
 
 
-class UnitArrayTests(unittest.TestCase):
-    def testConstructionVersusItems(self):
-        empty = UnitArray()
-        self.assertEqual(len(empty), 0)
-        self.assertEqual(list(empty), [])
+def test_construction_versus_items():
+    empty = UnitArray()
+    assert len(empty) == 0
+    assert list(empty) == []
 
-        singleton = UnitArray('arbitrary')
-        self.assertEqual(len(singleton), 1)
-        self.assertEqual(singleton[0], ('arbitrary', 1, 1))
-        self.assertEqual(list(singleton), [('arbitrary', 1, 1)])
+    singleton = UnitArray('arbitrary')
+    assert len(singleton) == 1
+    assert singleton[0], ('arbitrary', 1 == 1)
+    assert list(singleton), [('arbitrary', 1 == 1)]
 
-        self.assertRaises(TypeError, lambda: raw_UnitArray(1))
-        self.assertRaises(TypeError, lambda: raw_UnitArray((2, 'a', 'c')))
+    with pytest.raises(TypeError):
+        raw_UnitArray(1)
+    with pytest.raises(TypeError):
+        raw_UnitArray((2, 'a', 'c'))
 
-        raw0 = raw_UnitArray([])
-        self.assertEqual(len(raw0), 0)
-        self.assertEqual(list(raw0), [])
+    raw0 = raw_UnitArray([])
+    assert len(raw0) == 0
+    assert list(raw0) == []
 
-        raw1 = raw_UnitArray([('a', 2, 3)])
-        self.assertEqual(len(raw1), 1)
-        self.assertEqual(raw1[0], ('a', 2, 3))
-        self.assertEqual(list(raw1), [('a', 2, 3)])
+    raw1 = raw_UnitArray([('a', 2, 3)])
+    assert len(raw1) == 1
+    assert raw1[0], ('a', 2 == 3)
+    assert list(raw1), [('a', 2 == 3)]
 
-        raw2 = raw_UnitArray([('a', 3, 7), ('b', 6, 15)])
-        self.assertEqual(len(raw2), 2)
-        self.assertEqual(raw2[0], ('a', 3, 7))
-        self.assertEqual(raw2[1], ('b', 2, 5))
-        self.assertEqual(list(raw2), [('a', 3, 7), ('b', 2, 5)])
+    raw2 = raw_UnitArray([('a', 3, 7), ('b', 6, 15)])
+    assert len(raw2) == 2
+    assert raw2[0], ('a', 3 == 7)
+    assert raw2[1], ('b', 2 == 5)
+    assert list(raw2), [('a', 3, 7), ('b', 2 == 5)]
 
-    def testRepr(self):
-        self.assertEqual(repr(du), 'raw_UnitArray([])')
-        self.assertEqual(repr(UnitArray('a')), "raw_UnitArray([('a', 1, 1)])")
+def test_repr():
+    assert repr(du) == 'raw_UnitArray([])'
+    assert repr(UnitArray('a')), "raw_UnitArray([('a', 1 == 1)])"
 
-        self.assertEqual(
-            repr(raw_UnitArray([])),
-            "raw_UnitArray([])")
-        self.assertEqual(
-            repr(raw_UnitArray([('a', 2, 3)])),
-            "raw_UnitArray([('a', 2, 3)])")
-        self.assertEqual(
-            repr(raw_UnitArray([('a', 2, 3), ('b', -5, 7)])),
+    assert repr(raw_UnitArray([])) == "raw_UnitArray([])"
+    assert repr(raw_UnitArray([('a', 2, 3)])) == "raw_UnitArray([('a', 2, 3)])"
+    assert (repr(raw_UnitArray([('a', 2, 3), ('b', -5, 7)])) ==
             "raw_UnitArray([('a', 2, 3), ('b', -5, 7)])")
 
-    def testStr(self):
-        self.assertEqual(str(du), '')
-        self.assertEqual(str(UnitArray('a')), 'a')
+def test_str():
+    assert str(du) == ''
+    assert str(UnitArray('a')) == 'a'
 
-        self.assertEqual(
-            str(raw_UnitArray([('b', -1, 1)])),
-            '1/b')
-        self.assertEqual(
-            str(raw_UnitArray([('a', 2, 3), ('b', -5, 7)])),
-            'a^(2/3)/b^(5/7)')
-        self.assertEqual(
-            str(raw_UnitArray([
-                ('a', 1, 1), ('b', -1, 1), ('c', 1, 1), ('d', -1, 1)])),
-            'a*c/b/d')
-        self.assertEqual(
-            str(raw_UnitArray([
-                ('a', 2, 1), ('b', -1, 2), ('c', 1, 1), ('d', -1, 1)])),
-            'a^2*c/b^(1/2)/d')
+    assert str(raw_UnitArray([('b', -1, 1)])) == '1/b'
+    assert str(raw_UnitArray([('a', 2, 3), ('b', -5, 7)])) == 'a^(2/3)/b^(5/7)'
+    assert str(raw_UnitArray([('a', 1, 1),
+                              ('b', -1, 1),
+                              ('c', 1, 1),
+                              ('d', -1, 1)])) == 'a*c/b/d'
+    assert str(raw_UnitArray([('a', 2, 1),
+                              ('b', -1, 2),
+                              ('c', 1, 1),
+                              ('d', -1, 1)])) == 'a^2*c/b^(1/2)/d'
 
-    def testEquality(self):
-        equivalence_groups = [
-            [0],
-            [[]],
-            [""],
-            ["other types"],
-            [UnitArrayTests],
-            [None],
+def test_equality():
+    equivalence_groups = [
+        [0],
+        [[]],
+        [""],
+        ["other types"],
+        [list],
+        [None],
 
-            [du, UnitArray(), raw_UnitArray([])],
-            [UnitArray('a'), raw_UnitArray([('a', 1, 1)])],
-            [raw_UnitArray([('a', 2, 1)]), raw_UnitArray([('a', 6, 3)])],
-            [raw_UnitArray([('b', 2, 1)]), raw_UnitArray([('b', -6, -3)])],
-            [raw_UnitArray([('b', -2, 1)]), raw_UnitArray([('b', 2, -1)])],
-            [raw_UnitArray([('a', 2, 1), ('a', 2, 1)])],
-            [raw_UnitArray([('a', 2, 1), ('b', 2, 1)])],
-            [raw_UnitArray([('b', 2, 1), ('a', 2, 1)])],
-            [raw_UnitArray([('a', 1, 1), ('b', 1, 1), ('c', 1, 1)])]*2,
-        ]
-        for g1 in equivalence_groups:
-            for g2 in equivalence_groups:
-                for e1 in g1:
-                    for e2 in g2:
-                        match = g1 is g2
-                        if match:
-                            self.assertEqual(e1, e2)
-                        else:
-                            self.assertNotEqual(e1, e2)
-                        self.assertEqual(e1 == e2, match)
-                        self.assertEqual(e1 != e2, not match)
+        [du, UnitArray(), raw_UnitArray([])],
+        [UnitArray('a'), raw_UnitArray([('a', 1, 1)])],
+        [raw_UnitArray([('a', 2, 1)]), raw_UnitArray([('a', 6, 3)])],
+        [raw_UnitArray([('b', 2, 1)]), raw_UnitArray([('b', -6, -3)])],
+        [raw_UnitArray([('b', -2, 1)]), raw_UnitArray([('b', 2, -1)])],
+        [raw_UnitArray([('a', 2, 1), ('a', 2, 1)])],
+        [raw_UnitArray([('a', 2, 1), ('b', 2, 1)])],
+        [raw_UnitArray([('b', 2, 1), ('a', 2, 1)])],
+        [raw_UnitArray([('a', 1, 1), ('b', 1, 1), ('c', 1, 1)])] * 2,
+    ]
+    for g1 in equivalence_groups:
+        for g2 in equivalence_groups:
+            for e1 in g1:
+                for e2 in g2:
+                    if g1 is g2:
+                        assert e1 == e2
+                    else:
+                        assert e1 != e2
 
-    def testMultiplicativeIdentity(self):
-        various = [
-            UnitArray('a'),
-            raw_UnitArray([('a', 2, 3), ('b', 1, 1)]),
-            du
-        ]
-        for e in various:
-            self.assertEqual(du * e, e)
-            self.assertEqual(e * du, e)
-            self.assertEqual(e / du, e)
+def test_multiplicative_identity():
+    various = [
+        UnitArray('a'),
+        raw_UnitArray([('a', 2, 3), ('b', 1, 1)]),
+        du
+    ]
+    for e in various:
+        assert du * e == e
+        assert e * du == e
+        assert e / du == e
 
-    def testMultiplication(self):
-        self.assertEqual(UnitArray('a') * UnitArray('b'),
-                         raw_UnitArray([('a', 1, 1), ('b', 1, 1)]))
-        self.assertEqual(UnitArray('b') * UnitArray('a'),
-                         raw_UnitArray([('a', 1, 1), ('b', 1, 1)]))
-        self.assertEqual(
-            raw_UnitArray([('a', 2, 7)]) * raw_UnitArray([('a', 3, 5)]),
+def test_multiplication():
+    assert UnitArray('a') * UnitArray('b') == raw_UnitArray([('a', 1, 1),
+                                                             ('b', 1, 1)])
+    assert UnitArray('b') * UnitArray('a') == raw_UnitArray([('a', 1, 1),
+                                                             ('b', 1, 1)])
+    assert (raw_UnitArray([('a', 2, 7)]) * raw_UnitArray([('a', 3, 5)]) ==
             raw_UnitArray([('a', 31, 35)]))
-        self.assertEqual(
-            raw_UnitArray([('a', 1, 1), ('b', 3, 5)]) * UnitArray('b'),
+    assert (raw_UnitArray([('a', 1, 1), ('b', 3, 5)]) * UnitArray('b') ==
             raw_UnitArray([('a', 1, 1), ('b', 8, 5)]))
-        self.assertEqual(
-            raw_UnitArray([('b', -3, 5), ('a', 1, 1)]) * UnitArray('b'),
+    assert (raw_UnitArray([('b', -3, 5), ('a', 1, 1)]) * UnitArray('b') ==
             raw_UnitArray([('b', 2, 5), ('a', 1, 1)]))
 
-    def testDivision(self):
-        self.assertEqual(du / UnitArray('b'),
-                         raw_UnitArray([('b', -1, 1)]))
-        self.assertEqual(UnitArray('a') / UnitArray('b'),
-                         raw_UnitArray([('a', 1, 1), ('b', -1, 1)]))
-        self.assertEqual(UnitArray('b') / UnitArray('a'),
-                         raw_UnitArray([('a', -1, 1), ('b', 1, 1)]))
-        self.assertEqual(
-            raw_UnitArray([('a', 2, 7)]) / raw_UnitArray([('a', 3, 5)]),
+def test_division():
+    assert du / UnitArray('b') == raw_UnitArray([('b', -1, 1)])
+    assert UnitArray('a') / UnitArray('b') == raw_UnitArray([('a', 1, 1),
+                                                             ('b', -1, 1)])
+    assert UnitArray('b') / UnitArray('a') == raw_UnitArray([('a', -1, 1),
+                                                             ('b', 1, 1)])
+    assert (raw_UnitArray([('a', 2, 7)]) / raw_UnitArray([('a', 3, 5)]) ==
             raw_UnitArray([('a', -11, 35)]))
-        self.assertEqual(
-            raw_UnitArray([('a', 1, 1), ('b', 3, 5)]) / UnitArray('b'),
+    assert (raw_UnitArray([('a', 1, 1), ('b', 3, 5)]) / UnitArray('b') ==
             raw_UnitArray([('a', 1, 1), ('b', -2, 5)]))
-        self.assertEqual(
-            raw_UnitArray([('b', -3, 5), ('a', 1, 1)]) / UnitArray('b'),
+    assert (raw_UnitArray([('b', -3, 5), ('a', 1, 1)]) / UnitArray('b') ==
             raw_UnitArray([('b', -8, 5), ('a', 1, 1)]))
 
-    def testPow(self):
-        self.assertEqual(du**2, du)
-        self.assertEqual(UnitArray('a')**0, du)
-        self.assertEqual(UnitArray('a')**2, raw_UnitArray([('a', 2, 1)]))
-        self.assertEqual(UnitArray('a')**-1, raw_UnitArray([('a', -1, 1)]))
-        self.assertEqual(UnitArray('a')**(1.0/3), raw_UnitArray([('a', 1, 3)]))
-        self.assertEqual(UnitArray('a')**(7.0/12), raw_UnitArray([('a', 7, 12)]))
-        self.assertEqual(UnitArray('a')**(1.0/12), raw_UnitArray([('a', 1, 12)]))
+def test_pow():
+    assert du**2 == du
+    assert UnitArray('a')**0 == du
+    assert UnitArray('a')**2, raw_UnitArray([('a', 2 == 1)])
+    assert UnitArray('a')**-1, raw_UnitArray([('a', -1 == 1)])
+    assert UnitArray('a')**(1.0 / 3), raw_UnitArray([('a', 1 == 3)])
+    assert UnitArray('a')**(7.0 / 12), raw_UnitArray([('a', 7 == 12)])
+    assert UnitArray('a')**(1.0 / 12), raw_UnitArray([('a', 1 == 12)])
 
-        self.assertEqual(raw_UnitArray([('a', 2, 3), ('b', -5, 7)])**(37.0/12),
-                         raw_UnitArray([('a', 37, 18), ('b', -5*37, 7*12)]))
+    assert (raw_UnitArray([('a', 2, 3), ('b', -5, 7)])**(37.0 / 12) ==
+            raw_UnitArray([('a', 37, 18), ('b', -5 * 37, 7 * 12)]))
 
-    def testPickling(self):
-        examples = [
-            du,
-            raw_UnitArray([('a', 2, 7)]),
-            raw_UnitArray([('a', 2, 7), ('b', 1, 3)])
-        ]
-        for e in examples:
-            self.assertEqual(e, pickle.loads(pickle.dumps(e)))
-
-if __name__ == "__main__":
-    unittest.main()
+def test_pickling():
+    examples = [
+        du,
+        raw_UnitArray([('a', 2, 7)]),
+        raw_UnitArray([('a', 2, 7), ('b', 1, 3)])
+    ]
+    for e in examples:
+        assert e == pickle.loads(pickle.dumps(e))
