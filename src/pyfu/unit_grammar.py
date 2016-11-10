@@ -6,7 +6,9 @@ from pyparsing import (Word,
                        alphas,
                        nums,
                        alphanums,
-                       stringEnd)
+                       stringStart,
+                       stringEnd,
+                       Combine)
 
 
 def out(key, token):
@@ -34,12 +36,18 @@ def maybe_parens(token):
     """
     return token ^ ('(' + token + ')')
 
+scalar = Combine(Word('+-' + nums, nums) +
+                 Optional('.' + Optional(Word(nums))) +
+                 Optional('e' + Word('+-' + nums, nums)))
+scalar = out('factor', scalar.setParseAction(lambda s, l, t: [float(t[0])]))
+
 number = Word(nums).setParseAction(lambda s, l, t: [int(t[0])])
-# degree and mu
-name = Word(alphas + '%"\'\xE6\xF8', alphanums + '%"\'\xE6\xF8')
+name = Word(alphas, alphanums)
 
 negatable = Optional(out('neg', Literal('-')))
-exponent = maybe_parens(negatable + maybe_parens(out('num', number) + Optional('/' + out('denom', number))))
+exponent = maybe_parens(negatable +
+                        maybe_parens(out('num', number) +
+                                     Optional('/' + out('denom', number))))
 
 single_unit = out('name', name) + Optional('^' + exponent)
 bare_unit = all_out('posexp', single_unit)
@@ -50,4 +58,7 @@ later_units = Forward()
 later_units <<= (times_unit | over_unit) + Optional(later_units)
 
 unit = Forward()
-unit <<= (bare_unit | '1' + over_unit) + Optional(later_units) + stringEnd
+unit <<= (stringStart +
+          Optional(scalar) +
+          Optional((bare_unit | over_unit) + Optional(later_units)) +
+          stringEnd)

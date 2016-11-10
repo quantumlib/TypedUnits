@@ -47,7 +47,7 @@ class UnitDatabase(object):
         if formula in self.known_units:
             return self.known_units[formula]
         parsed = unit_grammar.unit.parseString(formula)
-        result = _all_cythonized.WithUnit(1)
+        result = _all_cythonized.WithUnit(parsed.factor or 1)
         for item in parsed.posexp:
             result *= self._parse_unit_item(item, +1, auto_create)
         for item in parsed.negexp:

@@ -3,6 +3,14 @@ import unittest
 
 
 class UnitDataTests(unittest.TestCase):
+    def testAllDefaultUnitsAndSimpleVariationsThereofAreParseable(self):
+        import pyfu.unit
+        db = pyfu.unit.default_unit_database
+        for k, u in db.known_units.items():
+            self.assertEqual(db.parse_unit_formula(k), u)
+            for v in [u, 1 / u, 5 * u, 1.1 * u, u**2]:
+                self.assertEqual(db.parse_unit_formula(str(v)), v)
+
     def testEnergyStoredInCapacitor(self):
         from pyfu.units import uF, V, uJ
         capacitance = 2 * uF
