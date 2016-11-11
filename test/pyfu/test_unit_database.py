@@ -1,10 +1,11 @@
-import unittest
+import pytest
 from pyfu._all_cythonized import raw_WithUnit, raw_UnitArray
-from pyfu.unit_database import UnitDatabase
+from pyparsing import ParseException
+
 from pyfu.base_unit_data import BaseUnitData
 from pyfu.derived_unit_data import DerivedUnitData
 from pyfu.prefix_data import PrefixData, SI_PREFIXES
-from pyparsing import ParseException
+from pyfu.unit_database import UnitDatabase
 
 
 def frac(numer=1, denom=1):
@@ -31,336 +32,328 @@ def val(value,
         units if display_units is None else display_units)
 
 
-class UnitDatabaseTests(unittest.TestCase):
-    def testAutoCreate(self):
-        with self.assertRaises(KeyError):
-            UnitDatabase(auto_create_units=False).parse_unit_formula('tests')
+def test_auto_create():
+    with pytest.raises(KeyError):
+        UnitDatabase(auto_create_units=False).parse_unit_formula('tests')
 
-        db = UnitDatabase(auto_create_units=True)
-        u = db.parse_unit_formula('tests')
-        self.assertEquals(5, 5 * u / u)
+    db = UnitDatabase(auto_create_units=True)
+    u = db.parse_unit_formula('tests')
+    assert 5 == 5 * u / u
 
-    def testAddRootUnit(self):
-        db = UnitDatabase(auto_create_units=False)
+def test_add_root_unit():
+    db = UnitDatabase(auto_create_units=False)
+    db.add_root_unit('cats')
+
+    # Root unit is simple.
+    c = db.get_unit('cats')
+    assert c.base_units == raw_UnitArray([('cats', 1, 1)])
+    assert c.display_units == raw_UnitArray([('cats', 1, 1)])
+    assert c.numer == 1
+    assert c.denom == 1
+    assert c.exp10 == 0
+    assert c.value == 1
+
+    # No dups.
+    with pytest.raises(RuntimeError):
         db.add_root_unit('cats')
 
-        # Root unit is simple.
-        c = db.get_unit('cats')
-        self.assertEquals(c.base_units, raw_UnitArray([('cats', 1, 1)]))
-        self.assertEquals(c.display_units, raw_UnitArray([('cats', 1, 1)]))
-        self.assertEquals(c.numer, 1)
-        self.assertEquals(c.denom, 1)
-        self.assertEquals(c.exp10, 0)
-        self.assertEquals(c.value, 1)
+def test_add_base_unit_with_prefixes():
+    db = UnitDatabase(auto_create_units=False)
+    db.add_base_unit_data(
+        BaseUnitData('b', 'base', True),
+        [
+            PrefixData('p_', 'pre_', 1),
+            PrefixData('q_', 'qu_', 2),
+        ])
 
-        # No dups.
-        with self.assertRaises(RuntimeError):
-            db.add_root_unit('cats')
+    # Long form *is* short form.
+    assert db.get_unit('base') is db.get_unit('b')
+    assert db.get_unit('pre_base') is db.get_unit('p_b')
+    assert db.get_unit('qu_base') is db.get_unit('q_b')
 
-    def testAddBaseUnitWithPrefixes(self):
-        db = UnitDatabase(auto_create_units=False)
-        db.add_base_unit_data(
-            BaseUnitData('b', 'base', True),
-            [
-                PrefixData('p_', 'pre_', 1),
-                PrefixData('q_', 'qu_', 2),
-            ])
+    # Root unit is simple.
+    u = db.get_unit('b')
+    assert u.base_units == raw_UnitArray([('b', 1, 1)])
+    assert u.display_units == raw_UnitArray([('b', 1, 1)])
+    assert u.numer == 1
+    assert u.denom == 1
+    assert u.exp10 == 0
+    assert u.value == 1
 
-        # Long form *is* short form.
-        self.assertIs(db.get_unit('base'), db.get_unit('b'))
-        self.assertIs(db.get_unit('pre_base'), db.get_unit('p_b'))
-        self.assertIs(db.get_unit('qu_base'), db.get_unit('q_b'))
+    # Prefixes do scaling.
+    assert db.get_unit('p_b') == u * 10
+    assert db.get_unit('q_b') == u * 100
 
-        # Root unit is simple.
-        u = db.get_unit('b')
-        self.assertEquals(u.base_units, raw_UnitArray([('b', 1, 1)]))
-        self.assertEquals(u.display_units, raw_UnitArray([('b', 1, 1)]))
-        self.assertEquals(u.numer, 1)
-        self.assertEquals(u.denom, 1)
-        self.assertEquals(u.exp10, 0)
-        self.assertEquals(u.value, 1)
+    # No mixing long prefixes with short units or vice versa.
+    with pytest.raises(KeyError):
+        db.get_unit('p_base')
+    with pytest.raises(KeyError):
+        db.get_unit('pre_b')
 
-        # Prefixes do scaling.
-        self.assertEquals(db.get_unit('p_b'), u * 10)
-        self.assertEquals(db.get_unit('q_b'), u * 100)
+def test_add_base_unit_without_prefixes():
+    db = UnitDatabase(auto_create_units=False)
+    db.add_base_unit_data(
+        BaseUnitData('b', 'base', False),
+        [
+            PrefixData('p_', 'pre_', 1),
+            PrefixData('q_', 'qu_', 2),
+        ])
 
-        # No mixing long prefixes with short units or vice versa.
-        with self.assertRaises(KeyError):
-            db.get_unit('p_base')
-        with self.assertRaises(KeyError):
-            db.get_unit('pre_b')
+    # Long form *is* short form.
+    assert db.get_unit('base') is db.get_unit('b')
 
-    def testAddBaseUnitWithoutPrefixes(self):
-        db = UnitDatabase(auto_create_units=False)
-        db.add_base_unit_data(
-            BaseUnitData('b', 'base', False),
-            [
-                PrefixData('p_', 'pre_', 1),
-                PrefixData('q_', 'qu_', 2),
-            ])
+    # Root unit is simple.
+    u = db.get_unit('b')
+    assert u.base_units == raw_UnitArray([('b', 1, 1)])
+    assert u.display_units == raw_UnitArray([('b', 1, 1)])
+    assert u.numer == 1
+    assert u.denom == 1
+    assert u.exp10 == 0
+    assert u.value == 1
 
-        # Long form *is* short form.
-        self.assertIs(db.get_unit('base'), db.get_unit('b'))
+    # No prefixing.
+    with pytest.raises(KeyError):
+        db.get_unit('p_b')
+    with pytest.raises(KeyError):
+        db.get_unit('q_b')
+    with pytest.raises(KeyError):
+        db.get_unit('pre_base')
+    with pytest.raises(KeyError):
+        db.get_unit('qu_base')
+    with pytest.raises(KeyError):
+        db.get_unit('p_base')
+    with pytest.raises(KeyError):
+        db.get_unit('pre_b')
 
-        # Root unit is simple.
-        u = db.get_unit('b')
-        self.assertEquals(u.base_units, raw_UnitArray([('b', 1, 1)]))
-        self.assertEquals(u.display_units, raw_UnitArray([('b', 1, 1)]))
-        self.assertEquals(u.numer, 1)
-        self.assertEquals(u.denom, 1)
-        self.assertEquals(u.exp10, 0)
-        self.assertEquals(u.value, 1)
-
-        # No prefixing.
-        with self.assertRaises(KeyError):
-            db.get_unit('p_b')
-        with self.assertRaises(KeyError):
-            db.get_unit('q_b')
-        with self.assertRaises(KeyError):
-            db.get_unit('pre_base')
-        with self.assertRaises(KeyError):
-            db.get_unit('qu_base')
-        with self.assertRaises(KeyError):
-            db.get_unit('p_base')
-        with self.assertRaises(KeyError):
-            db.get_unit('pre_b')
-
-    def testAddDerivedUnitWithPrefixes(self):
-        db = UnitDatabase(auto_create_units=False)
-        with self.assertRaises(KeyError):
-            db.add_derived_unit_data(
-                DerivedUnitData('tails', 't', 'shirts'),
-                [])
-
-        db.add_root_unit('shirts')
+def test_add_derived_unit_with_prefixes():
+    db = UnitDatabase(auto_create_units=False)
+    with pytest.raises(KeyError):
         db.add_derived_unit_data(
-            DerivedUnitData(
-                't',
-                'tails',
-                'shirts',
-                value=7.0,
-                exp10=5,
-                numerator=3,
-                denominator=2,
-                use_prefixes=True),
-            [
-                PrefixData('s_', 'super_', 1),
-                PrefixData('d_', 'duper_', 2),
-            ])
+            DerivedUnitData('tails', 't', 'shirts'),
+            [])
 
-        v = db.get_unit('shirts') * 7.0 * (10**5 * 3) / 2
+    db.add_root_unit('shirts')
+    db.add_derived_unit_data(
+        DerivedUnitData(
+            't',
+            'tails',
+            'shirts',
+            value=7.0,
+            exp10=5,
+            numerator=3,
+            denominator=2,
+            use_prefixes=True),
+        [
+            PrefixData('s_', 'super_', 1),
+            PrefixData('d_', 'duper_', 2),
+        ])
 
-        self.assertEquals(db.get_unit('tails'), v)
-        self.assertEquals(db.get_unit('t'), v)
-        self.assertEquals(db.get_unit('s_t'), v * 10)
-        self.assertEquals(db.get_unit('super_tails'), v * 10)
-        self.assertEquals(db.get_unit('d_t'), v * 100)
-        self.assertEquals(db.get_unit('duper_tails'), v * 100)
-        with self.assertRaises(KeyError):
-            db.get_unit('s_tails')
-        with self.assertRaises(KeyError):
-            db.get_unit('super_t')
+    v = db.get_unit('shirts') * 7.0 * (10**5 * 3) / 2
 
-    def testAddDerivedUnitWithoutPrefixes(self):
-        db = UnitDatabase(auto_create_units=False)
+    assert db.get_unit('tails') == v
+    assert db.get_unit('t') == v
+    assert db.get_unit('s_t') == v * 10
+    assert db.get_unit('super_tails') == v * 10
+    assert db.get_unit('d_t') == v * 100
+    assert db.get_unit('duper_tails') == v * 100
+    with pytest.raises(KeyError):
+        db.get_unit('s_tails')
+    with pytest.raises(KeyError):
+        db.get_unit('super_t')
 
-        db.add_root_unit('shirts')
+def test_add_derived_unit_without_prefixes():
+    db = UnitDatabase(auto_create_units=False)
+
+    db.add_root_unit('shirts')
+    db.add_derived_unit_data(
+        DerivedUnitData(
+            't',
+            'tails',
+            'shirts',
+            value=7.0,
+            exp10=5,
+            numerator=3,
+            denominator=2,
+            use_prefixes=False),
+        [PrefixData('s_', 'super_', 1)])
+
+    v = db.get_unit('shirts') * 7 * (10**5 * 3) / 2
+
+    assert db.get_unit('tails') == v
+    assert db.get_unit('t') == v
+    with pytest.raises(KeyError):
+        db.get_unit('super_tails')
+    with pytest.raises(KeyError):
+        db.get_unit('s_t')
+    with pytest.raises(KeyError):
+        db.get_unit('s_tails')
+    with pytest.raises(KeyError):
+        db.get_unit('super_t')
+
+def test_auto_create_disabled_when_purposefully_adding_units():
+    db = UnitDatabase(auto_create_units=True)
+
+    with pytest.raises(KeyError):
         db.add_derived_unit_data(
-            DerivedUnitData(
-                't',
-                'tails',
-                'shirts',
-                value=7.0,
-                exp10=5,
-                numerator=3,
-                denominator=2,
-                use_prefixes=False),
-            [PrefixData('s_', 'super_', 1)])
+            DerivedUnitData('d', 'der', 'missing'), [])
 
-        v = db.get_unit('shirts') * 7 * (10**5 * 3) / 2
+    with pytest.raises(KeyError):
+        db.add_scaled_unit('new', 'missing')
 
-        self.assertEquals(db.get_unit('tails'), v)
-        self.assertEquals(db.get_unit('t'), v)
-        with self.assertRaises(KeyError):
-            db.get_unit('super_tails')
-        with self.assertRaises(KeyError):
-            db.get_unit('s_t')
-        with self.assertRaises(KeyError):
-            db.get_unit('s_tails')
-        with self.assertRaises(KeyError):
-            db.get_unit('super_t')
+    with pytest.raises(KeyError):
+        db.add_alternate_unit_name('new', 'missing')
 
-    def testAutoCreateDisabledWhenPurposefullyAddingUnits(self):
-        db = UnitDatabase(auto_create_units=True)
+def test_get_unit_auto_create_override():
+    db_auto = UnitDatabase(auto_create_units=True)
+    db_manual = UnitDatabase(auto_create_units=False)
 
-        with self.assertRaises(KeyError):
-            db.add_derived_unit_data(
-                DerivedUnitData('d', 'der', 'missing'), [])
+    u = db_auto.get_unit('missing')
+    assert str(u) == 'missing'
+    with pytest.raises(KeyError):
+        db_manual.get_unit('missing')
 
-        with self.assertRaises(KeyError):
-            db.add_scaled_unit('new', 'missing')
+    with pytest.raises(KeyError):
+        db_manual.get_unit('gone', auto_create=False)
+    with pytest.raises(KeyError):
+        db_manual.get_unit('gone', auto_create=False)
 
-        with self.assertRaises(KeyError):
-            db.add_alternate_unit_name('new', 'missing')
+    u = db_auto.get_unit('empty', auto_create=True)
+    assert str(u) == 'empty'
+    u = db_manual.get_unit('empty', auto_create=True)
+    assert str(u) == 'empty'
 
-    def testGetUnit_autoCreateOverride(self):
-        db_auto = UnitDatabase(auto_create_units=True)
-        db_manual = UnitDatabase(auto_create_units=False)
+def test_kilogram_special_case():
+    db = UnitDatabase(auto_create_units=False)
+    db.add_base_unit_data(BaseUnitData('kg', 'kilogram'), SI_PREFIXES)
+    assert db.get_unit('g').base_units == raw_UnitArray([('kg', 1, 1)])
+    assert db.get_unit('g') * 1000 == db.get_unit('kg')
+    assert db.get_unit('kg') * 1000 == db.get_unit('Mg')
 
-        u = db_auto.get_unit('missing')
-        self.assertEqual(str(u), 'missing')
-        with self.assertRaises(KeyError):
-            db_manual.get_unit('missing')
+def test_parse_unit_formula():
+    db = UnitDatabase(auto_create_units=False)
+    db.add_root_unit('cats')
+    db.add_root_unit('dogs')
+    db.add_root_unit('mice')
+    cats = db.get_unit('cats')
+    dogs = db.get_unit('dogs')
+    mice = db.get_unit('mice')
 
-        with self.assertRaises(KeyError):
-            db_manual.get_unit('gone', auto_create=False)
-        with self.assertRaises(KeyError):
-            db_manual.get_unit('gone', auto_create=False)
+    with pytest.raises(ParseException):
+        db.parse_unit_formula('cats^dogs')
 
-        u = db_auto.get_unit('empty', auto_create=True)
-        self.assertEqual(str(u), 'empty')
-        u = db_manual.get_unit('empty', auto_create=True)
-        self.assertEqual(str(u), 'empty')
+    assert db.parse_unit_formula('cats') == cats
+    assert db.parse_unit_formula('cats^2') == cats**2
+    assert db.parse_unit_formula('cats^-2') == cats**-2
+    assert db.parse_unit_formula('cats*cats') == cats**2
+    assert db.parse_unit_formula('cats*dogs') == cats * dogs
+    assert db.parse_unit_formula('cats/dogs') == cats / dogs
+    assert db.parse_unit_formula('cats/dogs^2') == cats / dogs**2
+    assert db.parse_unit_formula('cats/dogs*mice') == (cats / dogs) * mice
 
-    def testKilogramSpecialCase(self):
-        db = UnitDatabase(auto_create_units=False)
-        db.add_base_unit_data(BaseUnitData('kg', 'kilogram'), SI_PREFIXES)
-        self.assertEquals(
-            db.get_unit('g').base_units,
-            raw_UnitArray([('kg', 1, 1)]))
-        self.assertEquals(db.get_unit('g') * 1000, db.get_unit('kg'))
-        self.assertEquals(db.get_unit('kg') * 1000, db.get_unit('Mg'))
+def test_parse_float_formula():
+    db = UnitDatabase(auto_create_units=False)
+    db.add_root_unit('J')
+    db.add_root_unit('s')
+    db.add_root_unit('C')
+    J = db.get_unit('J')
+    s = db.get_unit('s')
+    C = db.get_unit('C')
 
-    def testParseUnitFormula(self):
-        db = UnitDatabase(auto_create_units=False)
-        db.add_root_unit('cats')
-        db.add_root_unit('dogs')
-        db.add_root_unit('mice')
-        cats = db.get_unit('cats')
-        dogs = db.get_unit('dogs')
-        mice = db.get_unit('mice')
-
-        with self.assertRaises(ParseException):
-            db.parse_unit_formula('cats^dogs')
-
-        self.assertEquals(db.parse_unit_formula('cats'), cats)
-        self.assertEquals(db.parse_unit_formula('cats^2'), cats**2)
-        self.assertEquals(db.parse_unit_formula('cats^-2'), cats**-2)
-        self.assertEquals(db.parse_unit_formula('cats*cats'), cats**2)
-        self.assertEquals(db.parse_unit_formula('cats*dogs'), cats * dogs)
-        self.assertEquals(db.parse_unit_formula('cats/dogs'), cats / dogs)
-        self.assertEquals(db.parse_unit_formula('cats/dogs^2'), cats / dogs**2)
-        self.assertEquals(
-            db.parse_unit_formula('cats/dogs*mice'), (cats / dogs) * mice)
-
-    def testParseFloatFormulas(self):
-        db = UnitDatabase(auto_create_units=False)
-        db.add_root_unit('J')
-        db.add_root_unit('s')
-        db.add_root_unit('C')
-        J = db.get_unit('J')
-        s = db.get_unit('s')
-        C = db.get_unit('C')
-
-        self.assertEqual(
-            db.parse_unit_formula('2.06783276917e-15 J*s/C'),
+    assert (db.parse_unit_formula('2.06783276917e-15 J*s/C') ==
             2.06783276917e-15 * J * s / C)
 
-    def testIsConsistentWithDatabase(self):
-        db = UnitDatabase(auto_create_units=True)
+def test_is_consistent_with_database():
+    db = UnitDatabase(auto_create_units=True)
 
-        # Empty.
-        self.assertTrue(db.is_value_consistent_with_database(val(5)))
+    # Empty.
+    assert db.is_value_consistent_with_database(val(5))
 
-        # Missing.
-        self.assertFalse(db.is_value_consistent_with_database(val(
-            6,
-            units=unit('theorems'))))
+    # Missing.
+    assert not db.is_value_consistent_with_database(val(
+        6,
+        units=unit('theorems')))
 
-        # Present.
-        db.add_root_unit('theorems')
-        self.assertTrue(db.is_value_consistent_with_database(val(
-            6,
-            units=unit('theorems'))))
+    # Present.
+    db.add_root_unit('theorems')
+    assert db.is_value_consistent_with_database(val(
+        6,
+        units=unit('theorems')))
 
-        # Self-contradictory conversion.
-        self.assertFalse(db.is_value_consistent_with_database(val(
-            6,
-            conv=conv(3),
-            units=unit('theorems'))))
+    # Self-contradictory conversion.
+    assert not db.is_value_consistent_with_database(val(
+        6,
+        conv=conv(3),
+        units=unit('theorems')))
 
-        # Inconsistent conversion.
-        db.add_scaled_unit('kilo_theorems', 'theorems', exp10=3)
-        self.assertFalse(db.is_value_consistent_with_database(val(
-            6,
-            units=unit('theorems'),
-            display_units=unit('kilo_theorems'))))
+    # Inconsistent conversion.
+    db.add_scaled_unit('kilo_theorems', 'theorems', exp10=3)
+    assert not db.is_value_consistent_with_database(val(
+        6,
+        units=unit('theorems'),
+        display_units=unit('kilo_theorems')))
 
-        # Consistent conversion.
-        self.assertTrue(db.is_value_consistent_with_database(val(
-            6,
-            conv=conv(numer=1000),
-            units=unit('theorems'),
-            display_units=unit('kilo_theorems'))))
-        self.assertTrue(db.is_value_consistent_with_database(val(
-            6,
-            conv=conv(exp10=3),
-            units=unit('theorems'),
-            display_units=unit('kilo_theorems'))))
+    # Consistent conversion.
+    assert db.is_value_consistent_with_database(val(
+        6,
+        conv=conv(numer=1000),
+        units=unit('theorems'),
+        display_units=unit('kilo_theorems')))
+    assert db.is_value_consistent_with_database(val(
+        6,
+        conv=conv(exp10=3),
+        units=unit('theorems'),
+        display_units=unit('kilo_theorems')))
 
-        # Disagreement over what the root unit is.
-        self.assertFalse(db.is_value_consistent_with_database(val(
-            6,
-            conv=conv(exp10=-3),
-            units=unit('kilo_theorems'),
-            display_units=unit('theorems'))))
+    # Disagreement over what the root unit is.
+    assert not db.is_value_consistent_with_database(val(
+        6,
+        conv=conv(exp10=-3),
+        units=unit('kilo_theorems'),
+        display_units=unit('theorems')))
 
-        # Nearly consistent conversion.
-        db.add_scaled_unit('factoids', 'theorems', 3.141, 3, 5, -7)
-        self.assertTrue(db.is_value_consistent_with_database(val(
-            10,
-            conv(3.141, 3, 5, -7),
-            unit('theorems'),
-            unit('factoids'))))
-        self.assertTrue(db.is_value_consistent_with_database(val(
-            10,
-            conv(3.14100000000001, 3, 5, -7),
-            unit('theorems'),
-            unit('factoids'))))
+    # Nearly consistent conversion.
+    db.add_scaled_unit('factoids', 'theorems', 3.141, 3, 5, -7)
+    assert db.is_value_consistent_with_database(val(
+        10,
+        conv(3.141, 3, 5, -7),
+        unit('theorems'),
+        unit('factoids')))
+    assert db.is_value_consistent_with_database(val(
+        10,
+        conv(3.14100000000001, 3, 5, -7),
+        unit('theorems'),
+        unit('factoids')))
 
-        # Combinations.
-        self.assertFalse(db.is_value_consistent_with_database(val(
-            10,
-            conv(-3),
-            unit('theorems') * unit('theorems'),
-            unit('kilo_theorems'))))
-        self.assertFalse(db.is_value_consistent_with_database(val(
-            10,
-            conv(-3),
-            unit('theorems') * unit('theorems'),
-            unit('kilo_theorems') * unit('factoids'))))
-        self.assertTrue(db.is_value_consistent_with_database(val(
-            10,
-            conv(3.141, 3, 5, -4),
-            unit('theorems') * unit('theorems'),
-            unit('kilo_theorems') * unit('factoids'))))
+    # Combinations.
+    assert not db.is_value_consistent_with_database(val(
+        10,
+        conv(-3),
+        unit('theorems') * unit('theorems'),
+        unit('kilo_theorems')))
+    assert not db.is_value_consistent_with_database(val(
+        10,
+        conv(-3),
+        unit('theorems') * unit('theorems'),
+        unit('kilo_theorems') * unit('factoids')))
+    assert db.is_value_consistent_with_database(val(
+        10,
+        conv(3.141, 3, 5, -4),
+        unit('theorems') * unit('theorems'),
+        unit('kilo_theorems') * unit('factoids')))
 
-        # Exponents.
-        self.assertFalse(db.is_value_consistent_with_database(val(
-            10,
-            conv(exp10=-3),
-            unit('theorems')**2,
-            unit('kilo_theorems')**2)))
-        self.assertTrue(db.is_value_consistent_with_database(val(
-            10,
-            conv(exp10=6),
-            unit('theorems')**2,
-            unit('kilo_theorems')**2)))
-        self.assertTrue(db.is_value_consistent_with_database(val(
-            10,
-            conv(exp10=1),
-            unit('theorems')**(1 / 3.0),
-            unit('kilo_theorems')**(1 / 3.0))))
-
-if __name__ == "__main__":
-    unittest.main()
+    # Exponents.
+    assert not db.is_value_consistent_with_database(val(
+        10,
+        conv(exp10=-3),
+        unit('theorems')**2,
+        unit('kilo_theorems')**2))
+    assert db.is_value_consistent_with_database(val(
+        10,
+        conv(exp10=6),
+        unit('theorems')**2,
+        unit('kilo_theorems')**2))
+    assert db.is_value_consistent_with_database(val(
+        10,
+        conv(exp10=1),
+        unit('theorems')**(1 / 3.0),
+        unit('kilo_theorems')**(1 / 3.0)))
