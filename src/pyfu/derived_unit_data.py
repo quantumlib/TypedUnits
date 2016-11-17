@@ -76,12 +76,17 @@ __OTHER_UNITS = [
     DerivedUnitData('yd', 'yard', 'ft', numerator=3),
     DerivedUnitData('nmi', 'nautical_mile', 'm', 1852),
     DerivedUnitData('Ang', 'angstrom', 'm', exp10=-10),
+    DerivedUnitData('ly', 'light_year', 'm', 94607304725808, exp10=2),
+    DerivedUnitData('lyr', None, 'ly'),
     # Durations.
     DerivedUnitData('h', 'hour', 's', 4, numerator=9, exp10=2),
     DerivedUnitData('min', 'minute', 's', 2, numerator=3, exp10=1),
     # Angles.
     DerivedUnitData('cyc', 'cycle', 'rad', 2 * math.pi),
     DerivedUnitData('deg', None, 'rad', math.pi / 180),
+    # Areas.
+    DerivedUnitData('ha', 'hectare', 'm^2', exp10=4),
+    DerivedUnitData('b', 'barn', 'm^2', exp10=-28),
     # Volumes.
     DerivedUnitData('tsp', 'teaspoon', 'ml', 4.92892159375),
     DerivedUnitData('tbsp', 'tablespoon', 'tsp', numerator=3),
@@ -95,6 +100,8 @@ __OTHER_UNITS = [
     DerivedUnitData('oz', 'ounce', 'g', 28.349523125),
     DerivedUnitData('lb', 'pound', 'oz', 16),
     DerivedUnitData('ton', None, 'lb', 2000),
+    # Pressure.
+    DerivedUnitData('psi', 'pounds_per_square_inch', 'Pa', 6894.75729317),
 ]
 
 # Units that aren't technically exact, but close enough for our purposes.

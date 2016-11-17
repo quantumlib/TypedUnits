@@ -50,15 +50,15 @@ exponent = maybe_parens(negatable +
                                      Optional('/' + out('denom', number))))
 
 single_unit = out('name', name) + Optional('^' + exponent)
-bare_unit = all_out('posexp', single_unit)
+head = all_out('posexp', single_unit)
 times_unit = all_out('posexp', '*' + single_unit)
 over_unit = all_out('negexp', '/' + single_unit)
 
-later_units = Forward()
-later_units <<= (times_unit | over_unit) + Optional(later_units)
+tail = Forward()
+tail <<= (times_unit | over_unit) + Optional(tail)
 
 unit = Forward()
 unit <<= (stringStart +
           Optional(scalar) +
-          Optional((bare_unit | over_unit) + Optional(later_units)) +
+          Optional((head | Optional('1') + over_unit) + Optional(tail)) +
           stringEnd)

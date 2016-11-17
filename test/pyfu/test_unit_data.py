@@ -11,12 +11,14 @@ def test_all_default_units_and_simple_variations_thereof_are_parseable():
         for v in [u, 1 / u, 5 * u, 1.1 * u, u**2]:
             assert db.parse_unit_formula(str(v)) == v
 
+
 def test_unit_relationship_energy_stored_in_capacity():
     from pyfu.units import uF, V, uJ
     capacitance = 2 * uF
     voltage = 5 * V
     stored = capacitance * voltage**2 / 2
     assert stored == 25 * uJ
+
 
 def test_durations():
     from pyfu.units import week, year, day, hour, minute, second
@@ -25,18 +27,37 @@ def test_durations():
     assert round(year / week) == 52
     assert np.isclose(year / second, 31557600)
 
+
 def test_lengths():
-    from pyfu.units import inch, foot, yard, nautical_mile, angstrom, meter
-    a = inch + foot + yard + nautical_mile + angstrom
+    from pyfu.units import (inch,
+                            foot,
+                            yard,
+                            nautical_mile,
+                            angstrom,
+                            light_year,
+                            meter)
+    a = inch + foot + yard + nautical_mile + angstrom + light_year
     assert a.isCompatible(meter)
     assert (foot + inch + yard) * 5000 == 6223 * meter
     assert np.isclose(nautical_mile / angstrom, 1.852e13)
+
+
+def test_areas():
+    from pyfu.units import hectare, barn, meter
+    assert (hectare + barn).isCompatible(meter**2)
+
+    # *Obviously* a hectare of land can hold a couple barns.
+    assert hectare > barn * 2
+    # But not *too* many. ;)
+    assert hectare < barn * 10**33
+
 
 def test_angles():
     from pyfu.units import deg, rad, cyc
     assert (deg + cyc).isCompatible(rad)
     assert np.isclose((math.pi * rad)[deg], 180)
     assert np.isclose((math.pi * rad)[cyc], 0.5)
+
 
 def test_volumes():
     from pyfu.units import (teaspoon,
@@ -55,9 +76,15 @@ def test_volumes():
     assert quart - pint - cup - tablespoon == 45 * teaspoon
     assert np.isclose(33.814 * fluid_ounce / liter, 1, atol=1e-5)
 
+
 def test_masses():
     from pyfu.units import (ounce,
                             pound,
                             ton,
                             megagram)
     assert np.isclose((ounce + pound + ton) / megagram, 0.9077, atol=1e-4)
+
+
+def test_pressures():
+    from pyfu.units import psi, Pa
+    assert psi.isCompatible(Pa)

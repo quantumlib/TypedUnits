@@ -30,7 +30,9 @@ cpdef raw_WithUnit(value,
     elif isinstance(value, list) or isinstance(value, np.ndarray):
         val = np.array(value)
         target_type = ValueArray
-    elif isinstance(value, int) or isinstance(value, float):
+    elif (isinstance(value, int) or
+          isinstance(value, float) or
+          isinstance(value, long)):
         val = float(value)
         target_type = Value
     else:
