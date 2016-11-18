@@ -1,6 +1,7 @@
 [config]
 disable=all
 enable=
+    assignment-from-no-return,
     eval-used,
     no-value-for-parameter,
     redefined-builtin,
