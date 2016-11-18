@@ -7,4 +7,5 @@ enable=
     redefined-builtin,
     unbalanced-tuple-unpacking,
     undefined-variable,
+    unnecessary-pass,
     wildcard-import
