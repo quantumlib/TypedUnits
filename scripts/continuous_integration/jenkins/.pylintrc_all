@@ -6,6 +6,7 @@ enable=
     expression-not-assigned,
     no-value-for-parameter,
     redefined-builtin,
+    singleton-comparison,
     unbalanced-tuple-unpacking,
     undefined-variable,
     unnecessary-pass,

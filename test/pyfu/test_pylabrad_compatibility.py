@@ -334,7 +334,7 @@ def test_flatten_shared_units_into_parent():
         ValueArray([ns, m])
 
     v = ValueArray([-5 * ns, 203 * ns, 0.2 * ns])
-    assert v.isDimensionless() == False
+    assert not v.isDimensionless()
     assert v[0] == -5 * ns
     assert v[1] == 203 * ns
     assert v[2] == 0.2 * ns
