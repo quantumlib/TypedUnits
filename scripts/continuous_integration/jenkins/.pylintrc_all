@@ -8,4 +8,5 @@ enable=
     unbalanced-tuple-unpacking,
     undefined-variable,
     unnecessary-pass,
+    unreachable,
     wildcard-import
