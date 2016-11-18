@@ -2,7 +2,6 @@ from __future__ import absolute_import
 
 from . import _all_cythonized, unit_grammar
 
-from math import *
 
 class UnitDatabase(object):
     """
