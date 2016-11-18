@@ -290,7 +290,8 @@ cdef class WithUnit:
         if not isinstance(self.value, np.ndarray) \
                 and self.value == 1 and unit_str != '':
             return unit_str
-        return ("%s %s" % (str(self.value), unit_str)).strip()
+        val_str = (repr if isinstance(self.value, float) else str)(self.value)
+        return (val_str + " " + unit_str).strip()
 
     def __repr__(WithUnit self):
         if __is_value_consistent_with_default_unit_database(self):

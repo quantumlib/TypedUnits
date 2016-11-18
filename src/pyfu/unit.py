@@ -2,6 +2,7 @@ from __future__ import absolute_import
 from . import (_all_cythonized,
                base_unit_data,
                derived_unit_data,
+               physical_constant_data,
                prefix_data,
                unit_database)
 import numpy as np
@@ -15,10 +16,16 @@ WithUnit = _all_cythonized.WithUnit
 def _make_unit_database_from_unit_data():
     db = unit_database.UnitDatabase()
     db.add_unit('', WithUnit(1))
+
     for base in base_unit_data.ALL_BASE_UNITS:
         db.add_base_unit_data(base, prefix_data.SI_PREFIXES)
+
     for data in derived_unit_data.ALL_DERIVED_UNITS:
         db.add_derived_unit_data(data, prefix_data.SI_PREFIXES)
+
+    for data in physical_constant_data.ALL_PHYSICAL_CONSTANT_DATA:
+        db.add_physical_constant_data(data)
+
     return db
 
 default_unit_database = _make_unit_database_from_unit_data()

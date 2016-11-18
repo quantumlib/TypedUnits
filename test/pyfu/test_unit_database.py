@@ -40,6 +40,41 @@ def test_auto_create():
     u = db.parse_unit_formula('tests')
     assert 5 == 5 * u / u
 
+
+def test_auto_create_disabled_when_purposefully_adding_units():
+    db = UnitDatabase(auto_create_units=True)
+
+    with pytest.raises(KeyError):
+        db.add_derived_unit_data(
+            DerivedUnitData('d', 'der', 'missing'), [])
+
+    with pytest.raises(KeyError):
+        db.add_scaled_unit('new', 'missing')
+
+    with pytest.raises(KeyError):
+        db.add_alternate_unit_name('new', 'missing')
+
+
+def test_get_unit_with_auto_create_override():
+    db_auto = UnitDatabase(auto_create_units=True)
+    db_manual = UnitDatabase(auto_create_units=False)
+
+    u = db_auto.get_unit('missing')
+    assert str(u) == 'missing'
+    with pytest.raises(KeyError):
+        db_manual.get_unit('missing')
+
+    with pytest.raises(KeyError):
+        db_manual.get_unit('gone', auto_create=False)
+    with pytest.raises(KeyError):
+        db_manual.get_unit('gone', auto_create=False)
+
+    u = db_auto.get_unit('empty', auto_create=True)
+    assert str(u) == 'empty'
+    u = db_manual.get_unit('empty', auto_create=True)
+    assert str(u) == 'empty'
+
+
 def test_add_root_unit():
     db = UnitDatabase(auto_create_units=False)
     db.add_root_unit('cats')
@@ -56,6 +91,7 @@ def test_add_root_unit():
     # No dups.
     with pytest.raises(RuntimeError):
         db.add_root_unit('cats')
+
 
 def test_add_base_unit_with_prefixes():
     db = UnitDatabase(auto_create_units=False)
@@ -89,6 +125,7 @@ def test_add_base_unit_with_prefixes():
         db.get_unit('p_base')
     with pytest.raises(KeyError):
         db.get_unit('pre_b')
+
 
 def test_add_base_unit_without_prefixes():
     db = UnitDatabase(auto_create_units=False)
@@ -124,6 +161,7 @@ def test_add_base_unit_without_prefixes():
         db.get_unit('p_base')
     with pytest.raises(KeyError):
         db.get_unit('pre_b')
+
 
 def test_add_derived_unit_with_prefixes():
     db = UnitDatabase(auto_create_units=False)
@@ -161,6 +199,7 @@ def test_add_derived_unit_with_prefixes():
     with pytest.raises(KeyError):
         db.get_unit('super_t')
 
+
 def test_add_derived_unit_without_prefixes():
     db = UnitDatabase(auto_create_units=False)
 
@@ -190,6 +229,7 @@ def test_add_derived_unit_without_prefixes():
     with pytest.raises(KeyError):
         db.get_unit('super_t')
 
+
 def test_auto_create_disabled_when_purposefully_adding_units():
     db = UnitDatabase(auto_create_units=True)
 
@@ -202,6 +242,7 @@ def test_auto_create_disabled_when_purposefully_adding_units():
 
     with pytest.raises(KeyError):
         db.add_alternate_unit_name('new', 'missing')
+
 
 def test_get_unit_auto_create_override():
     db_auto = UnitDatabase(auto_create_units=True)
@@ -222,12 +263,14 @@ def test_get_unit_auto_create_override():
     u = db_manual.get_unit('empty', auto_create=True)
     assert str(u) == 'empty'
 
+
 def test_kilogram_special_case():
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(BaseUnitData('kg', 'kilogram'), SI_PREFIXES)
     assert db.get_unit('g').base_units == raw_UnitArray([('kg', 1, 1)])
     assert db.get_unit('g') * 1000 == db.get_unit('kg')
     assert db.get_unit('kg') * 1000 == db.get_unit('Mg')
+
 
 def test_parse_unit_formula():
     db = UnitDatabase(auto_create_units=False)
@@ -250,6 +293,7 @@ def test_parse_unit_formula():
     assert db.parse_unit_formula('cats/dogs^2') == cats / dogs**2
     assert db.parse_unit_formula('cats/dogs*mice') == (cats / dogs) * mice
 
+
 def test_parse_float_formula():
     db = UnitDatabase(auto_create_units=False)
     db.add_root_unit('J')
@@ -261,6 +305,20 @@ def test_parse_float_formula():
 
     assert (db.parse_unit_formula('2.06783276917e-15 J*s/C') ==
             2.06783276917e-15 * J * s / C)
+
+
+def test_parse_float_formulas():
+    db = UnitDatabase(auto_create_units=False)
+    db.add_root_unit('J')
+    db.add_root_unit('s')
+    db.add_root_unit('C')
+    J = db.get_unit('J')
+    s = db.get_unit('s')
+    C = db.get_unit('C')
+
+    assert (db.parse_unit_formula('2.06783276917e-15 J*s/C') ==
+            2.06783276917e-15 * J * s / C)
+
 
 def test_is_consistent_with_database():
     db = UnitDatabase(auto_create_units=True)

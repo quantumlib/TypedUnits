@@ -40,6 +40,8 @@ def test_lengths():
     assert a.isCompatible(meter)
     assert (foot + inch + yard) * 5000 == 6223 * meter
     assert np.isclose(nautical_mile / angstrom, 1.852e13)
+    from pyfu import Value
+    assert light_year == Value(1, 'c*yr')
 
 
 def test_areas():
@@ -88,3 +90,32 @@ def test_masses():
 def test_pressures():
     from pyfu.units import psi, Pa
     assert psi.isCompatible(Pa)
+
+
+def test_basic_constants():
+    from pyfu.units import (c, mu0, eps0, G, hplanck,
+                            hbar, e, me, mp, Nav, k,
+                            m, s, kg, A, K, mol)
+    # Just some random products compared against results from Wolfram Alpha.
+
+    u = c * mu0 * eps0 * G * hplanck
+    v = 1.475e-52 * m**4 / s**2
+    assert np.isclose(u / v, 1, atol=1e-3)
+
+    u = hbar * e * me * mp * Nav * k
+    v = 2.14046e-109 * kg**4 * m**4 * A / (s**2 * K * mol)
+    assert np.isclose(u / v, 1, atol=1e-3)
+
+
+def test_other_constants():
+    from pyfu.units import (bohr_magneton, Bohr, degR,
+                            Hartree, rootHz, amu,
+                            kg, m, s, A, K)
+
+    u = Hartree * rootHz * amu
+    v = 7.239526e-45 * kg**2 * m**2 / s**(2.5)
+    assert np.isclose(u / v, 1, atol=1e-3)
+
+    u = bohr_magneton * Bohr * degR
+    v = 2.7264415e-34 * m**3 * A * K
+    assert np.isclose(u / v, 1, atol=1e-3)

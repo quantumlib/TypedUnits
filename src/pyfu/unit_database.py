@@ -79,8 +79,6 @@ class UnitDatabase(object):
             raise RuntimeError(
                 "Unit name '%s' already taken by '%s'." %
                     (unit_name, self.known_units[unit_name].inBaseUnits()))
-        if unit_base_value.value != 1:
-            raise ValueError("Units must have a value of 1.")
         self.known_units[unit_name] = unit_base_value
 
     def add_root_unit(self, unit_name):
@@ -196,6 +194,18 @@ class UnitDatabase(object):
                 if data.name is not None:
                     self.add_alternate_unit_name(pre.name + data.name,
                                                  pre.symbol + data.symbol)
+
+    def add_physical_constant_data(self, data):
+        """
+        Adds a physical constant, i.e. a unit that doesn't override the display
+        units of a value, defined by a PhysicalConstantData.
+        :param PhysicalConstantData data:
+        """
+        val = self.parse_unit_formula(data.formula, auto_create=False)
+        val *= data.factor
+        self.add_unit(data.symbol, val)
+        if data.name is not None:
+            self.add_alternate_unit_name(data.name, data.symbol)
 
     def _expected_value_for_unit_array(self, unit_array):
         """
