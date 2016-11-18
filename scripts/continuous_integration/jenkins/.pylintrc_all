@@ -3,5 +3,6 @@ disable=all
 enable=
     eval-used,
     no-value-for-parameter,
+    redefined-builtin,
     undefined-variable,
     wildcard-import
