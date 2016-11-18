@@ -9,6 +9,7 @@ enable=
     singleton-comparison,
     unbalanced-tuple-unpacking,
     undefined-variable,
+    unexpected-keyword-arg,
     unnecessary-pass,
     unreachable,
     wildcard-import
