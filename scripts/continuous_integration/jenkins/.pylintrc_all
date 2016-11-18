@@ -1,0 +1,6 @@
+[config]
+disable=all
+enable=
+    no-value-for-parameter,
+    undefined-variable,
+    wildcard-import

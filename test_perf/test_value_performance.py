@@ -1,6 +1,9 @@
 import unittest
-from .perf_testing_util import *
+
 from pyfu import Value
+from .perf_testing_util import (perf_goal,
+                                a_random_compatible_unit_val,
+                                a_random_unit_val)
 
 
 @perf_goal(avg_micros=2, args=[a_random_compatible_unit_val] * 2)
