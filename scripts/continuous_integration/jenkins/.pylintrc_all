@@ -2,6 +2,7 @@
 disable=all
 enable=
     assignment-from-no-return,
+    deprecated-lambda,
     eval-used,
     expression-not-assigned,
     no-value-for-parameter,
