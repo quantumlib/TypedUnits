@@ -3,6 +3,7 @@ disable=all
 enable=
     assignment-from-no-return,
     eval-used,
+    expression-not-assigned,
     no-value-for-parameter,
     redefined-builtin,
     unbalanced-tuple-unpacking,
