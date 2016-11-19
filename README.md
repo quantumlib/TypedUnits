@@ -1,6 +1,8 @@
 ## Pyfu - Fast Python Units
 
-[![Build Status](https://matrix-reloaded.physics.ucsb.edu/teamcity/app/rest/builds/buildType:pythonunits_Pythonunits/statusIcon)](https://matrix-reloaded.physics.ucsb.edu/teamcity/project.html?projectId=pythonunits&tab=projectOverview)
+| [pytest](https://matrix-reloaded.physics.ucsb.edu/teamcity/viewType.html?buildTypeId=Pyle_PythonTests)          | [pylint](https://matrix-reloaded.physics.ucsb.edu/teamcity/viewType.html?buildTypeId=Pyle_PythonPerformanceTests)    |
+| ------------- |-------------|
+| [![pytest status](https://matrix-reloaded.physics.ucsb.edu/teamcity/app/rest/builds/buildType:pythonunits_Pythonunits/statusIcon)](https://matrix-reloaded.physics.ucsb.edu/teamcity/project.html?projectId=pythonunits&tab=projectOverview) | [![pylint status](https://ci.sanieldank.com/buildStatus/icon?job=pyfu-pylint-all-master)](https://ci.sanieldank.com/job/pyfu-pylint-all-master) |
 
 Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
