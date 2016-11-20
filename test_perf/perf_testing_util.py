@@ -1,8 +1,11 @@
+# coding=utf-8
 import math
-import numpy as np
-import pyfu
 import random
 import time
+
+import numpy as np
+
+import pyfu
 
 
 def _perf_bar_text(avg, stddev, n=20):
@@ -86,7 +89,7 @@ def perf_goal(avg_micros=0, avg_nanos=0, repeats=100, args=None):
                 std_dev_ratio = std_dev * 10**6 / target_micros
                 did_fail = avg_ratio > 1
                 _perf_goal_results[index] = (
-                    u"[%s] %s%% \u00B1%s%% of target (%s) for %s" % (
+                    u"[%s] %s%% ±%s%% of target (%s) for %s" % (
                         _perf_bar_text(avg_ratio, std_dev_ratio),
                         str(int(avg_ratio * 100)).rjust(3, ' '),
                         str(int(std_dev_ratio * 100)).rjust(2, ' '),
