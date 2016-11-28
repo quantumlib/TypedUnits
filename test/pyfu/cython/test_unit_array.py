@@ -14,8 +14,8 @@ def test_construction_versus_items():
 
     singleton = UnitArray('arbitrary')
     assert len(singleton) == 1
-    assert singleton[0], ('arbitrary', 1 == 1)
-    assert list(singleton), [('arbitrary', 1 == 1)]
+    assert singleton[0] == ('arbitrary', 1, 1)
+    assert list(singleton) == [('arbitrary', 1, 1)]
 
     with pytest.raises(TypeError):
         raw_UnitArray(1)
@@ -28,14 +28,14 @@ def test_construction_versus_items():
 
     raw1 = raw_UnitArray([('a', 2, 3)])
     assert len(raw1) == 1
-    assert raw1[0], ('a', 2 == 3)
-    assert list(raw1), [('a', 2 == 3)]
+    assert raw1[0] == ('a', 2, 3)
+    assert list(raw1) == [('a', 2, 3)]
 
     raw2 = raw_UnitArray([('a', 3, 7), ('b', 6, 15)])
     assert len(raw2) == 2
-    assert raw2[0], ('a', 3 == 7)
-    assert raw2[1], ('b', 2 == 5)
-    assert list(raw2), [('a', 3, 7), ('b', 2 == 5)]
+    assert raw2[0] == ('a', 3, 7)
+    assert raw2[1] == ('b', 2, 5)
+    assert list(raw2) == [('a', 3, 7), ('b', 2, 5)]
 
 def test_repr():
     assert repr(du) == 'raw_UnitArray([])'
@@ -128,11 +128,11 @@ def test_division():
 def test_pow():
     assert du**2 == du
     assert UnitArray('a')**0 == du
-    assert UnitArray('a')**2, raw_UnitArray([('a', 2 == 1)])
-    assert UnitArray('a')**-1, raw_UnitArray([('a', -1 == 1)])
-    assert UnitArray('a')**(1.0 / 3), raw_UnitArray([('a', 1 == 3)])
-    assert UnitArray('a')**(7.0 / 12), raw_UnitArray([('a', 7 == 12)])
-    assert UnitArray('a')**(1.0 / 12), raw_UnitArray([('a', 1 == 12)])
+    assert UnitArray('a')**2 == raw_UnitArray([('a', 2, 1)])
+    assert UnitArray('a')**-1 == raw_UnitArray([('a', -1, 1)])
+    assert UnitArray('a')**(1.0 / 3) == raw_UnitArray([('a', 1, 3)])
+    assert UnitArray('a')**(7.0 / 12) == raw_UnitArray([('a', 7, 12)])
+    assert UnitArray('a')**(1.0 / 12) == raw_UnitArray([('a', 1, 12)])
 
     assert (raw_UnitArray([('a', 2, 3), ('b', -5, 7)])**(37.0 / 12) ==
             raw_UnitArray([('a', 37, 18), ('b', -5 * 37, 7 * 12)]))

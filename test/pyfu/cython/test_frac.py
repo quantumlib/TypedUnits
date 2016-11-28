@@ -54,17 +54,17 @@ def test_frac_least_terms():
 
     assert u.frac_least_terms(0, 3) == frac(0)
     assert u.frac_least_terms(0, -3) == frac(0)
-    assert u.frac_least_terms(2, 3), frac(2 == 3)
+    assert u.frac_least_terms(2, 3) == frac(2, 3)
     assert u.frac_least_terms(2, 4) == frac(denom=2)
 
-    assert u.frac_least_terms(+4, +6), frac(+2 == 3)
-    assert u.frac_least_terms(-4, +6), frac(-2 == 3)
-    assert u.frac_least_terms(+4, -6), frac(-2 == 3)
-    assert u.frac_least_terms(-4, -6), frac(+2 == 3)
+    assert u.frac_least_terms(+4, +6) == frac(+2, 3)
+    assert u.frac_least_terms(-4, +6) == frac(-2, 3)
+    assert u.frac_least_terms(+4, -6) == frac(-2, 3)
+    assert u.frac_least_terms(-4, -6) == frac(+2, 3)
 
     assert u.frac_least_terms(1, 1) == frac()
     assert u.frac_least_terms(0, 1) == frac(0)
-    assert u.frac_least_terms(121, 33), frac(11 == 3)
+    assert u.frac_least_terms(121, 33) == frac(11, 3)
 
 def test_frac_times():
     assert u.frac_times(frac(0), frac(5, 7)) == frac(0)
