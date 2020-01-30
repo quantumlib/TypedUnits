@@ -1,3 +1,4 @@
+import cython
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
 from cpython.object cimport Py_EQ, Py_NE, Py_LE, Py_GE, Py_LT, Py_GT
@@ -60,7 +61,7 @@ def _is_dimensionless_zero(WithUnit u):
             not isinstance(u.value, np.ndarray) and
             u.value == 0)
 
-
+@cython.auto_pickle(True)
 cdef class WithUnit:
     """
     A value with associated physical units.

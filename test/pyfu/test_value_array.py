@@ -74,8 +74,8 @@ def test_power():
 def test_repr():
     from pyfu.units import km, kg, s
     assert repr([] * s) == "ValueArray(array([], dtype=float64), 's')"
-    assert repr([2, 3] * km) == "ValueArray(array([ 2.,  3.]), 'km')"
-    assert repr([3j] * km * kg) == "ValueArray(array([ 0.+3.j]), 'kg*km')"
+    assert repr([2, 3] * km) == "ValueArray(array([2., 3.]), 'km')"
+    assert repr([3j] * km * kg) == "ValueArray(array([0.+3.j]), 'kg*km')"
     assert (repr([-1] * km ** 2 / kg ** 3 * s) ==
             "ValueArray(array([-1.]), 'km^2*s/kg^3')")
     assert (repr([-1] * km ** (2 / 3.0) / kg ** 3 * s) ==
@@ -83,9 +83,9 @@ def test_repr():
 
     # Numpy abbreviation is allowed.
     assert (repr(list(range(50000)) * km) ==
-            "ValueArray(array([  0.00000000e+00,   1.00000000e+00,   "
-            "2.00000000e+00, ...,\n         4.99970000e+04,   "
-            "4.99980000e+04,   4.99990000e+04]), 'km')")
+            "ValueArray(array([0.0000e+00, 1.0000e+00,"
+            " 2.0000e+00, ..., 4.9997e+04,"
+            " 4.9998e+04,\n       4.9999e+04]), 'km')")
 
     # Fallback case.
     v = raw_WithUnit([1, 2, 3],
@@ -111,8 +111,7 @@ def test_repr():
 def test_str():
     from pyfu.units import mm
     assert str([] * mm ** 3) == '[] mm^3'
-    assert str([2, 3, 5] * mm) == '[ 2.  3.  5.] mm'
-
+    assert str([2, 3, 5] * mm) == '[2. 3. 5.] mm'
 
 def test_array_dtype():
     from pyfu.units import dekahertz, s
@@ -129,7 +128,6 @@ def test_array_dtype():
     c = np.array(s * [1, 2, 3] * dekahertz)  # infer not complex
     with pytest.raises(TypeError):
         c += 1j
-
 
 def test_multi_index():
     from pyfu.units import m
