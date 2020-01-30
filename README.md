@@ -1,8 +1,8 @@
 ## Pyfu - Fast Python Units
 
-| [pytest](https://ci.sanieldank.com/job/pyfu-pytest-master) | [pylint](https://ci.sanieldank.com/job/pyfu-pylint-all-master) |
-| ------------- |-------------|
-| [![pytest](https://ci.sanieldank.com/buildStatus/icon?job=pyfu-pytest-master)](https://ci.sanieldank.com/job/pyfu-pytest-master/lastCompletedBuild/testReport/) | [![pylint](https://ci.sanieldank.com/buildStatus/icon?job=pyfu-pylint-all-master)](https://ci.sanieldank.com/job/pyfu-pylint-all-master/lastCompletedBuild/console/) | 
+| GCB CI status: |
+| ---------- |
+| [![GCB Build Status](https://storage.googleapis.com/qh-build-badges/builds/pyfu/branches/master.svg)](https://pantheon.corp.google.com/cloud-build/builds?query=trigger_id%3D%220e853f67-1eb0-45e1-a966-6467b57abfdc%22) |
 
 Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 

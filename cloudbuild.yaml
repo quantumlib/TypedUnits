@@ -1,0 +1,47 @@
+steps:
+
+  #
+  # Build the builder
+  #
+
+  - name: 'gcr.io/cloud-builders/docker'
+    id: build-builder
+    args: [
+              'build',
+              '-t', 'gcr.io/$PROJECT_ID/pyfu-builder:latest',
+              '--file', 'ci/Dockerfile.builder',
+              '.'
+          ]
+    waitFor: ['-']
+
+  #
+  # Cythonize
+  #
+
+  - id: cythonize
+    name: gcr.io/$PROJECT_ID/pyfu-builder
+    args: ['python setup.py build_ext --inplace']
+    waitFor:
+      - build-builder
+
+  #
+  # Test
+  #
+
+  - id: lint
+    name: gcr.io/$PROJECT_ID/pyfu-builder
+    args: ['./ci/pylint_all.sh']
+    waitFor:
+      - build-builder
+
+  - id: pytest
+    name: gcr.io/$PROJECT_ID/pyfu-builder
+    args: ['pytest']
+    waitFor:
+      - cythonize
+
+  - id: perf
+    name: gcr.io/$PROJECT_ID/pyfu-builder
+    args: ['./ci/pytest_perf.sh']
+    waitFor:
+      - cythonize
