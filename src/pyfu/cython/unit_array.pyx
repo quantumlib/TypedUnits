@@ -2,7 +2,6 @@ from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
 from cpython.object cimport Py_EQ, Py_NE, Py_LE, Py_GE, Py_LT, Py_GT
 import copy
-import copy_reg
 
 
 # A symbol raised to a power.
@@ -225,8 +224,3 @@ cdef class UnitArray:
         return self.pow_frac(float_to_twelths_frac(exponent));
 
 _EmptyUnit = UnitArray()
-
-
-copy_reg.pickle(
-    UnitArray,
-    lambda e: (raw_UnitArray, (list(e),)))

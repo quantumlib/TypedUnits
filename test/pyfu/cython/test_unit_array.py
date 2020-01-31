@@ -1,5 +1,3 @@
-import pickle
-
 import pytest
 # noinspection PyProtectedMember
 from pyfu._all_cythonized import raw_UnitArray, UnitArray
@@ -136,12 +134,3 @@ def test_pow():
 
     assert (raw_UnitArray([('a', 2, 3), ('b', -5, 7)])**(37.0 / 12) ==
             raw_UnitArray([('a', 37, 18), ('b', -5 * 37, 7 * 12)]))
-
-def test_pickling():
-    examples = [
-        du,
-        raw_UnitArray([('a', 2, 7)]),
-        raw_UnitArray([('a', 2, 7), ('b', 1, 3)])
-    ]
-    for e in examples:
-        assert e == pickle.loads(pickle.dumps(e))

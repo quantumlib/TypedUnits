@@ -1,5 +1,3 @@
-import cPickle
-
 import numpy as np
 import pytest
 
@@ -193,21 +191,6 @@ def test_inf_nan():
     assert float('inf') * GHz != -float('inf') * GHz
     assert float('nan') * GHz != float('nan') * GHz
     assert float('nan') * GHz != float('nan') * ms
-
-def test_pickling():
-    ns = fu.Unit('ns')
-    GHz = fu.Unit('GHz')
-    blank = fu.Unit('')
-
-    def round_trip(obj):
-        return cPickle.loads(cPickle.dumps(obj))
-
-    assert round_trip(5 * GHz) == 5 * GHz  # Value
-    assert round_trip(GHz) == GHz  # Unit
-    assert (round_trip(np.arange(5) * ns) == np.arange(5) * ns).all()  # array
-    assert round_trip(5 * GHz * ns) == 5  # Dimensionless
-    assert isinstance(round_trip(3 * blank),
-                      type(3 * blank))  # Don't loose dimensionless type
 
 def test_in_units_of():
     s = fu.Unit('s')

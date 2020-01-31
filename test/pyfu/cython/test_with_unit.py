@@ -1,5 +1,4 @@
 import copy
-import pickle
 
 import numpy as np
 import pytest
@@ -329,14 +328,6 @@ def test_copy():
     c2 = copy.copy(c)
     c[1] = val(42, units=mps)
     assert not numpy_array_equal(c, c2)
-
-def test_pickle():
-    examples = [
-        val(1),
-        val(2, conv(3, 4, 5, 6), mps, kph)
-    ]
-    for e in examples:
-        assert deep_equal(e, pickle.loads(pickle.dumps(e)))
 
 def test_addition():
     with pytest.raises(UnitMismatchError):

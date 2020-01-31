@@ -3,7 +3,6 @@ from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
 from cpython.object cimport Py_EQ, Py_NE, Py_LE, Py_GE, Py_LT, Py_GT
 import copy
-import copy_reg
 import numpy as np
 
 from libc.math cimport pow as c_pow
@@ -61,7 +60,6 @@ def _is_dimensionless_zero(WithUnit u):
             not isinstance(u.value, np.ndarray) and
             u.value == 0)
 
-@cython.auto_pickle(True)
 cdef class WithUnit:
     """
     A value with associated physical units.
@@ -302,7 +300,22 @@ cdef class WithUnit:
                 str(self.display_units))
 
         return "raw_WithUnit(%s)" % ', '.join(
-            repr(e) for e in _pickle_WithUnit(self)[1])
+            (repr(e) for e in
+                (
+                    self.value,
+                    {
+                        'factor': self.conv.factor,
+                        'ratio': {
+                            'numer': self.conv.ratio.numer,
+                            'denom': self.conv.ratio.denom
+                        },
+                        'exp10': self.conv.exp10
+                    },
+                    self.base_units,
+                    self.display_units
+                )
+            )
+        )
 
     def __copy__(self):
         return self
@@ -418,16 +431,3 @@ def init_base_unit_functions(
     __try_interpret_as_with_unit = try_interpret_as_with_unit
     __is_value_consistent_with_default_unit_database = \
             is_value_consistent_with_default_unit_database
-
-def _pickle_WithUnit(WithUnit e):
-    return raw_WithUnit, (
-        e.value,
-        {
-            'factor': e.conv.factor,
-            'ratio': {'numer': e.conv.ratio.numer, 'denom': e.conv.ratio.denom},
-            'exp10': e.conv.exp10
-        },
-        e.base_units,
-        e.display_units)
-
-copy_reg.pickle(WithUnit, _pickle_WithUnit)
