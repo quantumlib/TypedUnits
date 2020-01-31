@@ -43,5 +43,6 @@ steps:
   - id: perf
     name: gcr.io/$PROJECT_ID/pyfu-builder
     args: ['./ci/pytest_perf.sh']
-    waitFor:
-      - cythonize
+    # no waitFor causes it to wait for all tests before it,
+    # which makes this test run by itself, which is what we
+    # want if we want to isolate performance tests

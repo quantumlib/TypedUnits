@@ -23,7 +23,7 @@ def test_arithmetic():
         _ = 1.0 * kg + 2.0
     assert km == 1000 * m
     assert 1.0 * km / m + 5.0 == 1005
-    assert 1.0 * kg != None
+    assert 1.0 * kg is not None
 
 def test_value_array():
     # Slicing

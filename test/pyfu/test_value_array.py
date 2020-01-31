@@ -101,9 +101,9 @@ def test_repr():
                      raw_UnitArray([('cookie', 1, 1)]))
     assert (repr(v) ==
             "raw_WithUnit(array([1, 2, 3]), "
-            "{'exp10': 10, "
+            "{'factor': 3.0, "
             "'ratio': {'numer': 2, 'denom': 5}, "
-            "'factor': 3.0}, "
+            "'exp10': 10}, "
             "raw_UnitArray([('muffin', 1, 1)]), "
             "raw_UnitArray([('cookie', 1, 1)]))")
 

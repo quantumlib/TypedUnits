@@ -36,10 +36,10 @@ def _measure_duration(func, args_getter, repeats, expected_micros):
     for _ in range(repeats):
         args = [args_getter() for _ in range(sub_repeats)]
 
-        start_time = time.clock()
+        start_time = time.perf_counter()  # wall time, includes sleep
         for e in args:
             func(*e)
-        duration = (time.clock() - start_time) / sub_repeats
+        duration = (time.perf_counter() - start_time) / sub_repeats
 
         total += duration
         squares_total += duration ** 2

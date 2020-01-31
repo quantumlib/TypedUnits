@@ -133,14 +133,12 @@ def test_division():
     assert 5 * km / (2 * s) == Value(2500, 'm/s')
     with pytest.raises(UnitMismatchError):
         _ = 5 * km // (2 * s)
-    assert (5 * km).__div__(2 * s) == Value(2500, 'm/s')
     assert (5 * km).__truediv__(2 * s) == Value(2500, 'm/s')
     with pytest.raises(UnitMismatchError):
         assert (5 * km).__floordiv__(2 * s) == Value(2500, 'm/s')
 
     assert (5 * km) / (64 * m) == 78.125
     assert (5 * km) // (64 * m) == 78
-    assert (5 * km).__div__(64 * m) == 78.125
     assert (5 * km).__truediv__(64 * m) == 78.125
     assert (5 * km).__floordiv__(64 * m) == 78
 

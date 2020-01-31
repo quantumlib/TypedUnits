@@ -125,7 +125,7 @@ cdef class UnitArray:
     def __mul__(UnitArray a, UnitArray b):
         return a.__times_div(b, +1)
 
-    def __div__(UnitArray a, UnitArray b):
+    def __truediv__(UnitArray a, UnitArray b):
         return a.__times_div(b, -1)
 
     def __times_div(UnitArray left, UnitArray right, int sign_r):

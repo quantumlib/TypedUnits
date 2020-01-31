@@ -47,7 +47,7 @@ class Unit(Value):
         quotient = Value(self) / other
         return Unit(quotient) if isinstance(other, Unit) else quotient
 
-    def __div__(self, other):
+    def __floordiv__(self, other):
         quotient = Value(self) / other
         return Unit(quotient) if isinstance(other, Unit) else quotient
 

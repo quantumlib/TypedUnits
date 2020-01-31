@@ -1,3 +1,5 @@
+import numbers
+
 import cython
 from cpython.ref cimport PyObject, Py_INCREF, Py_DECREF
 from cpython.mem cimport PyMem_Free, PyMem_Malloc
@@ -22,7 +24,6 @@ cpdef raw_WithUnit(value,
 
     (Python-visible for testing and unit database bootstrapping.)
     """
-
     # Choose derived class type.
     if isinstance(value, complex):
         val = value
@@ -30,9 +31,7 @@ cpdef raw_WithUnit(value,
     elif isinstance(value, list) or isinstance(value, np.ndarray):
         val = np.array(value)
         target_type = ValueArray
-    elif (isinstance(value, int) or
-          isinstance(value, float) or
-          isinstance(value, long)):
+    elif isinstance(value, numbers.Number):
         val = float(value)
         target_type = Value
     else:
@@ -167,18 +166,13 @@ cdef class WithUnit:
                             left.base_units * right.base_units,
                             left.display_units * right.display_units)
 
-    def __div__(a, b):
+    def __truediv__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)
         return raw_WithUnit(left.value / right.value,
                             conversion_div(left.conv, right.conv),
                             left.base_units / right.base_units,
                             left.display_units / right.display_units)
-
-    def __truediv__(a, b):
-        cdef WithUnit left = _in_WithUnit(a)
-        cdef WithUnit right = _in_WithUnit(b)
-        return left.__div__(right)
 
     def __divmod__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
@@ -229,6 +223,9 @@ cdef class WithUnit:
                 "'%s' can't be stripped into a float; not dimensionless." %
                     self)
         return conversion_to_double(self.conv) * float(self.value)
+
+    def __round__(self):
+        return round(self.__float__())
 
     def __complex__(self):
         if self.base_units.unit_count != 0:
