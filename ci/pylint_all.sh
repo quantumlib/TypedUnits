@@ -15,4 +15,4 @@ cat pylint_targets.log \
     | xargs pylint \
         --reports=no \
         --output-format=colorized \
-        --rcfile=${repo}/scripts/continuous_integration/jenkins/.pylintrc_all
+        --rcfile=${repo}/.pylintrc_all
