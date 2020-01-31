@@ -32,6 +32,8 @@ cpdef raw_WithUnit(value,
         val = np.array(value)
         target_type = ValueArray
     elif isinstance(value, numbers.Number):
+        # numbers.Number includes complex numbers, so this check needs to be
+        # after the complex one
         val = float(value)
         target_type = Value
     else:
