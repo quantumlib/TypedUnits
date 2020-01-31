@@ -1,5 +1,5 @@
-cython>=0.24
-numpy>=1.9.1
+cython>=0.29
+numpy>=1.18.1
 pylint==2.4.*
 pyparsing
 pytest
