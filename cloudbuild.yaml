@@ -36,7 +36,7 @@ steps:
 
   - id: pytest
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['./ci/pytest_perf.sh']
+    args: ['./ci/pytest_unit.sh']
     waitFor:
       - cythonize
 
