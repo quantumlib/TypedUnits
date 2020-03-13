@@ -213,6 +213,23 @@ cdef class WithUnit:
     def sqrt(WithUnit self):
         return self ** 0.5
 
+    @property
+    def real(WithUnit self):
+        return raw_WithUnit(self.value.real,
+                            self.conv,
+                            self.base_units,
+                            self.display_units)
+
+    @property
+    def imag(WithUnit self):
+        return raw_WithUnit(self.value.imag,
+                            self.conv,
+                            self.base_units,
+                            self.display_units)
+
+    def round(WithUnit self, unit):
+        return self.inUnitsOf(unit, True)
+
     def __int__(self):
         if self.base_units.unit_count != 0:
             raise UnitMismatchError(
@@ -247,7 +264,23 @@ cdef class WithUnit:
 
         # Check units.
         if left.base_units != right.base_units:
-            # For arrays we want a list of true/false comparisons.
+            # If left or right are a single dimensionless value,
+            # we can compare values despite mismatched units.
+            if (left._is_single_dimensionless_zero()
+                or right._is_single_dimensionless_zero()):
+                if op == Py_EQ:
+                    return left.value == right.value
+                if op == Py_NE:
+                    return not left.value == right.value
+                if op == Py_LT:
+                    return left.value < right.value
+                elif op == Py_GT:
+                    return left.value > right.value
+                elif op == Py_LE:
+                    return left.value <= right.value
+                elif op == Py_GE:
+                    return left.value >= right.value
+                # For arrays we want a list of true/false comparisons.
             shaped_false = (left.value == right.value) & False
             if op == Py_EQ:
                 return shaped_false
@@ -329,6 +362,9 @@ cdef class WithUnit:
             self.base_units,
             self.base_units)
 
+    def in_base_units(WithUnit self):
+        return self.inBaseUnits()
+
     def isDimensionless(self):
         return self.base_units.unit_count == 0
 
@@ -381,17 +417,19 @@ cdef class WithUnit:
             raise ValueError("Bad unit key: " + repr(unit))
         return self.base_units == other.base_units
 
-    def inUnitsOf(WithUnit self, unit):
+    def inUnitsOf(WithUnit self, unit, should_round=False):
         cdef WithUnit unit_val = __try_interpret_as_with_unit(unit)
         if unit_val is None:
             raise ValueError("Bad unit key: " + repr(unit))
         if self.base_units != unit_val.base_units:
             raise UnitMismatchError("'%s' doesn't have units matching '%s'." %
                 (self, unit))
-
-        return unit_val.__with_value(self.value
-             * conversion_to_double(conversion_div(self.conv, unit_val.conv))
-             / unit_val.value)
+        cdef conv = conversion_to_double(
+            conversion_div(self.conv, unit_val.conv))
+        cdef value = self.value * conv / unit_val.value
+        if should_round:
+            value = np.round(value)
+        return unit_val.__with_value(value)
 
     def __hash__(self):
         # Note: Anyone calling this, except in the case where they're using a
@@ -419,6 +457,11 @@ cdef class WithUnit:
         return np.ndarray.__array_wrap__(self.value, out_arr)
 
     __array_priority__ = 15
+
+    def _is_single_dimensionless_zero(WithUnit self):
+        return (self.isDimensionless()
+               and isinstance(self, Value)
+               and (self.value==0))
 
 __try_interpret_as_with_unit = None
 __is_value_consistent_with_default_unit_database = None

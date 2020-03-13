@@ -43,7 +43,6 @@ def test_value_array():
             ValueArray([3, 2, 1], '')).all()
     # Powers
     assert (ValueArray([2, 3], 'm') ** 2 == ValueArray([4, 9], 'm^2')).all()
-
     assert (ValueArray([2, 3], 'GHz') * Value(3, 'ns')).dtype == np.float64
 
 def test_dimensionless_angle():
@@ -143,7 +142,11 @@ def test_comparison():
 
     assert not (1 * s == 1 * kg)
     assert 0 * s == 0 * ms
+    assert 0 * s == 0
+    assert not 0 * s == 0 * kg
+    assert 0 * s != 0 * kg
     assert 4 * s > 0 * s
+    assert 4 * s > 0
     with pytest.raises(TypeError):
         _ = 4 * s > 1
 
@@ -344,3 +347,44 @@ def test_unwrap_value_array():
     assert a[1] == ns * 2
     assert a[2] == ns * 3
     assert a[3] == ns * 4
+
+def test_real_imag():
+    value = Value(1, 'GHz')
+    assert isinstance(value.real, Value)
+    assert isinstance(value.imag, Value)
+    assert value.real == Value(1, 'GHz')
+    assert value.imag == Value(0, 'GHz')
+
+    complex_value = Value(1 + 2j, 'GHz')
+    assert isinstance(complex_value.real, Value)
+    assert isinstance(complex_value.imag, Value)
+    assert complex_value.real == Value(1, 'GHz')
+    assert complex_value.imag == Value(2, 'GHz')
+
+    complex_value_array = ValueArray([1, 1j, 3 + 2j], 'GHz')
+    assert isinstance(complex_value_array.real, ValueArray)
+    assert isinstance(complex_value_array.imag, ValueArray)
+    assert all(complex_value_array.real == ValueArray([1, 0, 3], 'GHz'))
+    assert all(complex_value_array.imag == ValueArray([0, 1, 2], 'GHz'))
+
+def test_units_rounding():
+    GHz = fu.Unit('GHz')
+    MHz = fu.Unit('MHz')
+
+    value = Value(1.1, 'GHz')
+    assert value.round('GHz') == 1 * GHz
+    assert value.round('GHz').unit == GHz
+    assert value.round(GHz) == 1 * GHz
+    assert value.round(GHz).unit == GHz
+    assert value.round('MHz') == 1100 * MHz
+    assert value.round('MHz').unit == MHz
+    assert value.round(MHz) == 1100 * MHz
+    assert value.round(MHz).unit == MHz
+
+    value_array = ValueArray([1, 2.2, 3.5], 'GHz')
+    assert all(value_array.round('GHz')
+               == ValueArray([1 * GHz, 2 * GHz, 4 * GHz]))
+    assert value_array.round('GHz').unit == GHz
+    assert all(value_array.round('MHz')
+               == ValueArray([1000 * MHz, 2200 * MHz, 3500 * MHz]))
+    assert value_array.round('MHz').unit == MHz
