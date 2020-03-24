@@ -3,7 +3,6 @@ A compatibility layer that tries to expose the same API as pylabrad's unit
 library.
 """
 
-from __future__ import absolute_import
 from . import _all_cythonized, unit as _unit
 
 addNonSI = _unit.add_non_standard_unit

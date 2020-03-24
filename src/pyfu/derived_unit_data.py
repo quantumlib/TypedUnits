@@ -8,7 +8,6 @@ formulas can mention base units and earlier derived units (but not later derived
 units or physical constants).
 """
 
-from __future__ import absolute_import
 import math
 
 

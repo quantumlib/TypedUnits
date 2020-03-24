@@ -1,4 +1,3 @@
-from __future__ import absolute_import
 from . import (_all_cythonized,
                base_unit_data,
                derived_unit_data,

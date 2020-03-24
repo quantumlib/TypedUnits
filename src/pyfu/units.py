@@ -4,7 +4,6 @@ Exposes standard units as module variables.
 For example, '1/units.millisecond' is equal to 'units.kHz'.
 """
 
-from __future__ import absolute_import
 from . import unit as __unit
 
 # Expose defined units (e.g. 'meter', 'km', 'day') as module variables.

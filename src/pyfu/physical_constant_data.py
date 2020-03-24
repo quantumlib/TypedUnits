@@ -11,7 +11,6 @@ mention base units, derived units, and earlier constants (but not later
 constants).
 """
 
-from __future__ import absolute_import
 from math import pi
 
 
