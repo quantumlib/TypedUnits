@@ -1,7 +1,7 @@
 from . import _all_cythonized, unit_grammar
 
 
-class UnitDatabase(object):
+class UnitDatabase:
     """
     Values defined in unit_array do not actually store a unit object, the unit
     names and powers are stored within the value object itself.  However, when
