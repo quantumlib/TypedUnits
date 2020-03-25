@@ -18,11 +18,8 @@ class PhysicalConstantData:
     """
     Describes a physical constant.
     """
-    def __init__(self,
-                 symbol,
-                 name,
-                 factor,
-                 formula):
+
+    def __init__(self, symbol, name, factor, formula):
         """
         :param str symbol: The constant's symbol (e.g. 'c' for speed of light).
         :param None|str name: The constant's name (e.g. 'speed_of_light').
@@ -34,11 +31,12 @@ class PhysicalConstantData:
         self.factor = factor
         self.formula = formula
 
+
 _data = PhysicalConstantData
 
 _PHYSICAL_CONSTANTS = [
     _data('c', 'speed_of_light', 299792458, 'm/s'),
-    _data('mu0', 'vacuum_permeability', 4.e-7 * pi, 'N/A^2'),
+    _data('mu0', 'vacuum_permeability', 4.0e-7 * pi, 'N/A^2'),
     _data('eps0', 'vacuum_permittivity', 1, '1/mu0/c^2'),
     _data('G', 'gravitational_constant', 6.67259e-11, 'm^3/kg/s^2'),
     _data('hplanck', 'planck_constant', 6.62606957e-34, 'J*s'),
@@ -57,7 +55,7 @@ _DERIVED_CONSTANTS = [
     _data('rootHz', 'sqrtHz', 1, 'Hz^(1/2)'),
     _data('amu', 'atomic_mass_unit', 1.6605402e-27, 'kg'),
     # degrees Rankine
-    _data('degR', None, 5. / 9., 'K'),
+    _data('degR', None, 5.0 / 9.0, 'K'),
     _data('bohr_magneton', None, 9.2740096820e-24, 'J/T'),
 ]
 

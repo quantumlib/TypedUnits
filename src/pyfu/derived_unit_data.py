@@ -15,15 +15,18 @@ class DerivedUnitData:
     """
     Describes the properties of a derived unit.
     """
-    def __init__(self,
-                 symbol,
-                 name,
-                 formula,
-                 value=1.0,
-                 exp10=0,
-                 numerator=1,
-                 denominator=1,
-                 use_prefixes=False):
+
+    def __init__(
+        self,
+        symbol,
+        name,
+        formula,
+        value=1.0,
+        exp10=0,
+        numerator=1,
+        denominator=1,
+        use_prefixes=False,
+    ):
         """
         :param str symbol: The short name for the unit (e.g. 'm' for meter).
         :param str None|name: A full name for the unit (e.g. 'meter').
@@ -42,6 +45,7 @@ class DerivedUnitData:
         self.numerator = numerator
         self.denominator = denominator
         self.use_prefixes = use_prefixes
+
 
 __SI_REDUNDANT_BASE_UNITS = [
     DerivedUnitData('sr', 'steradian', 'rad^2', use_prefixes=True),
@@ -110,7 +114,6 @@ __APPROXIMATE_CIVIL_UNITS = [
     DerivedUnitData('yr', 'year', 'day', 365.25),
 ]
 
-ALL_DERIVED_UNITS = (__SI_REDUNDANT_BASE_UNITS +
-                     __SI_DERIVED_UNITS +
-                     __OTHER_UNITS +
-                     __APPROXIMATE_CIVIL_UNITS)
+ALL_DERIVED_UNITS = (
+    __SI_REDUNDANT_BASE_UNITS + __SI_DERIVED_UNITS + __OTHER_UNITS + __APPROXIMATE_CIVIL_UNITS
+)

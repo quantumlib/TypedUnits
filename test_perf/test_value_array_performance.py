@@ -1,10 +1,12 @@
 import unittest
 
-from .perf_testing_util import (perf_goal,
-                                a_random_compatible_unit_array,
-                                a_random_compatible_unit_val,
-                                a_random_unit_array,
-                                a_random_unit_val)
+from .perf_testing_util import (
+    a_random_compatible_unit_array,
+    a_random_compatible_unit_val,
+    a_random_unit_array,
+    a_random_unit_val,
+    perf_goal,
+)
 
 
 @perf_goal(avg_micros=15, args=[a_random_compatible_unit_array] * 2)
@@ -12,8 +14,7 @@ def test_perf_array_add(a, b):
     return a + b
 
 
-@perf_goal(avg_micros=15, args=[a_random_compatible_unit_array,
-                                a_random_compatible_unit_val])
+@perf_goal(avg_micros=15, args=[a_random_compatible_unit_array, a_random_compatible_unit_val])
 def test_perf_array_shift(a, b):
     return a + b
 

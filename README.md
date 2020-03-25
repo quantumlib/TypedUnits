@@ -62,3 +62,10 @@ print(2*km / pyfu.Value(3, 's'))
     ```bash
     pytest
     ```
+
+## Formatting
+
+```bash
+scripts/format.sh  # to format
+scripts/format.sh --check  # to verify format
+```

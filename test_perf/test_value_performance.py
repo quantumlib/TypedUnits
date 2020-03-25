@@ -1,9 +1,7 @@
 import unittest
 
 from pyfu import Value
-from .perf_testing_util import (perf_goal,
-                                a_random_compatible_unit_val,
-                                a_random_unit_val)
+from .perf_testing_util import a_random_compatible_unit_val, a_random_unit_val, perf_goal
 
 
 @perf_goal(avg_micros=2, args=[a_random_compatible_unit_val] * 2)
@@ -34,6 +32,7 @@ def test_perf_divmod(a, b):
 @perf_goal(avg_micros=20, args=[a_random_compatible_unit_val] * 2)
 def test_perf_import_multiply_add_heterogeneous(a, b):
     from pyfu.units import kilometer, inch
+
     return a * kilometer + b * inch
 
 
@@ -44,7 +43,7 @@ def test_perf_abs(a):
 
 @perf_goal(avg_micros=5, args=[a_random_unit_val])
 def test_perf_pow(a):
-    return abs(a)**(2 / 3.0)
+    return abs(a) ** (2 / 3.0)
 
 
 @perf_goal(avg_micros=10, args=[a_random_unit_val])

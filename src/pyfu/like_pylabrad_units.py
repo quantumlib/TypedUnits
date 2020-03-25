@@ -21,6 +21,7 @@ class Unit(Value):
     """
     Just a Value (WithValue), but with a constructor that accepts formulas.
     """
+
     def __init__(self, obj):
         if not isinstance(obj, WithUnit):
             obj = _unit.default_unit_database.parse_unit_formula(obj)

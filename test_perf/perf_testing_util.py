@@ -54,6 +54,8 @@ def _measure_duration(func, args_getter, repeats, expected_micros):
 
 
 _perf_goal_results = []
+
+
 def perf_goal(avg_micros=0, avg_nanos=0, repeats=100, args=None):
     """
     A decorator that turns a function into a perf test.
@@ -69,9 +71,11 @@ def perf_goal(avg_micros=0, avg_nanos=0, repeats=100, args=None):
     _perf_goal_results.append(None)
     target_nanos = avg_nanos + 1000 * avg_micros
     target_micros = target_nanos * 0.001
-    duration_desc = (str(avg_micros).rjust(3) + ' micros'
-                     if avg_nanos == 0
-                     else str(target_nanos).rjust(3) + ' nanos ')
+    duration_desc = (
+        str(avg_micros).rjust(3) + ' micros'
+        if avg_nanos == 0
+        else str(target_nanos).rjust(3) + ' nanos '
+    )
 
     def decorate(func):
         name = func.__name__.replace('test_perf_', '')
@@ -80,26 +84,26 @@ def perf_goal(avg_micros=0, avg_nanos=0, repeats=100, args=None):
             try:
                 _perf_goal_results[index] = '[fail] ' + name
 
-                mean_duration, std_dev = _measure_duration(func,
-                                                           args_chooser,
-                                                           repeats,
-                                                           target_micros)
+                mean_duration, std_dev = _measure_duration(
+                    func, args_chooser, repeats, target_micros
+                )
 
-                avg_ratio = mean_duration * 10**6 / target_micros
-                std_dev_ratio = std_dev * 10**6 / target_micros
+                avg_ratio = mean_duration * 10 ** 6 / target_micros
+                std_dev_ratio = std_dev * 10 ** 6 / target_micros
                 did_fail = avg_ratio > 1
-                _perf_goal_results[index] = (
-                    u"[%s] %s%% ±%s%% of target (%s) for %s" % (
-                        _perf_bar_text(avg_ratio, std_dev_ratio),
-                        str(int(avg_ratio * 100)).rjust(3, ' '),
-                        str(int(std_dev_ratio * 100)).rjust(2, ' '),
-                        duration_desc,
-                        name))
+                _perf_goal_results[index] = u"[%s] %s%% ±%s%% of target (%s) for %s" % (
+                    _perf_bar_text(avg_ratio, std_dev_ratio),
+                    str(int(avg_ratio * 100)).rjust(3, ' '),
+                    str(int(std_dev_ratio * 100)).rjust(2, ' '),
+                    duration_desc,
+                    name,
+                )
 
                 if did_fail:
                     raise AssertionError(
-                        "%s took too long. Mean (%s us) over target (%s)." %
-                        (name, mean_duration * 10 ** 6, duration_desc))
+                        "%s took too long. Mean (%s us) over target (%s)."
+                        % (name, mean_duration * 10 ** 6, duration_desc)
+                    )
             finally:
                 # Because tests can run out of order, we defer the printing
                 # until we have all the results and can print in order.
@@ -113,6 +117,7 @@ def perf_goal(avg_micros=0, avg_nanos=0, repeats=100, args=None):
                     print('-------------')
 
         return wrapped
+
     return decorate
 
 
@@ -120,6 +125,7 @@ class Sample:
     """
     Recognized by perf_goal as an argument that should vary.
     """
+
     def __init__(self, sample_function):
         self.sample_function = sample_function
 
@@ -130,12 +136,10 @@ def _sampled_generation(sampler_args, backing_size):
     lot of time by generating a reasonable number of samples then randomly
     choosing from those samples. This function does that.
     """
+
     def args_gen():
         ctx = dict()
-        return [e.sample_function(ctx)
-                if isinstance(e, Sample)
-                else e
-                for e in sampler_args]
+        return [e.sample_function(ctx) if isinstance(e, Sample) else e for e in sampler_args]
 
     previous_samples = []
 
@@ -146,6 +150,7 @@ def _sampled_generation(sampler_args, backing_size):
         return random.choice(previous_samples)
 
     return args_sample
+
 
 unit_list = [v for k, v in pyfu.unit.default_unit_database.known_units.items()]
 
@@ -168,14 +173,15 @@ def _sample_matching_combo_sampler(ctx):
         ctx[key] = _sample_random_unit_combo()
     return ctx[key] * random.random()
 
+
 a_random_unit_val = Sample(lambda _: _sample_random_unit_combo())
 a_random_compatible_unit_val = Sample(_sample_matching_combo_sampler)
 
-a_random_unit_array = Sample(lambda _:
-                             np.array([random.random() for _ in range(1024)]) *
-                             _sample_random_unit_combo())
+a_random_unit_array = Sample(
+    lambda _: np.array([random.random() for _ in range(1024)]) * _sample_random_unit_combo()
+)
 
 a_random_compatible_unit_array = Sample(
-    lambda ctx:
-    np.array([random.random() for _ in range(1024)]) *
-    _sample_matching_combo_sampler(ctx))
+    lambda ctx: np.array([random.random() for _ in range(1024)])
+    * _sample_matching_combo_sampler(ctx)
+)

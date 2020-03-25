@@ -1,9 +1,8 @@
-
-
 class PrefixData:
     """
     Describes the properties of a unit prefix.
     """
+
     def __init__(self, symbol, name, exp10):
         """
         :param str symbol: The short name for the prefix (e.g. 'G' for giga).
@@ -13,6 +12,7 @@ class PrefixData:
         self.symbol = symbol
         self.name = name
         self.exp10 = exp10
+
 
 SI_PREFIXES = [
     PrefixData('Y', 'yotta', exp10=24),

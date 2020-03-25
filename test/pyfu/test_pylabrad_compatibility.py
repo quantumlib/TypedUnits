@@ -25,25 +25,29 @@ def test_arithmetic():
     assert 1.0 * km / m + 5.0 == 1005
     assert 1.0 * kg is not None
 
+
 def test_value_array():
     # Slicing
     assert (ValueArray([1, 2, 3], 'm')[0:2] == ValueArray([1, 2], 'm')).all()
     # Cast to unit
     assert (ValueArray([1.2, 4, 5], 'm')['m'] == np.array([1.2, 4, 5])).all()
     # Addition and subtraction of compatible units
-    assert (ValueArray([3, 4], 'm') + ValueArray([100, 200], 'cm') ==
-            ValueArray([4, 6], 'm')).all()
-    assert (ValueArray([2, 3, 4], 'm') - ValueArray([100, 200, 300], 'cm') ==
-            ValueArray([1, 1, 1], 'm')).all()
+    assert (ValueArray([3, 4], 'm') + ValueArray([100, 200], 'cm') == ValueArray([4, 6], 'm')).all()
+    assert (
+        ValueArray([2, 3, 4], 'm') - ValueArray([100, 200, 300], 'cm') == ValueArray([1, 1, 1], 'm')
+    ).all()
     # Division with units remaining
-    assert (ValueArray([3, 4, 5], 'm') / ValueArray([1, 2, 5], 's') ==
-            ValueArray([3, 2, 1], 'm/s')).all()
+    assert (
+        ValueArray([3, 4, 5], 'm') / ValueArray([1, 2, 5], 's') == ValueArray([3, 2, 1], 'm/s')
+    ).all()
     # Division with no units remaining
-    assert (ValueArray([3, 4, 5], 'm') / ValueArray([1, 2, 5], 'm') ==
-            ValueArray([3, 2, 1], '')).all()
+    assert (
+        ValueArray([3, 4, 5], 'm') / ValueArray([1, 2, 5], 'm') == ValueArray([3, 2, 1], '')
+    ).all()
     # Powers
     assert (ValueArray([2, 3], 'm') ** 2 == ValueArray([4, 9], 'm^2')).all()
     assert (ValueArray([2, 3], 'GHz') * Value(3, 'ns')).dtype == np.float64
+
 
 def test_dimensionless_angle():
     a = np.array(fu.DimensionlessArray([1, 2, 3]))
@@ -52,14 +56,16 @@ def test_dimensionless_angle():
     assert a[1] == 2
     assert a[2] == 3
 
+
 def test_is_finite():
     assert np.isfinite(ValueArray([1, 2], '')).all()
-    assert ((np.isfinite(ValueArray([1, float('nan')], '')) ==
-            np.array([True, False])).all())
+    assert (np.isfinite(ValueArray([1, float('nan')], '')) == np.array([True, False])).all()
+
 
 def test_negative_powers():
     assert str(fu.Unit('1/s')) in ['s^-1', '1/s']
     assert str(fu.Unit('1/s^1/2')) in ['s^-1/2', '1/s^(1/2)']
+
 
 def test_type_conversions():
     m = fu.Unit('m')
@@ -125,6 +131,7 @@ def test_type_conversions():
     assert isinstance(va * GHz, fu.ValueArray)
     assert isinstance(va * a, fu.ValueArray)
 
+
 def test_comparison():
     s = fu.Unit('s')
     ms = fu.Unit('ms')
@@ -150,6 +157,7 @@ def test_comparison():
     with pytest.raises(TypeError):
         _ = 4 * s > 1
 
+
 def test_complex():
     V = fu.Unit('V')
 
@@ -158,6 +166,7 @@ def test_complex():
     assert 1.0 * V == (1 + 0j) * V
     with pytest.raises(TypeError):
         _ = 1.0j * V < 2j * V
+
 
 def test_dimensionless():
     ns = fu.Unit('ns')
@@ -173,6 +182,7 @@ def test_dimensionless():
     assert (5 * ns * 5j * GHz) == 25j
     assert (5 * ns * 5j * GHz).isDimensionless()
 
+
 def test_angle():
     rad = fu.Unit('rad')
     assert rad.is_angle
@@ -183,6 +193,7 @@ def test_angle():
     assert not (3.14 * rad ** 2).isDimensionless()
     with pytest.raises(UnitMismatchError):
         _ = float(2.0 * rad)
+
 
 def test_inf_nan():
     ms = fu.Unit('ms')
@@ -195,18 +206,22 @@ def test_inf_nan():
     assert float('nan') * GHz != float('nan') * GHz
     assert float('nan') * GHz != float('nan') * ms
 
+
 def test_in_units_of():
     s = fu.Unit('s')
     ms = fu.Unit('ms')
     assert (1 * s).inUnitsOf(ms) == 1000 * ms
     assert (1 * s).inUnitsOf('ms') == 1000 * ms
 
+
 def test_base_unit_powers():
     x = Value(1, 'ns^2')
     assert x.inBaseUnits() == Value(1e-18, 's^2')
 
+
 def test_unit_powers():
     assert fu.Unit('ns') ** 2 == fu.Unit('ns^2')
+
 
 def test_array_priority():
     """numpy issue 6133
@@ -226,11 +241,13 @@ def test_array_priority():
     z = np.arange(5)
     assert ((x < z) == [False, False, True, True, True]).all()
 
+
 def test_none():
     with pytest.raises(Exception):
         fu.Unit(None)
     with pytest.raises(TypeError):
         _ = None * fu.Unit('MHz')
+
 
 def test_non_si():
     fu.addNonSI('count', True)
@@ -239,10 +256,12 @@ def test_non_si():
     assert x.inBaseUnits() == 5000.0 * fu.Unit('count')
     assert (x ** 2).unit == fu.Unit('kcount^2')
 
+
 def test_unit_auto_creation():
     ts = fu.Unit('pants/s')
     assert (1 * ts)['pants/h'] == 3600.0
     assert str(ts) == 'pants/s'
+
 
 def test_unit_manual_creation():
     fu.addNonSI('tshirt')
@@ -250,8 +269,10 @@ def test_unit_manual_creation():
     assert (1 * ts)['tshirt/h'] == 3600.0
     assert str(ts) == 'tshirt/s'
 
+
 def test_iter():
     from pyfu.like_pylabrad_units import ns, kg
+
     data = np.arange(5) * ns
     for x in data:
         assert isinstance(x, fu.Value)
@@ -262,11 +283,14 @@ def test_iter():
             pass
     assert not np.iterable(5 * kg)
 
+
 def test_name():
     assert fu.ns.name == 'ns'
 
+
 def test_equality_against_formulas():
     from pyfu.like_pylabrad_units import m, s, J
+
     assert m == 'm'
     assert m != 'km'
     assert m != 's'
@@ -276,19 +300,24 @@ def test_equality_against_formulas():
     assert s != 'm'
 
     assert J / s == 'W'
-    assert J / m**2 * s * s == 'kg'
+    assert J / m ** 2 * s * s == 'kg'
 
     # This behavior is specific to the compatibility layer.
     from pyfu.units import kilogram as not_compatible_kilogram
+
     assert not_compatible_kilogram != 'kg'
+
 
 def test_sqrt():
     from pyfu.like_pylabrad_units import kg, kiloliter, m
-    assert (kg**2).sqrt() == kg
-    assert kiloliter.sqrt() == m**1.5
+
+    assert (kg ** 2).sqrt() == kg
+    assert kiloliter.sqrt() == m ** 1.5
+
 
 def test_is_compatible():
     from pyfu.like_pylabrad_units import ns, kg, s
+
     x = 5 * ns
     assert x.isCompatible('s')
     assert not x.isCompatible(kg)
@@ -302,20 +331,26 @@ def test_is_compatible():
     with pytest.raises(Exception):
         x.isCompatible(dict())
 
+
 def test_scaled_get_item():
     from pyfu.like_pylabrad_units import ns, s
+
     v = s * 1.0
     assert v[ns] == 10 ** 9
     assert v[ns * 2] == 10 ** 9 / 2
     assert (v * 3)[(ns * 3)] == 10 ** 9
     assert (5 * s / ns)[''] == 5 * 10 ** 9
 
+
 def test_flatten_value_units():
     from pyfu.like_pylabrad_units import ns, m
+
     assert Value(ns * 5, 'meter') == ns * 5 * m
+
 
 def test_flatten_shared_units_into_parent():
     from pyfu.like_pylabrad_units import ns, m
+
     with pytest.raises(UnitMismatchError):
         ValueArray([ns, m])
 
@@ -325,9 +360,12 @@ def test_flatten_shared_units_into_parent():
     assert v[1] == 203 * ns
     assert v[2] == 0.2 * ns
 
+
 def test_auto_wrap_value_in_array():
     from pyfu.like_pylabrad_units import ns
+
     assert np.min([3 * ns, 2 * ns, 5 * ns]) == 2 * ns
+
 
 def test_put_in_array():
     from pyfu.like_pylabrad_units import ns
@@ -339,14 +377,17 @@ def test_put_in_array():
     assert len(a) == 1
     assert a[0] == ns * 0
 
+
 def test_unwrap_value_array():
     from pyfu.like_pylabrad_units import ns
+
     a = np.array([1, 2, 3, 4] * ns)
     assert len(a) == 4
     assert a[0] == ns
     assert a[1] == ns * 2
     assert a[2] == ns * 3
     assert a[3] == ns * 4
+
 
 def test_real_imag():
     value = Value(1, 'GHz')
@@ -367,6 +408,7 @@ def test_real_imag():
     assert all(complex_value_array.real == ValueArray([1, 0, 3], 'GHz'))
     assert all(complex_value_array.imag == ValueArray([0, 1, 2], 'GHz'))
 
+
 def test_units_rounding():
     GHz = fu.Unit('GHz')
     MHz = fu.Unit('MHz')
@@ -382,9 +424,7 @@ def test_units_rounding():
     assert value.round(MHz).unit == MHz
 
     value_array = ValueArray([1, 2.2, 3.5], 'GHz')
-    assert all(value_array.round('GHz')
-               == ValueArray([1 * GHz, 2 * GHz, 4 * GHz]))
+    assert all(value_array.round('GHz') == ValueArray([1 * GHz, 2 * GHz, 4 * GHz]))
     assert value_array.round('GHz').unit == GHz
-    assert all(value_array.round('MHz')
-               == ValueArray([1000 * MHz, 2200 * MHz, 3500 * MHz]))
+    assert all(value_array.round('MHz') == ValueArray([1000 * MHz, 2200 * MHz, 3500 * MHz]))
     assert value_array.round('MHz').unit == MHz

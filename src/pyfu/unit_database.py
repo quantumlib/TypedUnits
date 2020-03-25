@@ -1,4 +1,3 @@
-
 from . import _all_cythonized, unit_grammar
 
 
@@ -26,9 +25,7 @@ class UnitDatabase(object):
         defaults to the 'auto_create_units' attribute of the receiving instance.
         :return WithUnit: The unit with the given name.
         """
-        auto_create = (self.auto_create_units
-                       if auto_create is None
-                       else auto_create)
+        auto_create = self.auto_create_units if auto_create is None else auto_create
         if unit_name not in self.known_units:
             if not auto_create:
                 raise KeyError("No unit named '%s'." % unit_name)
@@ -77,8 +74,9 @@ class UnitDatabase(object):
             raise TypeError('unit_base_value must be a WithUnit')
         if unit_name in self.known_units:
             raise RuntimeError(
-                "Unit name '%s' already taken by '%s'." %
-                    (unit_name, self.known_units[unit_name].inBaseUnits()))
+                "Unit name '%s' already taken by '%s'."
+                % (unit_name, self.known_units[unit_name].inBaseUnits())
+            )
         self.known_units[unit_name] = unit_base_value
 
     def add_root_unit(self, unit_name):
@@ -88,10 +86,8 @@ class UnitDatabase(object):
         """
         ua = _all_cythonized.UnitArray(unit_name)
         unit = _all_cythonized.raw_WithUnit(
-            1,
-            {'factor': 1.0, 'ratio': {'numer': 1, 'denom': 1}, 'exp10': 0},
-            ua,
-            ua)
+            1, {'factor': 1.0, 'ratio': {'numer': 1, 'denom': 1}, 'exp10': 0}, ua, ua
+        )
         self.add_unit(unit_name, unit)
 
     def add_alternate_unit_name(self, alternate_name, unit_name):
@@ -100,17 +96,9 @@ class UnitDatabase(object):
         :param str alternate_name: The new alternate name for the unit.
         :param str unit_name: The existing name for the unit.
         """
-        self.add_unit(
-            alternate_name,
-            self.get_unit(unit_name, auto_create=False))
+        self.add_unit(alternate_name, self.get_unit(unit_name, auto_create=False))
 
-    def add_scaled_unit(self,
-                        unit_name,
-                        formula,
-                        factor=1.0,
-                        numer=1,
-                        denom=1,
-                        exp10=0):
+    def add_scaled_unit(self, unit_name, formula, factor=1.0, numer=1, denom=1, exp10=0):
         """
         Creates and adds a derived unit to the database. The unit's value is
         computed by parsing the given formula (in terms of existing units) and
@@ -128,14 +116,12 @@ class UnitDatabase(object):
             1,
             {
                 'factor': factor * parent.factor * parent.value,
-                'ratio': {
-                    'numer': numer * parent.numer,
-                    'denom': denom * parent.denom
-                },
-                'exp10': exp10 + parent.exp10
+                'ratio': {'numer': numer * parent.numer, 'denom': denom * parent.denom},
+                'exp10': exp10 + parent.exp10,
             },
             parent.base_units,
-            _all_cythonized.UnitArray(unit_name))
+            _all_cythonized.UnitArray(unit_name),
+        )
 
         self.add_unit(unit_name, unit)
 
@@ -161,11 +147,8 @@ class UnitDatabase(object):
             for pre in prefixes:
                 if symbol == 'g' and pre.symbol == 'k':
                     continue
-                self.add_scaled_unit(pre.symbol + symbol,
-                                     symbol,
-                                     exp10=pre.exp10)
-                self.add_alternate_unit_name(pre.name + name,
-                                             pre.symbol + symbol)
+                self.add_scaled_unit(pre.symbol + symbol, symbol, exp10=pre.exp10)
+                self.add_alternate_unit_name(pre.name + name, pre.symbol + symbol)
 
     def add_derived_unit_data(self, data, prefixes):
         """
@@ -174,26 +157,24 @@ class UnitDatabase(object):
         :param DerivedUnitData data:
         :param list[PrefixData] prefixes:
         """
-        self.add_scaled_unit(data.symbol,
-                             data.formula,
-                             data.value,
-                             data.numerator,
-                             data.denominator,
-                             data.exp10)
+        self.add_scaled_unit(
+            data.symbol, data.formula, data.value, data.numerator, data.denominator, data.exp10
+        )
         if data.name is not None:
             self.add_alternate_unit_name(data.name, data.symbol)
 
         if data.use_prefixes:
             for pre in prefixes:
-                self.add_scaled_unit(pre.symbol + data.symbol,
-                                     data.formula,
-                                     data.value,
-                                     data.numerator,
-                                     data.denominator,
-                                     data.exp10 + pre.exp10)
+                self.add_scaled_unit(
+                    pre.symbol + data.symbol,
+                    data.formula,
+                    data.value,
+                    data.numerator,
+                    data.denominator,
+                    data.exp10 + pre.exp10,
+                )
                 if data.name is not None:
-                    self.add_alternate_unit_name(pre.name + data.name,
-                                                 pre.symbol + data.symbol)
+                    self.add_alternate_unit_name(pre.name + data.name, pre.symbol + data.symbol)
 
     def add_physical_constant_data(self, data):
         """
@@ -245,5 +226,5 @@ class UnitDatabase(object):
 
         # Conversion makes sense?
         conv = value.unit * base / display
-        c = conv.numer / conv.denom * (10**conv.exp10) * conv.factor
+        c = conv.numer / conv.denom * (10 ** conv.exp10) * conv.factor
         return abs(c - 1) < 0.0001

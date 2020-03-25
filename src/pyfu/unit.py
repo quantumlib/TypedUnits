@@ -1,9 +1,11 @@
-from . import (_all_cythonized,
-               base_unit_data,
-               derived_unit_data,
-               physical_constant_data,
-               prefix_data,
-               unit_database)
+from . import (
+    _all_cythonized,
+    base_unit_data,
+    derived_unit_data,
+    physical_constant_data,
+    prefix_data,
+    unit_database,
+)
 import numpy as np
 
 Complex = _all_cythonized.Complex
@@ -27,6 +29,7 @@ def _make_unit_database_from_unit_data():
 
     return db
 
+
 default_unit_database = _make_unit_database_from_unit_data()
 
 
@@ -48,9 +51,11 @@ def _try_interpret_as_with_unit(obj, avoid_ambiguity_with_indexing=False):
     is ambiguously similar to an index.
     """
     if isinstance(obj, _all_cythonized.WithUnit):
-        if (avoid_ambiguity_with_indexing and
-                obj.isDimensionless() and
-                (not isinstance(obj, Value) or obj.value != 1)):  # Not a unit?
+        if (
+            avoid_ambiguity_with_indexing
+            and obj.isDimensionless()
+            and (not isinstance(obj, Value) or obj.value != 1)
+        ):  # Not a unit?
             raise TypeError("Ambiguous unit key: " + repr(obj))
         return obj
 
@@ -72,9 +77,10 @@ def _try_interpret_as_with_unit(obj, avoid_ambiguity_with_indexing=False):
 
     return None
 
+
 _all_cythonized.init_base_unit_functions(
-    _try_interpret_as_with_unit,
-    default_unit_database.is_value_consistent_with_database)
+    _try_interpret_as_with_unit, default_unit_database.is_value_consistent_with_database
+)
 
 
 def add_non_standard_unit(name, use_prefixes=False):
@@ -86,7 +92,4 @@ def add_non_standard_unit(name, use_prefixes=False):
     if use_prefixes:
         for data in prefix_data.SI_PREFIXES:
             for prefix in [data.name, data.symbol]:
-                default_unit_database.add_scaled_unit(
-                    prefix + name,
-                    name,
-                    exp10=data.exp10)
+                default_unit_database.add_scaled_unit(prefix + name, name, exp10=data.exp10)

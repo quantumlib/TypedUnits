@@ -21,15 +21,8 @@ def conv(factor=1.0, numer=1, denom=1, exp10=0):
 
 
 # noinspection PyShadowingNames
-def val(value,
-        conv=conv(),
-        units=raw_UnitArray([]),
-        display_units=None):
-    return raw_WithUnit(
-        value,
-        conv,
-        units,
-        units if display_units is None else display_units)
+def val(value, conv=conv(), units=raw_UnitArray([]), display_units=None):
+    return raw_WithUnit(value, conv, units, units if display_units is None else display_units)
 
 
 def test_auto_create():
@@ -45,8 +38,7 @@ def test_auto_create_disabled_when_purposefully_adding_units():
     db = UnitDatabase(auto_create_units=True)
 
     with pytest.raises(KeyError):
-        db.add_derived_unit_data(
-            DerivedUnitData('d', 'der', 'missing'), [])
+        db.add_derived_unit_data(DerivedUnitData('d', 'der', 'missing'), [])
 
     with pytest.raises(KeyError):
         db.add_scaled_unit('new', 'missing')
@@ -96,11 +88,8 @@ def test_add_root_unit():
 def test_add_base_unit_with_prefixes():
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(
-        BaseUnitData('b', 'base', True),
-        [
-            PrefixData('p_', 'pre_', 1),
-            PrefixData('q_', 'qu_', 2),
-        ])
+        BaseUnitData('b', 'base', True), [PrefixData('p_', 'pre_', 1), PrefixData('q_', 'qu_', 2),]
+    )
 
     # Long form *is* short form.
     assert db.get_unit('base') is db.get_unit('b')
@@ -130,11 +119,8 @@ def test_add_base_unit_with_prefixes():
 def test_add_base_unit_without_prefixes():
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(
-        BaseUnitData('b', 'base', False),
-        [
-            PrefixData('p_', 'pre_', 1),
-            PrefixData('q_', 'qu_', 2),
-        ])
+        BaseUnitData('b', 'base', False), [PrefixData('p_', 'pre_', 1), PrefixData('q_', 'qu_', 2),]
+    )
 
     # Long form *is* short form.
     assert db.get_unit('base') is db.get_unit('b')
@@ -166,9 +152,7 @@ def test_add_base_unit_without_prefixes():
 def test_add_derived_unit_with_prefixes():
     db = UnitDatabase(auto_create_units=False)
     with pytest.raises(KeyError):
-        db.add_derived_unit_data(
-            DerivedUnitData('tails', 't', 'shirts'),
-            [])
+        db.add_derived_unit_data(DerivedUnitData('tails', 't', 'shirts'), [])
 
     db.add_root_unit('shirts')
     db.add_derived_unit_data(
@@ -180,13 +164,12 @@ def test_add_derived_unit_with_prefixes():
             exp10=5,
             numerator=3,
             denominator=2,
-            use_prefixes=True),
-        [
-            PrefixData('s_', 'super_', 1),
-            PrefixData('d_', 'duper_', 2),
-        ])
+            use_prefixes=True,
+        ),
+        [PrefixData('s_', 'super_', 1), PrefixData('d_', 'duper_', 2),],
+    )
 
-    v = db.get_unit('shirts') * 7.0 * (10**5 * 3) / 2
+    v = db.get_unit('shirts') * 7.0 * (10 ** 5 * 3) / 2
 
     assert db.get_unit('tails') == v
     assert db.get_unit('t') == v
@@ -213,10 +196,12 @@ def test_add_derived_unit_without_prefixes():
             exp10=5,
             numerator=3,
             denominator=2,
-            use_prefixes=False),
-        [PrefixData('s_', 'super_', 1)])
+            use_prefixes=False,
+        ),
+        [PrefixData('s_', 'super_', 1)],
+    )
 
-    v = db.get_unit('shirts') * 7 * (10**5 * 3) / 2
+    v = db.get_unit('shirts') * 7 * (10 ** 5 * 3) / 2
 
     assert db.get_unit('tails') == v
     assert db.get_unit('t') == v
@@ -234,8 +219,7 @@ def test_auto_create_disabled_when_purposefully_adding_units():
     db = UnitDatabase(auto_create_units=True)
 
     with pytest.raises(KeyError):
-        db.add_derived_unit_data(
-            DerivedUnitData('d', 'der', 'missing'), [])
+        db.add_derived_unit_data(DerivedUnitData('d', 'der', 'missing'), [])
 
     with pytest.raises(KeyError):
         db.add_scaled_unit('new', 'missing')
@@ -285,12 +269,12 @@ def test_parse_unit_formula():
         db.parse_unit_formula('cats^dogs')
 
     assert db.parse_unit_formula('cats') == cats
-    assert db.parse_unit_formula('cats^2') == cats**2
-    assert db.parse_unit_formula('cats^-2') == cats**-2
-    assert db.parse_unit_formula('cats*cats') == cats**2
+    assert db.parse_unit_formula('cats^2') == cats ** 2
+    assert db.parse_unit_formula('cats^-2') == cats ** -2
+    assert db.parse_unit_formula('cats*cats') == cats ** 2
     assert db.parse_unit_formula('cats*dogs') == cats * dogs
     assert db.parse_unit_formula('cats/dogs') == cats / dogs
-    assert db.parse_unit_formula('cats/dogs^2') == cats / dogs**2
+    assert db.parse_unit_formula('cats/dogs^2') == cats / dogs ** 2
     assert db.parse_unit_formula('cats/dogs*mice') == (cats / dogs) * mice
 
 
@@ -303,8 +287,7 @@ def test_parse_float_formula():
     s = db.get_unit('s')
     C = db.get_unit('C')
 
-    assert (db.parse_unit_formula('2.06783276917e-15 J*s/C') ==
-            2.06783276917e-15 * J * s / C)
+    assert db.parse_unit_formula('2.06783276917e-15 J*s/C') == 2.06783276917e-15 * J * s / C
 
 
 def test_parse_float_formulas():
@@ -316,8 +299,7 @@ def test_parse_float_formulas():
     s = db.get_unit('s')
     C = db.get_unit('C')
 
-    assert (db.parse_unit_formula('2.06783276917e-15 J*s/C') ==
-            2.06783276917e-15 * J * s / C)
+    assert db.parse_unit_formula('2.06783276917e-15 J*s/C') == 2.06783276917e-15 * J * s / C
 
 
 def test_is_consistent_with_database():
@@ -327,91 +309,71 @@ def test_is_consistent_with_database():
     assert db.is_value_consistent_with_database(val(5))
 
     # Missing.
-    assert not db.is_value_consistent_with_database(val(
-        6,
-        units=unit('theorems')))
+    assert not db.is_value_consistent_with_database(val(6, units=unit('theorems')))
 
     # Present.
     db.add_root_unit('theorems')
-    assert db.is_value_consistent_with_database(val(
-        6,
-        units=unit('theorems')))
+    assert db.is_value_consistent_with_database(val(6, units=unit('theorems')))
 
     # Self-contradictory conversion.
-    assert not db.is_value_consistent_with_database(val(
-        6,
-        conv=conv(3),
-        units=unit('theorems')))
+    assert not db.is_value_consistent_with_database(val(6, conv=conv(3), units=unit('theorems')))
 
     # Inconsistent conversion.
     db.add_scaled_unit('kilo_theorems', 'theorems', exp10=3)
-    assert not db.is_value_consistent_with_database(val(
-        6,
-        units=unit('theorems'),
-        display_units=unit('kilo_theorems')))
+    assert not db.is_value_consistent_with_database(
+        val(6, units=unit('theorems'), display_units=unit('kilo_theorems'))
+    )
 
     # Consistent conversion.
-    assert db.is_value_consistent_with_database(val(
-        6,
-        conv=conv(numer=1000),
-        units=unit('theorems'),
-        display_units=unit('kilo_theorems')))
-    assert db.is_value_consistent_with_database(val(
-        6,
-        conv=conv(exp10=3),
-        units=unit('theorems'),
-        display_units=unit('kilo_theorems')))
+    assert db.is_value_consistent_with_database(
+        val(6, conv=conv(numer=1000), units=unit('theorems'), display_units=unit('kilo_theorems'))
+    )
+    assert db.is_value_consistent_with_database(
+        val(6, conv=conv(exp10=3), units=unit('theorems'), display_units=unit('kilo_theorems'))
+    )
 
     # Disagreement over what the root unit is.
-    assert not db.is_value_consistent_with_database(val(
-        6,
-        conv=conv(exp10=-3),
-        units=unit('kilo_theorems'),
-        display_units=unit('theorems')))
+    assert not db.is_value_consistent_with_database(
+        val(6, conv=conv(exp10=-3), units=unit('kilo_theorems'), display_units=unit('theorems'))
+    )
 
     # Nearly consistent conversion.
     db.add_scaled_unit('factoids', 'theorems', 3.141, 3, 5, -7)
-    assert db.is_value_consistent_with_database(val(
-        10,
-        conv(3.141, 3, 5, -7),
-        unit('theorems'),
-        unit('factoids')))
-    assert db.is_value_consistent_with_database(val(
-        10,
-        conv(3.14100000000001, 3, 5, -7),
-        unit('theorems'),
-        unit('factoids')))
+    assert db.is_value_consistent_with_database(
+        val(10, conv(3.141, 3, 5, -7), unit('theorems'), unit('factoids'))
+    )
+    assert db.is_value_consistent_with_database(
+        val(10, conv(3.14100000000001, 3, 5, -7), unit('theorems'), unit('factoids'))
+    )
 
     # Combinations.
-    assert not db.is_value_consistent_with_database(val(
-        10,
-        conv(-3),
-        unit('theorems') * unit('theorems'),
-        unit('kilo_theorems')))
-    assert not db.is_value_consistent_with_database(val(
-        10,
-        conv(-3),
-        unit('theorems') * unit('theorems'),
-        unit('kilo_theorems') * unit('factoids')))
-    assert db.is_value_consistent_with_database(val(
-        10,
-        conv(3.141, 3, 5, -4),
-        unit('theorems') * unit('theorems'),
-        unit('kilo_theorems') * unit('factoids')))
+    assert not db.is_value_consistent_with_database(
+        val(10, conv(-3), unit('theorems') * unit('theorems'), unit('kilo_theorems'))
+    )
+    assert not db.is_value_consistent_with_database(
+        val(
+            10,
+            conv(-3),
+            unit('theorems') * unit('theorems'),
+            unit('kilo_theorems') * unit('factoids'),
+        )
+    )
+    assert db.is_value_consistent_with_database(
+        val(
+            10,
+            conv(3.141, 3, 5, -4),
+            unit('theorems') * unit('theorems'),
+            unit('kilo_theorems') * unit('factoids'),
+        )
+    )
 
     # Exponents.
-    assert not db.is_value_consistent_with_database(val(
-        10,
-        conv(exp10=-3),
-        unit('theorems')**2,
-        unit('kilo_theorems')**2))
-    assert db.is_value_consistent_with_database(val(
-        10,
-        conv(exp10=6),
-        unit('theorems')**2,
-        unit('kilo_theorems')**2))
-    assert db.is_value_consistent_with_database(val(
-        10,
-        conv(exp10=1),
-        unit('theorems')**(1 / 3.0),
-        unit('kilo_theorems')**(1 / 3.0)))
+    assert not db.is_value_consistent_with_database(
+        val(10, conv(exp10=-3), unit('theorems') ** 2, unit('kilo_theorems') ** 2)
+    )
+    assert db.is_value_consistent_with_database(
+        val(10, conv(exp10=6), unit('theorems') ** 2, unit('kilo_theorems') ** 2)
+    )
+    assert db.is_value_consistent_with_database(
+        val(10, conv(exp10=1), unit('theorems') ** (1 / 3.0), unit('kilo_theorems') ** (1 / 3.0))
+    )

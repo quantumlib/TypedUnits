@@ -1,4 +1,5 @@
 import pytest
+
 # noinspection PyProtectedMember
 from pyfu._all_cythonized import raw_UnitArray, UnitArray
 
@@ -35,14 +36,18 @@ def test_construction_versus_items():
     assert raw2[1] == ('b', 2, 5)
     assert list(raw2) == [('a', 3, 7), ('b', 2, 5)]
 
+
 def test_repr():
     assert repr(du) == 'raw_UnitArray([])'
     assert repr(UnitArray('a')), "raw_UnitArray([('a', 1 == 1)])"
 
     assert repr(raw_UnitArray([])) == "raw_UnitArray([])"
     assert repr(raw_UnitArray([('a', 2, 3)])) == "raw_UnitArray([('a', 2, 3)])"
-    assert (repr(raw_UnitArray([('a', 2, 3), ('b', -5, 7)])) ==
-            "raw_UnitArray([('a', 2, 3), ('b', -5, 7)])")
+    assert (
+        repr(raw_UnitArray([('a', 2, 3), ('b', -5, 7)]))
+        == "raw_UnitArray([('a', 2, 3), ('b', -5, 7)])"
+    )
+
 
 def test_str():
     assert str(du) == ''
@@ -50,14 +55,12 @@ def test_str():
 
     assert str(raw_UnitArray([('b', -1, 1)])) == '1/b'
     assert str(raw_UnitArray([('a', 2, 3), ('b', -5, 7)])) == 'a^(2/3)/b^(5/7)'
-    assert str(raw_UnitArray([('a', 1, 1),
-                              ('b', -1, 1),
-                              ('c', 1, 1),
-                              ('d', -1, 1)])) == 'a*c/b/d'
-    assert str(raw_UnitArray([('a', 2, 1),
-                              ('b', -1, 2),
-                              ('c', 1, 1),
-                              ('d', -1, 1)])) == 'a^2*c/b^(1/2)/d'
+    assert str(raw_UnitArray([('a', 1, 1), ('b', -1, 1), ('c', 1, 1), ('d', -1, 1)])) == 'a*c/b/d'
+    assert (
+        str(raw_UnitArray([('a', 2, 1), ('b', -1, 2), ('c', 1, 1), ('d', -1, 1)]))
+        == 'a^2*c/b^(1/2)/d'
+    )
+
 
 def test_equality():
     equivalence_groups = [
@@ -67,7 +70,6 @@ def test_equality():
         ["other types"],
         [list],
         [None],
-
         [du, UnitArray(), raw_UnitArray([])],
         [UnitArray('a'), raw_UnitArray([('a', 1, 1)])],
         [raw_UnitArray([('a', 2, 1)]), raw_UnitArray([('a', 6, 3)])],
@@ -87,50 +89,53 @@ def test_equality():
                     else:
                         assert e1 != e2
 
+
 def test_multiplicative_identity():
-    various = [
-        UnitArray('a'),
-        raw_UnitArray([('a', 2, 3), ('b', 1, 1)]),
-        du
-    ]
+    various = [UnitArray('a'), raw_UnitArray([('a', 2, 3), ('b', 1, 1)]), du]
     for e in various:
         assert du * e == e
         assert e * du == e
         assert e / du == e
 
+
 def test_multiplication():
-    assert UnitArray('a') * UnitArray('b') == raw_UnitArray([('a', 1, 1),
-                                                             ('b', 1, 1)])
-    assert UnitArray('b') * UnitArray('a') == raw_UnitArray([('a', 1, 1),
-                                                             ('b', 1, 1)])
-    assert (raw_UnitArray([('a', 2, 7)]) * raw_UnitArray([('a', 3, 5)]) ==
-            raw_UnitArray([('a', 31, 35)]))
-    assert (raw_UnitArray([('a', 1, 1), ('b', 3, 5)]) * UnitArray('b') ==
-            raw_UnitArray([('a', 1, 1), ('b', 8, 5)]))
-    assert (raw_UnitArray([('b', -3, 5), ('a', 1, 1)]) * UnitArray('b') ==
-            raw_UnitArray([('b', 2, 5), ('a', 1, 1)]))
+    assert UnitArray('a') * UnitArray('b') == raw_UnitArray([('a', 1, 1), ('b', 1, 1)])
+    assert UnitArray('b') * UnitArray('a') == raw_UnitArray([('a', 1, 1), ('b', 1, 1)])
+    assert raw_UnitArray([('a', 2, 7)]) * raw_UnitArray([('a', 3, 5)]) == raw_UnitArray(
+        [('a', 31, 35)]
+    )
+    assert raw_UnitArray([('a', 1, 1), ('b', 3, 5)]) * UnitArray('b') == raw_UnitArray(
+        [('a', 1, 1), ('b', 8, 5)]
+    )
+    assert raw_UnitArray([('b', -3, 5), ('a', 1, 1)]) * UnitArray('b') == raw_UnitArray(
+        [('b', 2, 5), ('a', 1, 1)]
+    )
+
 
 def test_division():
     assert du / UnitArray('b') == raw_UnitArray([('b', -1, 1)])
-    assert UnitArray('a') / UnitArray('b') == raw_UnitArray([('a', 1, 1),
-                                                             ('b', -1, 1)])
-    assert UnitArray('b') / UnitArray('a') == raw_UnitArray([('a', -1, 1),
-                                                             ('b', 1, 1)])
-    assert (raw_UnitArray([('a', 2, 7)]) / raw_UnitArray([('a', 3, 5)]) ==
-            raw_UnitArray([('a', -11, 35)]))
-    assert (raw_UnitArray([('a', 1, 1), ('b', 3, 5)]) / UnitArray('b') ==
-            raw_UnitArray([('a', 1, 1), ('b', -2, 5)]))
-    assert (raw_UnitArray([('b', -3, 5), ('a', 1, 1)]) / UnitArray('b') ==
-            raw_UnitArray([('b', -8, 5), ('a', 1, 1)]))
+    assert UnitArray('a') / UnitArray('b') == raw_UnitArray([('a', 1, 1), ('b', -1, 1)])
+    assert UnitArray('b') / UnitArray('a') == raw_UnitArray([('a', -1, 1), ('b', 1, 1)])
+    assert raw_UnitArray([('a', 2, 7)]) / raw_UnitArray([('a', 3, 5)]) == raw_UnitArray(
+        [('a', -11, 35)]
+    )
+    assert raw_UnitArray([('a', 1, 1), ('b', 3, 5)]) / UnitArray('b') == raw_UnitArray(
+        [('a', 1, 1), ('b', -2, 5)]
+    )
+    assert raw_UnitArray([('b', -3, 5), ('a', 1, 1)]) / UnitArray('b') == raw_UnitArray(
+        [('b', -8, 5), ('a', 1, 1)]
+    )
+
 
 def test_pow():
-    assert du**2 == du
-    assert UnitArray('a')**0 == du
-    assert UnitArray('a')**2 == raw_UnitArray([('a', 2, 1)])
-    assert UnitArray('a')**-1 == raw_UnitArray([('a', -1, 1)])
-    assert UnitArray('a')**(1.0 / 3) == raw_UnitArray([('a', 1, 3)])
-    assert UnitArray('a')**(7.0 / 12) == raw_UnitArray([('a', 7, 12)])
-    assert UnitArray('a')**(1.0 / 12) == raw_UnitArray([('a', 1, 12)])
+    assert du ** 2 == du
+    assert UnitArray('a') ** 0 == du
+    assert UnitArray('a') ** 2 == raw_UnitArray([('a', 2, 1)])
+    assert UnitArray('a') ** -1 == raw_UnitArray([('a', -1, 1)])
+    assert UnitArray('a') ** (1.0 / 3) == raw_UnitArray([('a', 1, 3)])
+    assert UnitArray('a') ** (7.0 / 12) == raw_UnitArray([('a', 7, 12)])
+    assert UnitArray('a') ** (1.0 / 12) == raw_UnitArray([('a', 1, 12)])
 
-    assert (raw_UnitArray([('a', 2, 3), ('b', -5, 7)])**(37.0 / 12) ==
-            raw_UnitArray([('a', 37, 18), ('b', -5 * 37, 7 * 12)]))
+    assert raw_UnitArray([('a', 2, 3), ('b', -5, 7)]) ** (37.0 / 12) == raw_UnitArray(
+        [('a', 37, 18), ('b', -5 * 37, 7 * 12)]
+    )

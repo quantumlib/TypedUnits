@@ -6,11 +6,11 @@ Base units are defined just by their name, not by other units or quantities.
 """
 
 
-
 class BaseUnitData:
     """
     Describes the properties of a base unit.
     """
+
     def __init__(self, symbol, name, use_prefixes=True):
         """
         :param str symbol: The short name for the unit (e.g. 'm' for meter).
@@ -20,6 +20,7 @@ class BaseUnitData:
         self.symbol = symbol
         self.name = name
         self.use_prefixes = use_prefixes
+
 
 __SI_BASE_UNITS = [
     BaseUnitData('m', 'meter'),

@@ -28,6 +28,12 @@ steps:
   # Test
   #
 
+  - id: format
+    name: gcr.io/$PROJECT_ID/pyfu-builder
+    args: ['black --check .']
+    waitFor:
+      - build-builder
+
   - id: lint
     name: gcr.io/$PROJECT_ID/pyfu-builder
     args: ['./ci/pylint_all.sh']

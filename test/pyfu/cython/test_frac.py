@@ -44,6 +44,7 @@ def test_gcd():
     assert u.gcd(+541838, -778063) == 11
     assert u.gcd(-541838, -778063) == 11
 
+
 def test_frac_least_terms():
     with pytest.raises(TypeError):
         u.frac_least_terms("a", "b")
@@ -66,6 +67,7 @@ def test_frac_least_terms():
     assert u.frac_least_terms(0, 1) == frac(0)
     assert u.frac_least_terms(121, 33) == frac(11, 3)
 
+
 def test_frac_times():
     assert u.frac_times(frac(0), frac(5, 7)) == frac(0)
     assert u.frac_times(frac(0), frac(-5, 7)) == frac(0)
@@ -76,6 +78,7 @@ def test_frac_times():
     assert u.frac_times(frac(-2, 3), frac(5, 7)) == frac(-10, 21)
     assert u.frac_times(frac(2, 3), frac(-5, 7)) == frac(-10, 21)
     assert u.frac_times(frac(-2, 3), frac(-5, 7)) == frac(10, 21)
+
 
 def test_frac_div():
     with pytest.raises(ZeroDivisionError):
@@ -89,6 +92,7 @@ def test_frac_div():
     assert u.frac_div(frac(-2, 3), frac(5, 7)) == frac(-14, 15)
     assert u.frac_div(frac(2, 3), frac(-5, 7)) == frac(-14, 15)
     assert u.frac_div(frac(-2, 3), frac(-5, 7)) == frac(14, 15)
+
 
 def test_float_to_twelths_frac():
     with pytest.raises(ValueError):
@@ -112,6 +116,7 @@ def test_float_to_twelths_frac():
     # Precision.
     assert u.float_to_twelths_frac((1 << 55) + 1) == frac((1 << 55) + 1)
     assert u.float_to_twelths_frac(float(1 << 55) / 3.0) == frac(1 << 55, 3)
+
 
 def test_frac_to_double():
     assert u.frac_to_double(frac(0)) == 0
