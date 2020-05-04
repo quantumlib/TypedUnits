@@ -32,7 +32,7 @@ print(2*km / pyfu.Value(3, 's'))
 0. Clone the repository.
 
     ```bash
-    git clone https://github.com/martinisgroup/pyfu.git
+    git clone https://github.com/qh-lab/pyfu.git
 
     cd pyfu
     ```
