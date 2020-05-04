@@ -2,7 +2,7 @@
 
 | GCB CI status: |
 | ---------- |
-| [![GCB Build Status](https://storage.googleapis.com/qh-build-badges/builds/pyfu/branches/master.svg)](https://pantheon.corp.google.com/cloud-build/builds?query=trigger_id%3D%220e853f67-1eb0-45e1-a966-6467b57abfdc%22) |
+| [![GCB Build Status](https://storage.googleapis.com/qh-build-badges/builds/pyfu/branches/master.svg)](https://pantheon.corp.google.com/cloud-build/builds?project=qh-build&query=trigger_id%3D%22736396b1-c130-4936-adf5-cd9c7be2b492%22) |
 
 Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
