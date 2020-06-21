@@ -1,6 +1,6 @@
 black==19.10b0
 cython>=0.29
 numpy>=1.18.1
-pylint==2.4.*
+pylint==2.5.*
 pyparsing
 pytest
