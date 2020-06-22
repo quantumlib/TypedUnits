@@ -46,6 +46,12 @@ steps:
     waitFor:
       - build-builder
 
+  - id: mypy
+    name: gcr.io/$PROJECT_ID/pyfu-builder
+    args: ['./ci/mypy.sh']
+    waitFor:
+      - build-builder
+
   - id: pytest
     name: gcr.io/$PROJECT_ID/pyfu-builder
     args: ['./ci/pytest_unit.sh']

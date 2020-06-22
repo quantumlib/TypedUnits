@@ -1,3 +1,5 @@
+from typing import Dict, Optional
+
 from . import _all_cythonized, unit_grammar
 
 
@@ -9,15 +11,17 @@ class UnitDatabase:
     known units.
     """
 
-    def __init__(self, auto_create_units=True):
+    def __init__(self, auto_create_units: bool = True):
         """
         :param auto_create_units: Determines if unrecognized strings are
         interpreted as new units or not by default.
         """
-        self.known_units = {}
+        self.known_units: Dict[str, _all_cythonized.WithUnit] = {}
         self.auto_create_units = auto_create_units
 
-    def get_unit(self, unit_name, auto_create=None):
+    def get_unit(
+        self, unit_name: str, auto_create: Optional[bool] = None
+    ) -> _all_cythonized.WithUnit:
         """
         :param str unit_name:
         :param None|bool auto_create: If this is set, a missing unit will be
@@ -32,7 +36,9 @@ class UnitDatabase:
             self.add_root_unit(unit_name)
         return self.known_units[unit_name]
 
-    def parse_unit_formula(self, formula, auto_create=None):
+    def parse_unit_formula(
+        self, formula: str, auto_create: Optional[bool] = None
+    ) -> _all_cythonized.WithUnit:
         """
         :param str formula: Describes a combination of units.
         :param None|bool auto_create: If this is set, missing unit strings will
@@ -64,7 +70,7 @@ class UnitDatabase:
         unit_val = self.get_unit(unit_name, auto_create)
         return unit_val ** (sign * float(numer) / denom)
 
-    def add_unit(self, unit_name, unit_base_value):
+    def add_unit(self, unit_name: str, unit_base_value: _all_cythonized.WithUnit) -> None:
         """
         Adds a unit to the database, pointing it at the given value.
         :param str unit_name: Key for the new unit.
@@ -79,7 +85,7 @@ class UnitDatabase:
             )
         self.known_units[unit_name] = unit_base_value
 
-    def add_root_unit(self, unit_name):
+    def add_root_unit(self, unit_name: str) -> None:
         """
         Adds a plain unit, not defined in terms of anything else, to the database.
         :param str unit_name: Key and unit array entry for the new unit.
@@ -90,7 +96,7 @@ class UnitDatabase:
         )
         self.add_unit(unit_name, unit)
 
-    def add_alternate_unit_name(self, alternate_name, unit_name):
+    def add_alternate_unit_name(self, alternate_name: str, unit_name: str) -> None:
         """
         Adds an alternate name for a unit, mapping to exactly the same value.
         :param str alternate_name: The new alternate name for the unit.

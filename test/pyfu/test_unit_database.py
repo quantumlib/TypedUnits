@@ -25,7 +25,7 @@ def val(value, conv=conv(), units=raw_UnitArray([]), display_units=None):
     return raw_WithUnit(value, conv, units, units if display_units is None else display_units)
 
 
-def test_auto_create():
+def test_auto_create() -> None:
     with pytest.raises(KeyError):
         UnitDatabase(auto_create_units=False).parse_unit_formula('tests')
 
@@ -34,7 +34,7 @@ def test_auto_create():
     assert 5 == 5 * u / u
 
 
-def test_auto_create_disabled_when_purposefully_adding_units():
+def test_auto_create_disabled_when_purposefully_adding_units() -> None:
     db = UnitDatabase(auto_create_units=True)
 
     with pytest.raises(KeyError):
@@ -213,19 +213,6 @@ def test_add_derived_unit_without_prefixes():
         db.get_unit('s_tails')
     with pytest.raises(KeyError):
         db.get_unit('super_t')
-
-
-def test_auto_create_disabled_when_purposefully_adding_units():
-    db = UnitDatabase(auto_create_units=True)
-
-    with pytest.raises(KeyError):
-        db.add_derived_unit_data(DerivedUnitData('d', 'der', 'missing'), [])
-
-    with pytest.raises(KeyError):
-        db.add_scaled_unit('new', 'missing')
-
-    with pytest.raises(KeyError):
-        db.add_alternate_unit_name('new', 'missing')
 
 
 def test_get_unit_auto_create_override():

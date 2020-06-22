@@ -1,5 +1,6 @@
 black==19.10b0
 cython>=0.29
+mypy==0.780
 numpy>=1.18.1
 pylint==2.5.*
 pyparsing

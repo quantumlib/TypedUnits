@@ -14,26 +14,26 @@ ValueArray = _all_cythonized.ValueArray
 WithUnit = _all_cythonized.WithUnit
 
 
-def _make_unit_database_from_unit_data():
+def _make_unit_database_from_unit_data() -> unit_database.UnitDatabase:
     db = unit_database.UnitDatabase()
     db.add_unit('', WithUnit(1))
 
     for base in base_unit_data.ALL_BASE_UNITS:
         db.add_base_unit_data(base, prefix_data.SI_PREFIXES)
 
-    for data in derived_unit_data.ALL_DERIVED_UNITS:
-        db.add_derived_unit_data(data, prefix_data.SI_PREFIXES)
+    for derived_data in derived_unit_data.ALL_DERIVED_UNITS:
+        db.add_derived_unit_data(derived_data, prefix_data.SI_PREFIXES)
 
-    for data in physical_constant_data.ALL_PHYSICAL_CONSTANT_DATA:
-        db.add_physical_constant_data(data)
+    for phys_const_data in physical_constant_data.ALL_PHYSICAL_CONSTANT_DATA:
+        db.add_physical_constant_data(phys_const_data)
 
     return db
 
 
-default_unit_database = _make_unit_database_from_unit_data()
+default_unit_database: unit_database.UnitDatabase = _make_unit_database_from_unit_data()
 
 
-def _try_interpret_as_with_unit(obj, avoid_ambiguity_with_indexing=False):
+def _try_interpret_as_with_unit(obj, avoid_ambiguity_with_indexing: bool = False):
     """
     This method is given to WithUnit so that it can do a convenient conversion
     from a user-given object (such as a string formula or a float or a WithUnit)
@@ -83,7 +83,7 @@ _all_cythonized.init_base_unit_functions(
 )
 
 
-def add_non_standard_unit(name, use_prefixes=False):
+def add_non_standard_unit(name: str, use_prefixes: bool = False) -> None:
     """
     :param str name:
     :param bool use_prefixes:

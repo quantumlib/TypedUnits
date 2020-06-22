@@ -2,6 +2,7 @@
 import math
 import random
 import time
+from typing import List, Optional
 
 import numpy as np
 
@@ -53,10 +54,10 @@ def _measure_duration(func, args_getter, repeats, expected_micros):
     return mean_duration, std_dev
 
 
-_perf_goal_results = []
+_perf_goal_results: List[Optional[str]] = []
 
 
-def perf_goal(avg_micros=0, avg_nanos=0, repeats=100, args=None):
+def perf_goal(avg_micros: int = 0, avg_nanos: int = 0, repeats: int = 100, args=None):
     """
     A decorator that turns a function into a perf test.
     :param avg_micros: Maximum acceptable average duration, in microseconds.

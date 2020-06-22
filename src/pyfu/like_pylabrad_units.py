@@ -13,11 +13,13 @@ ValueArray = _all_cythonized.ValueArray
 WithUnit = _all_cythonized.WithUnit
 
 
-class DimensionlessArray(ValueArray):
+# TODO: remove type ignores when mypy plays nicely with cython stubs. see
+# mypy.ini for github issue
+class DimensionlessArray(ValueArray):  # type: ignore
     pass
 
 
-class Unit(Value):
+class Unit(Value):  # type: ignore
     """
     Just a Value (WithValue), but with a constructor that accepts formulas.
     """
@@ -25,7 +27,7 @@ class Unit(Value):
     def __init__(self, obj):
         if not isinstance(obj, WithUnit):
             obj = _unit.default_unit_database.parse_unit_formula(obj)
-        super(Value, self).__init__(obj)
+        super().__init__(obj)
 
     @property
     def name(self):
