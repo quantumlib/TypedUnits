@@ -28,6 +28,12 @@ steps:
   # Test
   #
 
+  - id: shellcheck
+    name: gcr.io/$PROJECT_ID/pyfu-builder
+    args: ['./ci/shellcheck.sh']
+    waitFor:
+      - build-builder
+
   - id: format
     name: gcr.io/$PROJECT_ID/pyfu-builder
     args: ['black --check .']
