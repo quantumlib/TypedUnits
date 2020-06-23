@@ -257,18 +257,6 @@ def test_parse_float_formula():
     assert db.parse_unit_formula('2.06783276917e-15 J*s/C') == 2.06783276917e-15 * J * s / C
 
 
-def test_parse_float_formulas():
-    db = UnitDatabase(auto_create_units=False)
-    db.add_root_unit('J')
-    db.add_root_unit('s')
-    db.add_root_unit('C')
-    J = db.get_unit('J')
-    s = db.get_unit('s')
-    C = db.get_unit('C')
-
-    assert db.parse_unit_formula('2.06783276917e-15 J*s/C') == 2.06783276917e-15 * J * s / C
-
-
 def test_is_consistent_with_database():
     db = UnitDatabase(auto_create_units=True)
 
