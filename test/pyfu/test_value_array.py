@@ -5,22 +5,18 @@ from pyfu._all_cythonized import raw_WithUnit, raw_UnitArray
 from pyfu import ValueArray, UnitMismatchError
 
 
-def array_equals(a, b):
-    return np.asarray(a).shape == np.asarray(b).shape and np.all(a == b)
-
-
 def test_construction():
     from pyfu.units import ns, ps
 
     assert isinstance([1, 2, 3] * ns, ValueArray)
-    assert array_equals([1, 2, 3] * ns, [1000, 2000, 3000] * ps)
+    assert np.array_equal([1, 2, 3] * ns, [1000, 2000, 3000] * ps)
 
 
 def test_slicing():
     from pyfu.units import ms, ns
 
-    assert array_equals(([0, 1, 2, 3, 4] * ms)[3:], [3, 4] * ms)
-    assert array_equals(([0, 1, 2, 3, 4] * ns)[::2], [0, 2, 4] * ns)
+    assert np.array_equal(([0, 1, 2, 3, 4] * ms)[3:], [3, 4] * ms)
+    assert np.array_equal(([0, 1, 2, 3, 4] * ns)[::2], [0, 2, 4] * ns)
 
 
 def test_set_item():
@@ -34,15 +30,15 @@ def test_set_item():
     v[0] = 2 * km
     v[1] = 16 * m
 
-    assert array_equals(v, [2000, 16, 3000] * m)
+    assert np.array_equal(v, [2000, 16, 3000] * m)
 
 
 def test_addition():
     from pyfu.units import km, m
 
-    assert array_equals([1, 2, 3] * km + [2, 3, 5] * m, [1002, 2003, 3005] * m)
+    assert np.array_equal([1, 2, 3] * km + [2, 3, 5] * m, [1002, 2003, 3005] * m)
 
-    assert array_equals([1, 2, 3] * km + 5 * m, [1005, 2005, 3005] * m)
+    assert np.array_equal([1, 2, 3] * km + 5 * m, [1005, 2005, 3005] * m)
 
     with pytest.raises(UnitMismatchError):
         _ = 1.0 + [1, 2, 3] * km
@@ -51,9 +47,9 @@ def test_addition():
 def test_multiplication():
     from pyfu.units import km, m
 
-    assert array_equals(([1, 2, 3] * km) * ([2, 3, 5] * m), [2, 6, 15] * (km * m))
+    assert np.array_equal(([1, 2, 3] * km) * ([2, 3, 5] * m), [2, 6, 15] * (km * m))
 
-    assert array_equals(([1, 2, 3] * km) * 5j, [5j, 10j, 15j] * km)
+    assert np.array_equal(([1, 2, 3] * km) * 5j, [5j, 10j, 15j] * km)
 
     u = [1, 2, 3] * km
     assert isinstance(u, ValueArray)
@@ -69,7 +65,7 @@ def test_multiplication():
 def test_power():
     from pyfu.units import s
 
-    assert array_equals(([1, 2, 3] * s) ** 2, [1, 4, 9] * s * s)
+    assert np.array_equal(([1, 2, 3] * s) ** 2, [1, 4, 9] * s * s)
 
 
 def test_repr():
@@ -119,7 +115,7 @@ def test_array_dtype():
 
     a = np.array(s * [1, 2, 3] * dekahertz, dtype=np.complex)
     a += 1j
-    assert array_equals(a, [10 + 1j, 20 + 1j, 30 + 1j])
+    assert np.array_equal(a, [10 + 1j, 20 + 1j, 30 + 1j])
 
     b = np.array(s * [1, 2, 3] * dekahertz, dtype=np.float64)
     with pytest.raises(TypeError):
@@ -135,7 +131,7 @@ def test_multi_index():
 
     assert (m * [[2, 3], [4, 5], [6, 7]])[0, 0] == m * 2
 
-    assert array_equals((m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]])[1:3, 0:2], m * [[5, 6], [8, 9]])
+    assert np.array_equal((m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]])[1:3, 0:2], m * [[5, 6], [8, 9]])
 
     with pytest.raises(IndexError):
         _ = (m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]])[1:3, 25483]
@@ -145,7 +141,7 @@ def test_predicate_index():
     from pyfu.units import m
 
     v = m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]]
-    assert array_equals(v[v < 6 * m], [2, 3, 4, 5] * m)
+    assert np.array_equal(v[v < 6 * m], [2, 3, 4, 5] * m)
 
 
 def test_extract_unit():
@@ -154,17 +150,17 @@ def test_extract_unit():
     # Singleton.
     u = ValueArray(np.array([m * 2]).reshape(()))
     assert u.base_units == m.base_units
-    assert array_equals(u, np.array([2]).reshape(()) * m)
+    assert np.array_equal(u, np.array([2]).reshape(()) * m)
 
     # A line.
     u = ValueArray([m * 2, m * 3])
     assert u.base_units == m.base_units
-    assert array_equals(u, [2, 3] * m)
+    assert np.array_equal(u, [2, 3] * m)
 
     # Multidimensional.
     u = ValueArray(np.array([[m * 2, m * 3], [m * 4, m * 5]]))
     assert u.base_units == m.base_units
-    assert array_equals(u, np.array([[2, 3], [4, 5]]) * m)
+    assert np.array_equal(u, np.array([[2, 3], [4, 5]]) * m)
 
 
 def test_numpy_kron():
@@ -174,4 +170,4 @@ def test_numpy_kron():
     v = ns * [7, 11]
     w = np.kron(u, v)
     c = km * ns
-    assert array_equals(w, [14 * c, 22 * c, 21 * c, 33 * c, 35 * c, 55 * c])
+    assert np.array_equal(w, [14 * c, 22 * c, 21 * c, 33 * c, 35 * c, 55 * c])
