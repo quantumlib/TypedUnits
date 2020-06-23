@@ -215,26 +215,6 @@ def test_add_derived_unit_without_prefixes():
         db.get_unit('super_t')
 
 
-def test_get_unit_auto_create_override():
-    db_auto = UnitDatabase(auto_create_units=True)
-    db_manual = UnitDatabase(auto_create_units=False)
-
-    u = db_auto.get_unit('missing')
-    assert str(u) == 'missing'
-    with pytest.raises(KeyError):
-        db_manual.get_unit('missing')
-
-    with pytest.raises(KeyError):
-        db_manual.get_unit('gone', auto_create=False)
-    with pytest.raises(KeyError):
-        db_manual.get_unit('gone', auto_create=False)
-
-    u = db_auto.get_unit('empty', auto_create=True)
-    assert str(u) == 'empty'
-    u = db_manual.get_unit('empty', auto_create=True)
-    assert str(u) == 'empty'
-
-
 def test_kilogram_special_case():
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(BaseUnitData('kg', 'kilogram'), SI_PREFIXES)
