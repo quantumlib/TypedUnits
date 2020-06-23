@@ -4,7 +4,7 @@ import pytest
 from pyfu import Value, Complex, UnitMismatchError
 
 
-def test_construction():
+def test_construction() -> None:
     x = 2 * Value(1, '')
     y = Value(5, 'ns')
     assert isinstance(x, Value)
@@ -13,7 +13,7 @@ def test_construction():
     assert isinstance(3j * x, Complex)
 
 
-def test_dimensionless():
+def test_dimensionless() -> None:
     """Test that dimensionless values act like floats"""
     x = Value(1.5, '')
     y = Value(1.5, 'us/ns')
@@ -111,7 +111,7 @@ def test_conversion():
     assert x.inUnitsOf('mm') == 3000 * mm
 
 
-def test_parsing_by_comparison():
+def test_parsing_by_comparison() -> None:
     assert Value(1, 'in') < Value(1, 'm')
     assert Value(1, 'cm') < Value(1, 'in')
     assert Value(1, 'gauss') < Value(1, 'mT')
@@ -126,7 +126,7 @@ def test_parsing_by_comparison():
     assert Value(1, '') == Value(1, 'm/m')
 
 
-def test_radians_vs_steradians():
+def test_radians_vs_steradians() -> None:
     assert Value(1, 'rad') != Value(1, 'sr')
     assert Value(2, 'rad') ** 2 == Value(4, 'sr')
     assert Value(16, 'rad') == Value(256, 'sr') ** 0.5
@@ -176,7 +176,7 @@ def test_decibels_vs_decibel_milliwatts():
     assert not dBm.isCompatible(dB * W)
 
 
-def test_hash():
+def test_hash() -> None:
     x = Value(3, 'ks')
     y = Value(3000, 's')
     assert hash(x) == hash(y)

@@ -8,7 +8,7 @@ ValueArray = fu.ValueArray
 Value = fu.Value
 
 
-def test_arithmetic():
+def test_arithmetic() -> None:
     m = fu.Unit('m')
     kg = fu.Unit('kg')
     km = fu.Unit('km')
@@ -26,7 +26,7 @@ def test_arithmetic():
     assert 1.0 * kg is not None
 
 
-def test_value_array():
+def test_value_array() -> None:
     # Slicing
     assert (ValueArray([1, 2, 3], 'm')[0:2] == ValueArray([1, 2], 'm')).all()
     # Cast to unit
@@ -49,7 +49,7 @@ def test_value_array():
     assert (ValueArray([2, 3], 'GHz') * Value(3, 'ns')).dtype == np.float64
 
 
-def test_dimensionless_angle():
+def test_dimensionless_angle() -> None:
     a = np.array(fu.DimensionlessArray([1, 2, 3]))
     assert len(a) == 3
     assert a[0] == 1
@@ -57,17 +57,17 @@ def test_dimensionless_angle():
     assert a[2] == 3
 
 
-def test_is_finite():
+def test_is_finite() -> None:
     assert np.isfinite(ValueArray([1, 2], '')).all()
     assert (np.isfinite(ValueArray([1, float('nan')], '')) == np.array([True, False])).all()
 
 
-def test_negative_powers():
+def test_negative_powers() -> None:
     assert str(fu.Unit('1/s')) in ['s^-1', '1/s']
     assert str(fu.Unit('1/s^1/2')) in ['s^-1/2', '1/s^(1/2)']
 
 
-def test_type_conversions():
+def test_type_conversions() -> None:
     m = fu.Unit('m')
     V = fu.Unit('V')
     GHz = fu.Unit('GHz')
@@ -132,7 +132,7 @@ def test_type_conversions():
     assert isinstance(va * a, fu.ValueArray)
 
 
-def test_comparison():
+def test_comparison() -> None:
     s = fu.Unit('s')
     ms = fu.Unit('ms')
     kg = fu.Unit('kg')
@@ -195,7 +195,7 @@ def test_angle():
         _ = float(2.0 * rad)
 
 
-def test_inf_nan():
+def test_inf_nan() -> None:
     ms = fu.Unit('ms')
     GHz = fu.Unit('GHz')
     MHz = fu.Unit('MHz')
@@ -214,16 +214,16 @@ def test_in_units_of():
     assert (1 * s).inUnitsOf('ms') == 1000 * ms
 
 
-def test_base_unit_powers():
+def test_base_unit_powers() -> None:
     x = Value(1, 'ns^2')
     assert x.inBaseUnits() == Value(1e-18, 's^2')
 
 
-def test_unit_powers():
+def test_unit_powers() -> None:
     assert fu.Unit('ns') ** 2 == fu.Unit('ns^2')
 
 
-def test_array_priority():
+def test_array_priority() -> None:
     """numpy issue 6133
 
     DimensionlessX needs to support all arithmetic operations when the
@@ -242,7 +242,7 @@ def test_array_priority():
     assert ((x < z) == [False, False, True, True, True]).all()
 
 
-def test_none():
+def test_none() -> None:
     with pytest.raises(Exception):
         fu.Unit(None)
     with pytest.raises(TypeError):
@@ -389,7 +389,7 @@ def test_unwrap_value_array():
     assert a[3] == ns * 4
 
 
-def test_real_imag():
+def test_real_imag() -> None:
     value = Value(1, 'GHz')
     assert isinstance(value.real, Value)
     assert isinstance(value.imag, Value)
@@ -409,7 +409,7 @@ def test_real_imag():
     assert all(complex_value_array.imag == ValueArray([0, 1, 2], 'GHz'))
 
 
-def test_units_rounding():
+def test_units_rounding() -> None:
     GHz = fu.Unit('GHz')
     MHz = fu.Unit('MHz')
 
