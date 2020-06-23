@@ -32,11 +32,6 @@ def val(value, conv=conv(), units=dimensionless, display_units=None):
     return raw_WithUnit(value, conv, units, units if display_units is None else display_units)
 
 
-def numpy_array_equal(a, b):
-    # noinspection PyTypeChecker
-    return len(a) == len(b) and np.all(a == b)
-
-
 def deep_equal(a, b):
     """Compares value, units, numerator, denominator, and exponent.
 
@@ -48,13 +43,13 @@ def deep_equal(a, b):
        bool, whether a and b have exactly the same properties.
     """
     if isinstance(a, ValueArray):
-        if not numpy_array_equal(a, b):
+        if not np.array_equal(a, b):
             return False
     else:
         if a != b:
             return False
     if isinstance(a, ValueArray):
-        if not numpy_array_equal(a.value, b.value):
+        if not np.array_equal(a.value, b.value):
             return False
     else:
         if a.value != b.value:
@@ -178,19 +173,19 @@ def test_ordering():
 
 
 def test_array_equality():
-    assert numpy_array_equal(5 == val([]), [])
-    assert numpy_array_equal([] == val([], conv(2), mps), [])
-    assert numpy_array_equal([1] == val([0]), [False])
-    assert numpy_array_equal([1] == val([1]), [True])
-    assert numpy_array_equal([1, 2] == val([3, 4]), [False, False])
-    assert numpy_array_equal([1, 2] == val(np.array([3, 4])), [False, False])
-    assert numpy_array_equal([1, 2] == val([1, 2]), [True, True])
-    assert numpy_array_equal([1, 2] == val([9, 2]), [False, True])
-    assert numpy_array_equal([1, 2] == val([1, 9]), [True, False])
-    assert numpy_array_equal([1, 2] == val([1, 2], units=m), [False, False])
-    assert numpy_array_equal(val([1, 2], units=s) == val([1, 2], units=m), [False, False])
-    assert numpy_array_equal(val([1, 2], units=m) == val([1, 2], units=m), [True, True])
-    assert numpy_array_equal([1, 2] == val([0.5, 1], conv(2)), [True, True])
+    assert np.array_equal(5 == val([]), [])
+    assert np.array_equal([] == val([], conv(2), mps), [])
+    assert np.array_equal([1] == val([0]), [False])
+    assert np.array_equal([1] == val([1]), [True])
+    assert np.array_equal([1, 2] == val([3, 4]), [False, False])
+    assert np.array_equal([1, 2] == val(np.array([3, 4])), [False, False])
+    assert np.array_equal([1, 2] == val([1, 2]), [True, True])
+    assert np.array_equal([1, 2] == val([9, 2]), [False, True])
+    assert np.array_equal([1, 2] == val([1, 9]), [True, False])
+    assert np.array_equal([1, 2] == val([1, 2], units=m), [False, False])
+    assert np.array_equal(val([1, 2], units=s) == val([1, 2], units=m), [False, False])
+    assert np.array_equal(val([1, 2], units=m) == val([1, 2], units=m), [True, True])
+    assert np.array_equal([1, 2] == val([0.5, 1], conv(2)), [True, True])
 
 
 def test_array_ordering():
@@ -200,18 +195,10 @@ def test_array_ordering():
         _ = val([]) <= val([], units=m)
         _ = val([]) >= val([], units=m)
 
-    assert numpy_array_equal(
-        val([2, 3, 4], units=m) < val([3, 3, 3], units=m), [True, False, False]
-    )
-    assert numpy_array_equal(
-        val([2, 3, 4], units=m) <= val([3, 3, 3], units=m), [True, True, False]
-    )
-    assert numpy_array_equal(
-        val([2, 3, 4], units=m) >= val([3, 3, 3], units=m), [False, True, True]
-    )
-    assert numpy_array_equal(
-        val([2, 3, 4], units=m) > val([3, 3, 3], units=m), [False, False, True]
-    )
+    assert np.array_equal(val([2, 3, 4], units=m) < val([3, 3, 3], units=m), [True, False, False])
+    assert np.array_equal(val([2, 3, 4], units=m) <= val([3, 3, 3], units=m), [True, True, False])
+    assert np.array_equal(val([2, 3, 4], units=m) >= val([3, 3, 3], units=m), [False, True, True])
+    assert np.array_equal(val([2, 3, 4], units=m) > val([3, 3, 3], units=m), [False, False, True])
 
 
 def test_int():
@@ -279,20 +266,20 @@ def test_array():
     u = np.array(val([1, 2], units=m))
     assert isinstance(u, np.ndarray)
     assert isinstance(u[0], Value)
-    assert numpy_array_equal([val(1, units=m), val(2, units=m)], u)
+    assert np.array_equal([val(1, units=m), val(2, units=m)], u)
 
     u = np.array(val([val(2, units=m), val(3, units=m)]))
     assert isinstance(u, np.ndarray)
     assert isinstance(u[0], float)
-    assert numpy_array_equal([2, 3], u)
+    assert np.array_equal([2, 3], u)
 
     u = np.array(val([2, 3]))
     assert isinstance(u, np.ndarray)
-    assert numpy_array_equal([2, 3], u)
+    assert np.array_equal([2, 3], u)
 
     u = np.array(val([2, 3 + 1j], conv(2, 3, 4, 5)))
     assert isinstance(u, np.ndarray)
-    assert numpy_array_equal([300000, 450000 + 150000j], u)
+    assert np.array_equal([300000, 450000 + 150000j], u)
 
 
 def test_copy():
@@ -307,13 +294,13 @@ def test_copy():
     c = val([10, 11], conv(3, 4, 5, 6), mps, kph)
     assert c is not copy.copy(c)
     assert c is not copy.deepcopy(c)
-    assert numpy_array_equal(c, copy.copy(c))
-    assert numpy_array_equal(c, copy.deepcopy(c))
+    assert np.array_equal(c, copy.copy(c))
+    assert np.array_equal(c, copy.deepcopy(c))
 
     # Copy can be edited independently.
     c2 = copy.copy(c)
     c[1] = val(42, units=mps)
-    assert not numpy_array_equal(c, c2)
+    assert not np.array_equal(c, c2)
 
 
 def test_addition():
@@ -325,7 +312,7 @@ def test_addition():
         _ = val(2, units=m) + 3
 
     assert val(2) + val(3 + 1j) == 5 + 1j
-    assert numpy_array_equal(val(2) + val([2, 3]), val([4, 5]))
+    assert np.array_equal(val(2) + val([2, 3]), val([4, 5]))
 
     a = val(7, conv(5), units=s)
     b = val(3, units=s)
@@ -367,7 +354,7 @@ def test_subtraction():
         _ = val(2, units=m) - 3
 
     assert val(2) - val(5 + 1j) == -3 - 1j
-    assert numpy_array_equal(val(2) - val([2, 3]), val([0, -1]))
+    assert np.array_equal(val(2) - val([2, 3]), val([0, -1]))
 
     a = val(7, conv(5), units=s)
     b = val(3, units=s)
@@ -488,10 +475,10 @@ def test_numpy_method_is_finite():
         np.isfinite(val([1], units=m))
 
     v = val([2, 3, -2, float('nan'), float('inf')], conv(1, 2, 3, 4))
-    assert numpy_array_equal(np.isfinite(v), [True, True, True, False, False])
+    assert np.array_equal(np.isfinite(v), [True, True, True, False, False])
 
     v = val([[2, 3], [-2, float('nan')]])
-    assert numpy_array_equal(np.isfinite(v), [[True, True], [True, False]])
+    assert np.array_equal(np.isfinite(v), [[True, True], [True, False]])
 
 
 def test_get_item():
