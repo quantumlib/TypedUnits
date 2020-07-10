@@ -10,4 +10,4 @@ echo "${shell_files[@]}" | tr ' ' '\n' | sed 's/^/    /'
 
 echo
 
-shellcheck --external-sources "${shell_files[@]}"
+/usr/local/bin/shellcheck --external-sources "${shell_files[@]}"
