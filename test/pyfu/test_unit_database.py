@@ -88,7 +88,11 @@ def test_add_root_unit():
 def test_add_base_unit_with_prefixes():
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(
-        BaseUnitData('b', 'base', True), [PrefixData('p_', 'pre_', 1), PrefixData('q_', 'qu_', 2),]
+        BaseUnitData('b', 'base', True),
+        [
+            PrefixData('p_', 'pre_', 1),
+            PrefixData('q_', 'qu_', 2),
+        ],
     )
 
     # Long form *is* short form.
@@ -119,7 +123,11 @@ def test_add_base_unit_with_prefixes():
 def test_add_base_unit_without_prefixes():
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(
-        BaseUnitData('b', 'base', False), [PrefixData('p_', 'pre_', 1), PrefixData('q_', 'qu_', 2),]
+        BaseUnitData('b', 'base', False),
+        [
+            PrefixData('p_', 'pre_', 1),
+            PrefixData('q_', 'qu_', 2),
+        ],
     )
 
     # Long form *is* short form.
@@ -166,7 +174,10 @@ def test_add_derived_unit_with_prefixes():
             denominator=2,
             use_prefixes=True,
         ),
-        [PrefixData('s_', 'super_', 1), PrefixData('d_', 'duper_', 2),],
+        [
+            PrefixData('s_', 'super_', 1),
+            PrefixData('d_', 'duper_', 2),
+        ],
     )
 
     v = db.get_unit('shirts') * 7.0 * (10 ** 5 * 3) / 2

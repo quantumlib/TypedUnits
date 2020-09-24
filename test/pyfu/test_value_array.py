@@ -89,7 +89,14 @@ def test_repr():
     # Fallback case.
     v = raw_WithUnit(
         [1, 2, 3],
-        {'factor': 3.0, 'ratio': {'numer': 2, 'denom': 5,}, 'exp10': 10},
+        {
+            'factor': 3.0,
+            'ratio': {
+                'numer': 2,
+                'denom': 5,
+            },
+            'exp10': 10,
+        },
         raw_UnitArray([('muffin', 1, 1)]),
         raw_UnitArray([('cookie', 1, 1)]),
     )

@@ -1,4 +1,4 @@
-black==19.10b0
+black==20.8b1
 cython>=0.29
 mypy==0.780
 numpy>=1.18.1

@@ -103,7 +103,10 @@ def test_equality():
             val(1, conv(factor=2, numer=5, denom=4, exp10=5), mps, kph),
             val(1, conv(factor=2, numer=5, denom=4, exp10=5), mps, s),
         ],
-        [val(-1, units=s, display_units=m), val(-1, units=s, display_units=s),],
+        [
+            val(-1, units=s, display_units=m),
+            val(-1, units=s, display_units=s),
+        ],
         # Varying each parameter causes differences.
         [val(9, conv(factor=2, numer=5, denom=4, exp10=5), mps, kph)],
         [val(1, conv(factor=9, numer=5, denom=4, exp10=5), mps, kph)],
