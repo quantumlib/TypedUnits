@@ -1,7 +1,14 @@
-from distutils.core import setup
-from Cython.Build import cythonize
 import os.path
+import setuptools  # type: ignore
+
+from Cython.Build import cythonize
 
 os.chdir(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'src'))
 
-setup(ext_modules=cythonize("pyfu/_all_cythonized.pyx"), requires=['Cython', 'numpy'])
+setuptools.setup(
+    name="pyfu",
+    version="0.0.1",
+    packages=setuptools.find_packages(),
+    ext_modules=cythonize("pyfu/_all_cythonized.pyx", compiler_directives={'language_level': 3}),
+    requires=['Cython', 'numpy'],
+)
