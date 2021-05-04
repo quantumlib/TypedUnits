@@ -1,14 +1,15 @@
 #!/usr/bin/env bash
 
-set -e
+set -Eeuo pipefail
 
-readonly repo_root=$(git rev-parse --show-toplevel)
+REPO_ROOT=$(git rev-parse --show-toplevel)
+readonly REPO_ROOT
 
 args=( "$@" )
 if [ "$#" -eq 0 ]; then
-  args=("$repo_root")
+  args=("$REPO_ROOT")
 elif [ "$#" -eq 1 ] && [ "$1" = "--check" ]; then
-  args=("--check" "$repo_root")
+  args=("--check" "$REPO_ROOT")
 fi
 
 black "${args[@]}"

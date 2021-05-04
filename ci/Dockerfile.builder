@@ -1,6 +1,6 @@
 FROM python:3.8-buster
 
-COPY --from=koalaman/shellcheck:v0.7.1 /bin/shellcheck /usr/local/bin/
+COPY --from=koalaman/shellcheck:v0.7.2 /bin/shellcheck /usr/local/bin/
 
 COPY requirements.txt .
 
