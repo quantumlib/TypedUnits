@@ -180,7 +180,7 @@ def test_add_derived_unit_with_prefixes():
         ],
     )
 
-    v = db.get_unit('shirts') * 7.0 * (10 ** 5 * 3) / 2
+    v = db.get_unit('shirts') * 7.0 * (10**5 * 3) / 2
 
     assert db.get_unit('tails') == v
     assert db.get_unit('t') == v
@@ -212,7 +212,7 @@ def test_add_derived_unit_without_prefixes():
         [PrefixData('s_', 'super_', 1)],
     )
 
-    v = db.get_unit('shirts') * 7 * (10 ** 5 * 3) / 2
+    v = db.get_unit('shirts') * 7 * (10**5 * 3) / 2
 
     assert db.get_unit('tails') == v
     assert db.get_unit('t') == v
@@ -247,12 +247,12 @@ def test_parse_unit_formula():
         db.parse_unit_formula('cats^dogs')
 
     assert db.parse_unit_formula('cats') == cats
-    assert db.parse_unit_formula('cats^2') == cats ** 2
-    assert db.parse_unit_formula('cats^-2') == cats ** -2
-    assert db.parse_unit_formula('cats*cats') == cats ** 2
+    assert db.parse_unit_formula('cats^2') == cats**2
+    assert db.parse_unit_formula('cats^-2') == cats**-2
+    assert db.parse_unit_formula('cats*cats') == cats**2
     assert db.parse_unit_formula('cats*dogs') == cats * dogs
     assert db.parse_unit_formula('cats/dogs') == cats / dogs
-    assert db.parse_unit_formula('cats/dogs^2') == cats / dogs ** 2
+    assert db.parse_unit_formula('cats/dogs^2') == cats / dogs**2
     assert db.parse_unit_formula('cats/dogs*mice') == (cats / dogs) * mice
 
 

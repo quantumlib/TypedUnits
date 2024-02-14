@@ -190,7 +190,7 @@ def test_angle():
     x = fu.Unit('rad*m/s')
     assert not x.is_angle
     assert not (3.14 * rad).isDimensionless()
-    assert not (3.14 * rad ** 2).isDimensionless()
+    assert not (3.14 * rad**2).isDimensionless()
     with pytest.raises(UnitMismatchError):
         _ = float(2.0 * rad)
 
@@ -254,7 +254,7 @@ def test_non_si():
     x = 5 * fu.Unit('kcount')
     assert x['count'] == 5000.0
     assert x.inBaseUnits() == 5000.0 * fu.Unit('count')
-    assert (x ** 2).unit == fu.Unit('kcount^2')
+    assert (x**2).unit == fu.Unit('kcount^2')
 
 
 def test_unit_auto_creation():
@@ -300,7 +300,7 @@ def test_equality_against_formulas():
     assert s != 'm'
 
     assert J / s == 'W'
-    assert J / m ** 2 * s * s == 'kg'
+    assert J / m**2 * s * s == 'kg'
 
     # This behavior is specific to the compatibility layer.
     from pyfu.units import kilogram as not_compatible_kilogram
@@ -311,8 +311,8 @@ def test_equality_against_formulas():
 def test_sqrt():
     from pyfu.like_pylabrad_units import kg, kiloliter, m
 
-    assert (kg ** 2).sqrt() == kg
-    assert kiloliter.sqrt() == m ** 1.5
+    assert (kg**2).sqrt() == kg
+    assert kiloliter.sqrt() == m**1.5
 
 
 def test_is_compatible():
@@ -336,10 +336,10 @@ def test_scaled_get_item():
     from pyfu.like_pylabrad_units import ns, s
 
     v = s * 1.0
-    assert v[ns] == 10 ** 9
-    assert v[ns * 2] == 10 ** 9 / 2
-    assert (v * 3)[(ns * 3)] == 10 ** 9
-    assert (5 * s / ns)[''] == 5 * 10 ** 9
+    assert v[ns] == 10**9
+    assert v[ns * 2] == 10**9 / 2
+    assert (v * 3)[(ns * 3)] == 10**9
+    assert (5 * s / ns)[''] == 5 * 10**9
 
 
 def test_flatten_value_units():

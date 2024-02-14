@@ -21,12 +21,12 @@ def maybe_parens(token):
     return token ^ ('(' + token + ')')
 
 
-scalar = Combine(
+scalar_combine = Combine(
     Word('+-' + nums, nums)
     + Optional('.' + Optional(Word(nums)))
     + Optional('e' + Word('+-' + nums, nums))
 )
-scalar = scalar.setParseAction(lambda s, l, t: [float(t[0])])('factor')
+scalar = scalar_combine.setParseAction(lambda s, l, t: [float(t[0])])('factor')
 
 number = Word(nums).setParseAction(lambda s, l, t: [int(t[0])])
 name = Word(alphas, alphanums)

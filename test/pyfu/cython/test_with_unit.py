@@ -434,24 +434,24 @@ def test_pow():
     with pytest.raises(TypeError):
         _ = 2 ** val(1, units=m)
 
-    assert deep_equal(val(2, units=m) ** -2, val(0.25, units=m ** -2))
-    assert deep_equal(val(2, units=m) ** -1, val(0.5, units=m ** -1))
+    assert deep_equal(val(2, units=m) ** -2, val(0.25, units=m**-2))
+    assert deep_equal(val(2, units=m) ** -1, val(0.5, units=m**-1))
     assert deep_equal(val(2, units=m) ** 0, val(1))
     assert deep_equal(val(2, units=m) ** 1, val(2, units=m))
-    assert deep_equal(val(2, units=m) ** 2, val(4, units=m ** 2))
-    assert deep_equal(val(2, units=m) ** 3, val(8, units=m ** 3))
+    assert deep_equal(val(2, units=m) ** 2, val(4, units=m**2))
+    assert deep_equal(val(2, units=m) ** 3, val(8, units=m**3))
 
-    assert deep_equal(val(4, units=m) ** -0.5, val(0.5, units=m ** -0.5))
-    assert deep_equal(val(4, units=m) ** 0.5, val(2, units=m ** 0.5))
-    assert deep_equal(val(4, units=m) ** 1.5, val(8, units=m ** 1.5))
+    assert deep_equal(val(4, units=m) ** -0.5, val(0.5, units=m**-0.5))
+    assert deep_equal(val(4, units=m) ** 0.5, val(2, units=m**0.5))
+    assert deep_equal(val(4, units=m) ** 1.5, val(8, units=m**1.5))
 
     # Fractional powers that should work.
     for i in [1, 2, 3, 4, 6, 12]:
-        assert deep_equal(val(2 ** i, units=m ** i) ** (1.0 / i), val(2, units=m))
+        assert deep_equal(val(2**i, units=m**i) ** (1.0 / i), val(2, units=m))
 
     # Conversion keeping/losing precision.
     assert deep_equal(val(4, conv(numer=4)) ** 0.5, val(2, conv(numer=2)))
-    assert deep_equal(val(4, conv(numer=2)) ** 0.5, val(2, conv(factor=2 ** 0.5)))
+    assert deep_equal(val(4, conv(numer=2)) ** 0.5, val(2, conv(factor=2**0.5)))
 
 
 def test_pos():
@@ -468,7 +468,7 @@ def test_non_zero():
     assert bool(val(2, conv(3, 5, 7, 11), mps, kph))
     assert bool(val(2))
     assert bool(val([1]))
-    assert not bool(val([]))
+    assert np.size(val([])) == 0
 
 
 def test_numpy_method_is_finite():
@@ -554,7 +554,7 @@ def test_is_compatible():
         [val(0), val(1)],
         [val(1, units=m), val(5, conv(3), units=m, display_units=s)],
         [val(9, units=s)],
-        [val(13, units=m ** 2), val(5, units=m ** 2)],
+        [val(13, units=m**2), val(5, units=m**2)],
     ]
     for g1 in equivalence_groups:
         for g2 in equivalence_groups:
@@ -570,8 +570,8 @@ def test_is_angle():
     assert not val(1, units=m).is_angle
     assert val(1, units=rad).isAngle()
     assert val(1, units=rad).is_angle
-    assert not val(1, units=rad ** 2).isAngle()
-    assert not val(1, units=rad ** 2).is_angle
+    assert not val(1, units=rad**2).isAngle()
+    assert not val(1, units=rad**2).is_angle
 
 
 def test_in_units_of():

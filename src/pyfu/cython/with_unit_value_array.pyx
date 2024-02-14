@@ -11,7 +11,7 @@ class ValueArray(WithUnit):
         the items.
         """
         if unit is not None:
-            unit = __try_interpret_as_with_unit(unit)
+            unit = _try_interpret_as_with_unit(unit)
 
         # If the items have units, we're supposed to extract a shared unit.
         data = np.asarray(data)
@@ -61,7 +61,7 @@ class ValueArray(WithUnit):
             return np.asarray(conversion_to_double(self.conv) * self.value,
                               dtype=dtype)
 
-        unit_array = np.full_like(self.value, self.unit, dtype=np.object)
+        unit_array = np.full_like(self.value, self.unit, dtype=object)
         result = self.value * unit_array
         return np.asarray(result)
 

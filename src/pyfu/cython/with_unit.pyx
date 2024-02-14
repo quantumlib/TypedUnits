@@ -106,7 +106,7 @@ cdef class WithUnit:
             return
 
         cdef WithUnit unit_val = WithUnit(1) if unit is None else \
-            __try_interpret_as_with_unit(unit)
+            _try_interpret_as_with_unit(unit)
         if unit_val is None:
             raise ValueError("Bad WithUnit scaling value: " + repr(value))
         unit_val *= value
@@ -157,8 +157,18 @@ cdef class WithUnit:
 
         return right.__with_value(left.value * c + right.value)
 
+    def __radd__(self, b):
+        if isinstance(b, (int, float, complex)):
+            return self + b
+        return NotImplemented
+
     def __sub__(a, b):
         return a + -b
+
+    def __rsub__(self, b):
+        if isinstance(b, (int, float, complex)):
+            return -(self-b)
+        return NotImplemented
 
     def __mul__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
@@ -168,9 +178,24 @@ cdef class WithUnit:
                             left.base_units * right.base_units,
                             left.display_units * right.display_units)
 
+    def __rmul__(self, b):
+        if isinstance(b, (int, float, complex, tuple, list, np.ndarray)):
+            return self * b
+        return NotImplemented
+
     def __truediv__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)
+        return raw_WithUnit(left.value / right.value,
+                            conversion_div(left.conv, right.conv),
+                            left.base_units / right.base_units,
+                            left.display_units / right.display_units)
+
+    def __rtruediv__(self, b):
+        if not isinstance(b, (int, float, complex, tuple, list, np.ndarray)):
+            return NotImplemented
+        cdef WithUnit left = _in_WithUnit(b)
+        cdef WithUnit right = _in_WithUnit(self)
         return raw_WithUnit(left.value / right.value,
                             conversion_div(left.conv, right.conv),
                             left.base_units / right.base_units,
@@ -191,6 +216,11 @@ cdef class WithUnit:
 
     def __floordiv__(a, b):
         return divmod(a, b)[0]
+
+    def __rfloordiv__(self, b):
+        if isinstance(b, (int, float, complex)):
+            return divmod(b, self)[0]
+        return NotImplemented
 
     def __mod__(a, b):
         return divmod(a, b)[1]
@@ -325,7 +355,7 @@ cdef class WithUnit:
         return (val_str + " " + unit_str).strip()
 
     def __repr__(WithUnit self):
-        if __is_value_consistent_with_default_unit_database(self):
+        if _is_value_consistent_with_default_unit_database(self):
             return "%s(%s, '%s')" % (
                 type(self).__name__,
                 repr(self.value),
@@ -392,7 +422,7 @@ cdef class WithUnit:
         """
         cdef WithUnit unit_val
         if isinstance(key, WithUnit) or isinstance(key, str):
-            unit_val = __try_interpret_as_with_unit(key, True)
+            unit_val = _try_interpret_as_with_unit(key, True)
             if unit_val is None:
                 raise TypeError("Bad unit key: " + repr(key))
             if self.base_units != unit_val.base_units:
@@ -412,13 +442,13 @@ cdef class WithUnit:
         raise TypeError("'WithUnit' object is not iterable")
 
     def isCompatible(self, unit):
-        cdef WithUnit other = __try_interpret_as_with_unit(unit)
+        cdef WithUnit other = _try_interpret_as_with_unit(unit)
         if other is None:
             raise ValueError("Bad unit key: " + repr(unit))
         return self.base_units == other.base_units
 
     def inUnitsOf(WithUnit self, unit, should_round=False):
-        cdef WithUnit unit_val = __try_interpret_as_with_unit(unit)
+        cdef WithUnit unit_val = _try_interpret_as_with_unit(unit)
         if unit_val is None:
             raise ValueError("Bad unit key: " + repr(unit))
         if self.base_units != unit_val.base_units:
@@ -447,7 +477,7 @@ cdef class WithUnit:
                 conversion_to_double(self.conv) * self.value,
                 dtype=dtype)
 
-        result = np.empty(dtype=np.object, shape=())
+        result = np.empty(dtype=object, shape=())
         result[()] = self
         return result
 
@@ -463,13 +493,13 @@ cdef class WithUnit:
                and isinstance(self, Value)
                and (self.value==0))
 
-__try_interpret_as_with_unit = None
-__is_value_consistent_with_default_unit_database = None
+_try_interpret_as_with_unit = None
+_is_value_consistent_with_default_unit_database = None
 def init_base_unit_functions(
         try_interpret_as_with_unit,
         is_value_consistent_with_default_unit_database):
-    global __try_interpret_as_with_unit
-    global __is_value_consistent_with_default_unit_database
-    __try_interpret_as_with_unit = try_interpret_as_with_unit
-    __is_value_consistent_with_default_unit_database = \
+    global _try_interpret_as_with_unit
+    global _is_value_consistent_with_default_unit_database
+    _try_interpret_as_with_unit = try_interpret_as_with_unit
+    _is_value_consistent_with_default_unit_database = \
             is_value_consistent_with_default_unit_database

@@ -74,10 +74,8 @@ def test_repr():
     assert repr([] * s) == "ValueArray(array([], dtype=float64), 's')"
     assert repr([2, 3] * km) == "ValueArray(array([2., 3.]), 'km')"
     assert repr([3j] * km * kg) == "ValueArray(array([0.+3.j]), 'kg*km')"
-    assert repr([-1] * km ** 2 / kg ** 3 * s) == "ValueArray(array([-1.]), 'km^2*s/kg^3')"
-    assert (
-        repr([-1] * km ** (2 / 3.0) / kg ** 3 * s) == "ValueArray(array([-1.]), 'km^(2/3)*s/kg^3')"
-    )
+    assert repr([-1] * km**2 / kg**3 * s) == "ValueArray(array([-1.]), 'km^2*s/kg^3')"
+    assert repr([-1] * km ** (2 / 3.0) / kg**3 * s) == "ValueArray(array([-1.]), 'km^(2/3)*s/kg^3')"
 
     # Numpy abbreviation is allowed.
     assert (
@@ -113,14 +111,14 @@ def test_repr():
 def test_str():
     from pyfu.units import mm
 
-    assert str([] * mm ** 3) == '[] mm^3'
+    assert str([] * mm**3) == '[] mm^3'
     assert str([2, 3, 5] * mm) == '[2. 3. 5.] mm'
 
 
 def test_array_dtype():
     from pyfu.units import dekahertz, s
 
-    a = np.array(s * [1, 2, 3] * dekahertz, dtype=np.complex)
+    a = np.array(s * [1, 2, 3] * dekahertz, dtype=complex)
     a += 1j
     assert np.array_equal(a, [10 + 1j, 20 + 1j, 30 + 1j])
 

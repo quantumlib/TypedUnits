@@ -59,10 +59,10 @@ def test_power():
     x = 2 * mm
     y = 4 * mm
     z = (x * y) ** 0.5
-    assert abs(z ** 2 - Value(8, 'mm^2')) < Value(1e-6, mm ** 2)
+    assert abs(z**2 - Value(8, 'mm^2')) < Value(1e-6, mm**2)
     assert Value(16000000, 'um^2') ** 0.5 == 4 * mm
     assert (16 * um * m) ** 0.5 == 4 * mm
-    assert (minute ** 2) ** 0.5 == minute
+    assert (minute**2) ** 0.5 == minute
     assert (1000 * m * km) ** 0.5 == km
     assert np.isclose((60 * s * minute) ** 0.5 / s, minute / s)
 
@@ -82,7 +82,7 @@ def test_str():
     assert str(Value(4, mm)) == '4.0 mm'
     assert str(2 * meter * kilometer) == '2.0 km*m'
     assert str(cyc) == 'cyc'
-    assert str(3.25 * cyc ** 2) == '3.25 cyc^2'
+    assert str(3.25 * cyc**2) == '3.25 cyc^2'
     assert str(3.25 * cyc * rad) == '3.25 cyc*rad'
     assert str((4 * kilometer) ** 0.5) == '2.0 km^(1/2)'
 
@@ -158,7 +158,7 @@ def test_get_item():
     with pytest.raises(TypeError):
         _ = (ns / s)[Value(3, '')]
     assert Value(1, '')[Value(1, '')] == 1
-    assert Value(1, '')[ns / s] == 10 ** 9
+    assert Value(1, '')[ns / s] == 10**9
 
 
 def test_cycles():

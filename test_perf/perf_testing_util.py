@@ -43,13 +43,13 @@ def _measure_duration(func, args_getter, repeats, expected_micros):
         duration = (time.perf_counter() - start_time) / sub_repeats
 
         total += duration
-        squares_total += duration ** 2
+        squares_total += duration**2
 
     mean_duration = total / repeats
     # Perf measurements aren't normal-distributed, and also our individual
     # samples were multiple runs. So the actual thing is more volatile than this
     # number implies.
-    std_dev = (squares_total / repeats - mean_duration ** 2) ** 0.5
+    std_dev = (squares_total / repeats - mean_duration**2) ** 0.5
 
     return mean_duration, std_dev
 
@@ -89,8 +89,8 @@ def perf_goal(avg_micros: int = 0, avg_nanos: int = 0, repeats: int = 100, args=
                     func, args_chooser, repeats, target_micros
                 )
 
-                avg_ratio = mean_duration * 10 ** 6 / target_micros
-                std_dev_ratio = std_dev * 10 ** 6 / target_micros
+                avg_ratio = mean_duration * 10**6 / target_micros
+                std_dev_ratio = std_dev * 10**6 / target_micros
                 did_fail = avg_ratio > 1
                 _perf_goal_results[index] = u"[%s] %s%% ±%s%% of target (%s) for %s" % (
                     _perf_bar_text(avg_ratio, std_dev_ratio),
@@ -103,7 +103,7 @@ def perf_goal(avg_micros: int = 0, avg_nanos: int = 0, repeats: int = 100, args=
                 if did_fail:
                     raise AssertionError(
                         "%s took too long. Mean (%s us) over target (%s)."
-                        % (name, mean_duration * 10 ** 6, duration_desc)
+                        % (name, mean_duration * 10**6, duration_desc)
                     )
             finally:
                 # Because tests can run out of order, we defer the printing

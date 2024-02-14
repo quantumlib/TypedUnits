@@ -63,6 +63,13 @@ print(2*km / pyfu.Value(3, 's'))
     pytest
     ```
 
+# Installation
+
+```
+    python setup.py install
+```
+
+
 ## Formatting
 
 ```bash

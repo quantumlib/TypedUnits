@@ -128,7 +128,7 @@ def test_division():
 
 
 def test_pow():
-    assert du ** 2 == du
+    assert du**2 == du
     assert UnitArray('a') ** 0 == du
     assert UnitArray('a') ** 2 == raw_UnitArray([('a', 2, 1)])
     assert UnitArray('a') ** -1 == raw_UnitArray([('a', -1, 1)])

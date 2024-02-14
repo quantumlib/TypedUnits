@@ -232,5 +232,5 @@ class UnitDatabase:
 
         # Conversion makes sense?
         conv = value.unit * base / display
-        c = conv.numer / conv.denom * (10 ** conv.exp10) * conv.factor
+        c = conv.numer / conv.denom * (10**conv.exp10) * conv.factor
         return abs(c - 1) < 0.0001

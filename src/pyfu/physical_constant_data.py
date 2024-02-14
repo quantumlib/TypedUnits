@@ -51,7 +51,7 @@ _PHYSICAL_CONSTANTS = [
 _DERIVED_CONSTANTS = [
     _data('Bohr', 'bohr_radius', 4 * pi, 'eps0*hbar^2/me/e^2'),
     # Wavenumbers/inverse cm
-    _data('Hartree', None, 1.0 / 16 / pi ** 2, 'me*e^4/eps0^2/hbar^2'),
+    _data('Hartree', None, 1.0 / 16 / pi**2, 'me*e^4/eps0^2/hbar^2'),
     _data('rootHz', 'sqrtHz', 1, 'Hz^(1/2)'),
     _data('amu', 'atomic_mass_unit', 1.6605402e-27, 'kg'),
     # degrees Rankine

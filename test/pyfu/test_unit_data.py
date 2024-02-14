@@ -9,7 +9,7 @@ def test_all_default_units_and_simple_variations_thereof_are_parseable():
     db = pyfu.unit.default_unit_database
     for k, u in db.known_units.items():
         assert db.parse_unit_formula(k) == u
-        for v in [u, 1 / u, 5 * u, 1.1 * u, u ** 2]:
+        for v in [u, 1 / u, 5 * u, 1.1 * u, u**2]:
             assert db.parse_unit_formula(str(v)) == v
 
 
@@ -18,7 +18,7 @@ def test_unit_relationship_energy_stored_in_capacity():
 
     capacitance = 2 * uF
     voltage = 5 * V
-    stored = capacitance * voltage ** 2 / 2
+    stored = capacitance * voltage**2 / 2
     assert stored == 25 * uJ
 
 
@@ -46,12 +46,12 @@ def test_lengths():
 def test_areas():
     from pyfu.units import hectare, barn, meter
 
-    assert (hectare + barn).isCompatible(meter ** 2)
+    assert (hectare + barn).isCompatible(meter**2)
 
     # *Obviously* a hectare of land can hold a couple barns.
     assert hectare > barn * 2
     # But not *too* many. ;)
-    assert hectare < barn * 10 ** 33
+    assert hectare < barn * 10**33
 
 
 def test_angles():
@@ -100,11 +100,11 @@ def test_basic_constants():
     # Just some random products compared against results from Wolfram Alpha.
 
     u = c * mu0 * eps0 * G * hplanck
-    v = 1.475e-52 * m ** 4 / s ** 2
+    v = 1.475e-52 * m**4 / s**2
     assert np.isclose(u / v, 1, atol=1e-3)
 
     u = hbar * e * me * mp * Nav * k
-    v = 2.14046e-109 * kg ** 4 * m ** 4 * A / (s ** 2 * K * mol)
+    v = 2.14046e-109 * kg**4 * m**4 * A / (s**2 * K * mol)
     assert np.isclose(u / v, 1, atol=1e-3)
 
 
@@ -112,9 +112,9 @@ def test_other_constants():
     from pyfu.units import bohr_magneton, Bohr, degR, Hartree, rootHz, amu, kg, m, s, A, K
 
     u = Hartree * rootHz * amu
-    v = 7.239526e-45 * kg ** 2 * m ** 2 / s ** (2.5)
+    v = 7.239526e-45 * kg**2 * m**2 / s ** (2.5)
     assert np.isclose(u / v, 1, atol=1e-3)
 
     u = bohr_magneton * Bohr * degR
-    v = 2.7264415e-34 * m ** 3 * A * K
+    v = 2.7264415e-34 * m**3 * A * K
     assert np.isclose(u / v, 1, atol=1e-3)
