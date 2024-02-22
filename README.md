@@ -27,9 +27,25 @@ print(2*km / pyfu.Value(3, 's'))
 # 0.666666666667 km/s
 ```
 
-# Building
+# Installation
 
-0. Clone the repository.
+1. To install the latest version from the main branch
+
+    ```bash
+    pip install git+https://github.com/qh-lab/pyfu
+    ```
+
+1. For a local editable copy
+
+    ```bash
+    git clone https://github.com/qh-lab/pyfu.git    
+    cd pyfu
+    pip install .
+    ```
+
+# Development and Testing
+
+1. Clone the repository.
 
     ```bash
     git clone https://github.com/qh-lab/pyfu.git
@@ -39,35 +55,17 @@ print(2*km / pyfu.Value(3, 's'))
 
     *All future steps assume you are in the repository's directory.*
 
-0. Install system dependencies.
+1. Install dev environment dependencies.
 
     ```bash
-    cat apt_dependency_list.txt | xargs sudo apt-get install --yes
+    pip install -r dev_tools/dev.env.txt
     ```
 
-0. Install python dependencies.
+1. Test.
 
     ```bash
-    pip install -r requirements.txt
+    PYTHONPATH='src/:$PYTHONPATH' pytest
     ```
-
-0. Cythonize.
-
-    ```bash
-    python setup.py build_ext --inplace
-    ```
-
-0. Test.
-
-    ```bash
-    pytest
-    ```
-
-# Installation
-
-```
-    python setup.py install
-```
 
 
 ## Formatting
