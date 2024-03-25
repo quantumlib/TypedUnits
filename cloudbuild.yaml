@@ -36,7 +36,7 @@ steps:
 
   - id: format
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['black --check .']
+    args: ['black --exclude src/proto/.* --check .']
     waitFor:
       - build-builder
 
@@ -57,6 +57,10 @@ steps:
     args: ['./ci/pytest_unit.sh']
     waitFor:
       - cythonize
+
+  - id: 'Check modified protos'
+    name: gcr.io/$PROJECT_ID/pyfu-builder
+    args: ['./ci/build_changed_protos.sh origin/main']
 
   - id: perf
     name: gcr.io/$PROJECT_ID/pyfu-builder

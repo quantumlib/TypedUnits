@@ -1,5 +1,10 @@
+from typing import TypeVar
+
 import numpy as np
 
+from src.proto import tunits_pb2
+
+T = TypeVar('ValueArray', bound='ValueArray')
 
 class ValueArray(WithUnit):
 
@@ -82,3 +87,12 @@ class ValueArray(WithUnit):
 
     def allclose(WithUnit self, other, *args, **kw):
         return np.allclose(self.value, other[self.unit], *args, **kw)
+
+    @classmethod
+    def from_proto(cls: type[T], msg: tunits_pb2.ValueArray) -> T:
+        return cls(_ndarray_from_proto(msg), _proto_to_units(msg.units))
+
+    def to_proto(self, msg: Optional[tunits_pb2.ValueArray] = None) -> tunits_pb2.ValueArray:
+        ret = _ndarray_to_proto(self.value, msg)
+        ret.units.extend(_units_to_proto(self.display_units))
+        return ret

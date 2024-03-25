@@ -64,13 +64,13 @@ print(2*km / pyfu.Value(3, 's'))
 1. Test.
 
     ```bash
-    PYTHONPATH='src/:$PYTHONPATH' pytest
+    python -m pytest
     ```
 
 
 ## Formatting
 
 ```bash
-scripts/format.sh  # to format
-scripts/format.sh --check  # to verify format
+dev_tools/format.sh  # to format
+dev_tools/format.sh --check  # to verify format
 ```

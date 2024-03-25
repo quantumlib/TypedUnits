@@ -12,4 +12,4 @@ elif [ "$#" -eq 1 ] && [ "$1" = "--check" ]; then
   args=("--check" "$REPO_ROOT")
 fi
 
-black "${args[@]}"
+black "${args[@]}" --exclude src/proto/.*

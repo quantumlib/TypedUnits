@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-pytest --capture=no test/
+python -m pytest --capture=no test/

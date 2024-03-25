@@ -179,7 +179,7 @@ cdef class WithUnit:
                             left.display_units * right.display_units)
 
     def __rmul__(self, b):
-        if isinstance(b, (int, float, complex, tuple, list, np.ndarray)):
+        if isinstance(b, (int, float, complex, tuple, list, np.ndarray, np.number)):
             return self * b
         return NotImplemented
 
@@ -192,7 +192,7 @@ cdef class WithUnit:
                             left.display_units / right.display_units)
 
     def __rtruediv__(self, b):
-        if not isinstance(b, (int, float, complex, tuple, list, np.ndarray)):
+        if not isinstance(b, (int, float, complex, tuple, list, np.ndarray, np.number)):
             return NotImplemented
         cdef WithUnit left = _in_WithUnit(b)
         cdef WithUnit right = _in_WithUnit(self)
@@ -218,7 +218,7 @@ cdef class WithUnit:
         return divmod(a, b)[0]
 
     def __rfloordiv__(self, b):
-        if isinstance(b, (int, float, complex)):
+        if isinstance(b, (int, float, complex, np.number)):
             return divmod(b, self)[0]
         return NotImplemented
 
