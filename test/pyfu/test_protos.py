@@ -18,15 +18,15 @@ import numpy as np
 from pyfu import units, Value, ValueArray, Complex, tunits_pb2
 
 _ONE_UNIT = [
-    units.dBm,  # type: ignore
-    units.rad,  # type: ignore
-    units.GHz,  # type: ignore
-    units.MHz,  # type: ignore
-    units.V,  # type: ignore
-    units.mV,  # type: ignore
-    units.ns,  # type: ignore
-    units.us,  # type: ignore
-    units.dB,  # type: ignore
+    units.dBm,
+    units.rad,
+    units.GHz,
+    units.MHz,
+    units.V,
+    units.mV,
+    units.ns,
+    units.us,
+    units.dB,
 ]
 
 _TWO_UNITS = [
@@ -83,12 +83,11 @@ def test_complex_valuearray_conversion_trip(unit):
 @pytest.mark.parametrize(
     'unit',
     [
-        units.A,  # type: ignore
-        units.V * units.Ohm,  # type: ignore
+        units.A,
+        units.V * units.Ohm,
     ],
 )
 def test_unsupported_unit_conversion_raises_valueerror(unit):
-
     with pytest.raises(ValueError):
         _ = unit.to_proto()
 

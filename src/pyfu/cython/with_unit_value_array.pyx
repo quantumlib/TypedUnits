@@ -88,18 +88,18 @@ class ValueArray(WithUnit):
         return np.ndarray.__array_wrap__(self.value, out_arr)
 
     @property
-    def dtype(WithUnit self):
+    def dtype(WithUnit self) -> np.dtype:
         return self.value.dtype
 
     @property
-    def ndim(WithUnit self):
+    def ndim(WithUnit self) -> int:
         return self.value.ndim
 
     @property
-    def shape(WithUnit self):
+    def shape(WithUnit self) -> tuple[int, ...]:
         return self.value.shape
 
-    def allclose(WithUnit self, other, *args, **kw):
+    def allclose(WithUnit self, other, *args, **kw) -> bool:
         return np.allclose(self.value, other[self.unit], *args, **kw)
 
     @classmethod

@@ -12,9 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Optional
+from typing import Dict, Optional, Iterable
+
+import numpy as np
 
 from . import _all_cythonized, unit_grammar
+from .base_unit_data import BaseUnitData
+from .derived_unit_data import DerivedUnitData
+from .prefix_data import PrefixData
+from .physical_constant_data import PhysicalConstantData
 
 
 class UnitDatabase:
@@ -118,7 +124,15 @@ class UnitDatabase:
         """
         self.add_unit(alternate_name, self.get_unit(unit_name, auto_create=False))
 
-    def add_scaled_unit(self, unit_name, formula, factor=1.0, numer=1, denom=1, exp10=0):
+    def add_scaled_unit(
+        self,
+        unit_name: str,
+        formula: str,
+        factor: int | float | complex | np.number = 1.0,
+        numer: int = 1,
+        denom: int = 1,
+        exp10: int = 0,
+    ) -> None:
         """
         Creates and adds a derived unit to the database. The unit's value is
         computed by parsing the given formula (in terms of existing units) and
@@ -145,7 +159,7 @@ class UnitDatabase:
 
         self.add_unit(unit_name, unit)
 
-    def add_base_unit_data(self, data, prefixes):
+    def add_base_unit_data(self, data: BaseUnitData, prefixes: list[PrefixData]) -> None:
         """
         Adds a unit, with alternate names and prefixes, defined by a
         BaseUnitData and some PrefixData.
@@ -170,7 +184,7 @@ class UnitDatabase:
                 self.add_scaled_unit(pre.symbol + symbol, symbol, exp10=pre.exp10)
                 self.add_alternate_unit_name(pre.name + name, pre.symbol + symbol)
 
-    def add_derived_unit_data(self, data, prefixes):
+    def add_derived_unit_data(self, data: DerivedUnitData, prefixes: list[PrefixData]) -> None:
         """
         Adds a unit, with alternate names and prefixes, defined by a
         DerivedUnitData and some PrefixData.
@@ -196,7 +210,7 @@ class UnitDatabase:
                 if data.name is not None:
                     self.add_alternate_unit_name(pre.name + data.name, pre.symbol + data.symbol)
 
-    def add_physical_constant_data(self, data):
+    def add_physical_constant_data(self, data: PhysicalConstantData) -> None:
         """
         Adds a physical constant, i.e. a unit that doesn't override the display
         units of a value, defined by a PhysicalConstantData.
@@ -208,7 +222,9 @@ class UnitDatabase:
         if data.name is not None:
             self.add_alternate_unit_name(data.name, data.symbol)
 
-    def _expected_value_for_unit_array(self, unit_array):
+    def _expected_value_for_unit_array(
+        self, unit_array: Iterable[tuple[str, int, int]]
+    ) -> _all_cythonized.Value | None:
         """
         Determines the expected conversion factor for the given UnitArray by
         looking up its unit names in the database and multiplying up each of
@@ -224,7 +240,7 @@ class UnitDatabase:
             result *= self.known_units[name] ** (float(exp_numer) / exp_denom)
         return result
 
-    def is_value_consistent_with_database(self, value):
+    def is_value_consistent_with_database(self, value: _all_cythonized.WithUnit) -> bool:
         """
         Determines if the value's base and display units are known and that
         the conversion factor between them is consistent with the known unit

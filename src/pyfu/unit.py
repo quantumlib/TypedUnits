@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
 from . import (
     _all_cythonized,
     base_unit_data,
@@ -47,7 +48,9 @@ def _make_unit_database_from_unit_data() -> unit_database.UnitDatabase:
 default_unit_database: unit_database.UnitDatabase = _make_unit_database_from_unit_data()
 
 
-def _try_interpret_as_with_unit(obj, avoid_ambiguity_with_indexing: bool = False):
+def _try_interpret_as_with_unit(
+    obj: Any, avoid_ambiguity_with_indexing: bool = False
+) -> _all_cythonized.WithUnit | None:
     """
     This method is given to WithUnit so that it can do a convenient conversion
     from a user-given object (such as a string formula or a float or a WithUnit)

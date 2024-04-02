@@ -33,7 +33,7 @@ class PhysicalConstantData:
     Describes a physical constant.
     """
 
-    def __init__(self, symbol, name, factor, formula):
+    def __init__(self, symbol: str, name: str | None, factor: float, formula: str):
         """
         :param str symbol: The constant's symbol (e.g. 'c' for speed of light).
         :param None|str name: The constant's name (e.g. 'speed_of_light').

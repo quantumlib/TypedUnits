@@ -23,6 +23,7 @@ units or physical constants).
 """
 
 import math
+import numpy as np
 
 
 class DerivedUnitData:
@@ -32,14 +33,14 @@ class DerivedUnitData:
 
     def __init__(
         self,
-        symbol,
-        name,
-        formula,
-        value=1.0,
-        exp10=0,
-        numerator=1,
-        denominator=1,
-        use_prefixes=False,
+        symbol: str,
+        name: str | None,
+        formula: str,
+        value: int | float | complex | np.number = 1.0,
+        exp10: int = 0,
+        numerator: int = 1,
+        denominator: int = 1,
+        use_prefixes: bool = False,
     ):
         """
         :param str symbol: The short name for the unit (e.g. 'm' for meter).

@@ -25,7 +25,7 @@ class BaseUnitData:
     Describes the properties of a base unit.
     """
 
-    def __init__(self, symbol, name, use_prefixes=True):
+    def __init__(self, symbol: str, name: str, use_prefixes: bool = True):
         """
         :param str symbol: The short name for the unit (e.g. 'm' for meter).
         :param str name: The full name of the unit (e.g. 'meter').

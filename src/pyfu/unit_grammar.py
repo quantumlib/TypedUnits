@@ -27,7 +27,7 @@ from pyparsing import (
 )
 
 
-def maybe_parens(token):
+def _maybe_parens(token):
     """
     :param ParserElement token:
     :return ParserElement:
@@ -46,7 +46,7 @@ number = Word(nums).setParseAction(lambda s, l, t: [int(t[0])])
 name = Word(alphas, alphanums)
 
 negatable = Optional(Literal('-'))('neg')
-exponent = maybe_parens(negatable + maybe_parens(number('num') + Optional('/' + number('denom'))))
+exponent = _maybe_parens(negatable + _maybe_parens(number('num') + Optional('/' + number('denom'))))
 
 single_unit = name('name') + Optional('^' + exponent)
 head = Group(single_unit).setResultsName('posexp', True)

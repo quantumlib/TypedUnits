@@ -17,6 +17,7 @@ A compatibility layer that tries to expose the same API as pylabrad's unit
 library.
 """
 
+from typing import TypeVar
 from . import _all_cythonized, unit as _unit
 
 addNonSI = _unit.add_non_standard_unit
@@ -27,13 +28,14 @@ ValueArray = _all_cythonized.ValueArray
 WithUnit = _all_cythonized.WithUnit
 
 
-# TODO: remove type ignores when mypy plays nicely with cython stubs. see
-# mypy.ini for github issue
-class DimensionlessArray(ValueArray):  # type: ignore
+_UNIT_T = TypeVar('_UNIT_T', bound='Unit')
+
+
+class DimensionlessArray(_all_cythonized.ValueArray):
     pass
 
 
-class Unit(Value):  # type: ignore
+class Unit(_all_cythonized.Value):
     """
     Just a Value (WithValue), but with a constructor that accepts formulas.
     """
@@ -44,30 +46,30 @@ class Unit(Value):  # type: ignore
         super().__init__(obj)
 
     @property
-    def name(self):
+    def name(self) -> str:
         return str(self)
 
-    def __eq__(self, other):
+    def __eq__(self, other) -> bool:
         if isinstance(other, str):
             other = _unit.default_unit_database.parse_unit_formula(other)
         return Value(self) == other
 
-    def __ne__(self, other):
+    def __ne__(self, other) -> bool:
         return not (self == other)
 
-    def __mul__(self, other):
+    def __mul__(self: _UNIT_T, other) -> _UNIT_T | _all_cythonized.Value:
         product = Value(self) * other
         return Unit(product) if isinstance(other, Unit) else product
 
-    def __truediv__(self, other):
+    def __truediv__(self: _UNIT_T, other) -> _UNIT_T | _all_cythonized.Value:
         quotient = Value(self) / other
         return Unit(quotient) if isinstance(other, Unit) else quotient
 
-    def __floordiv__(self, other):
+    def __floordiv__(self: _UNIT_T, other) -> _UNIT_T | _all_cythonized.Value:
         quotient = Value(self) / other
         return Unit(quotient) if isinstance(other, Unit) else quotient
 
-    def __pow__(self, exponent, modulus=None):
+    def __pow__(self: _UNIT_T, exponent, modulus=None) -> _UNIT_T:
         return Unit(Value(self).__pow__(exponent, modulus))
 
 

@@ -18,7 +18,7 @@ class PrefixData:
     Describes the properties of a unit prefix.
     """
 
-    def __init__(self, symbol, name, exp10):
+    def __init__(self, symbol: str, name: str, exp10: int):
         """
         :param str symbol: The short name for the prefix (e.g. 'G' for giga).
         :param str name: The full name of the prefix (e.g. 'giga').
