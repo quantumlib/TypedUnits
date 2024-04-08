@@ -20,7 +20,7 @@ from typing import List, Optional
 
 import numpy as np
 
-import pyfu
+import tunits
 
 
 def _perf_bar_text(avg, stddev, n=20):
@@ -167,7 +167,7 @@ def _sampled_generation(sampler_args, backing_size):
     return args_sample
 
 
-unit_list = [v for k, v in pyfu.unit.default_unit_database.known_units.items()]
+unit_list = [v for k, v in tunits.api.unit.default_unit_database.known_units.items()]
 
 
 def _sample_random_unit_combo():

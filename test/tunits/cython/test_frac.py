@@ -13,7 +13,7 @@
 # limitations under the License.
 
 # noinspection PyProtectedMember
-import pyfu._all_cythonized as u
+from tunits.core import _all_cythonized as u
 import pytest
 
 

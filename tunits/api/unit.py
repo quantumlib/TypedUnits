@@ -13,8 +13,10 @@
 # limitations under the License.
 
 from typing import Any
-from . import (
-    _all_cythonized,
+
+from tunits.core import _all_cythonized
+
+from tunits.api import (
     base_unit_data,
     derived_unit_data,
     physical_constant_data,

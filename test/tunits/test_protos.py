@@ -15,7 +15,7 @@
 import itertools
 import pytest
 import numpy as np
-from pyfu import units, Value, ValueArray, Complex, tunits_pb2
+from tunits import units, Value, ValueArray, Complex, tunits_pb2
 
 _ONE_UNIT = [
     units.dBm,
@@ -127,7 +127,7 @@ def test_unit_exponent_with_zero_denominator_raises():
 
 
 def test_scale_values_are_correct():
-    from pyfu._all_cythonized import _SCALE_PREFIXES
+    from tunits.core._all_cythonized import _SCALE_PREFIXES  # type: ignore
 
     assert len(_SCALE_PREFIXES) == len(
         tunits_pb2.Scale.items()

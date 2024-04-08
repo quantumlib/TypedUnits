@@ -13,13 +13,13 @@
 # limitations under the License.
 
 import pytest
-from pyfu._all_cythonized import raw_WithUnit, raw_UnitArray
+from tunits.core._all_cythonized import raw_WithUnit, raw_UnitArray  # type: ignore
 from pyparsing import ParseException
 
-from pyfu.base_unit_data import BaseUnitData
-from pyfu.derived_unit_data import DerivedUnitData
-from pyfu.prefix_data import PrefixData, SI_PREFIXES
-from pyfu.unit_database import UnitDatabase
+from tunits.api.base_unit_data import BaseUnitData
+from tunits.api.derived_unit_data import DerivedUnitData
+from tunits.api.prefix_data import PrefixData, SI_PREFIXES
+from tunits.api.unit_database import UnitDatabase
 
 
 def frac(numer=1, denom=1):

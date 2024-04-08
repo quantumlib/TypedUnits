@@ -50,7 +50,7 @@ steps:
 
   - id: format
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['black --exclude src/proto/.* --check .']
+    args: ['black --exclude tunits/proto/.* --check .']
     waitFor:
       - build-builder
 

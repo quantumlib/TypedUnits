@@ -16,11 +16,12 @@ from typing import Dict, Optional, Iterable
 
 import numpy as np
 
-from . import _all_cythonized, unit_grammar
-from .base_unit_data import BaseUnitData
-from .derived_unit_data import DerivedUnitData
-from .prefix_data import PrefixData
-from .physical_constant_data import PhysicalConstantData
+from tunits.core import _all_cythonized
+from tunits.api import unit_grammar
+from tunits.api.base_unit_data import BaseUnitData
+from tunits.api.derived_unit_data import DerivedUnitData
+from tunits.api.prefix_data import PrefixData
+from tunits.api.physical_constant_data import PhysicalConstantData
 
 
 class UnitDatabase:

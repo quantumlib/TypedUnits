@@ -12,21 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os.path
-import setuptools  # type: ignore
 
-from Cython.Build import cythonize
-
-requirements = open('requirements.txt', 'r').readlines()
-
-setuptools.setup(
-    name="tunits",
-    version="0.0.1",
-    packages=['tunits'],
-    ext_modules=cythonize(
-        "tunits/core/_all_cythonized.pyx", compiler_directives={'language_level': 3}
-    ),
-    install_requires=requirements,
-    setup_requires=requirements,
-    python_requires=">=3.10.0",
-)
+# Initialize default unit database.
+import tunits.api.unit as _

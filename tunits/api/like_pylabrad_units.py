@@ -18,7 +18,8 @@ library.
 """
 
 from typing import TypeVar
-from . import _all_cythonized, unit as _unit
+from tunits.core import _all_cythonized
+import tunits.api.unit as _unit
 
 addNonSI = _unit.add_non_standard_unit
 Complex = _all_cythonized.Complex

@@ -19,9 +19,9 @@ import pytest
 
 # We're testing it, so we're allowed to look.
 # noinspection PyProtectedMember
-from pyfu._all_cythonized import raw_WithUnit, raw_UnitArray
+from tunits.core._all_cythonized import raw_WithUnit, raw_UnitArray  # type: ignore
 
-from pyfu import UnitMismatchError, ValueArray, Value, Complex
+from tunits import UnitMismatchError, ValueArray, Value, Complex
 
 dimensionless = raw_UnitArray([])
 s = raw_UnitArray([('s', 1, 1)])

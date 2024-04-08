@@ -14,7 +14,7 @@
 
 import unittest
 
-from .perf_testing_util import (
+from test_perf.perf_testing_util import (
     a_random_compatible_unit_array,
     a_random_compatible_unit_val,
     a_random_unit_array,

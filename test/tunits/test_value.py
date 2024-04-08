@@ -15,7 +15,7 @@
 import numpy as np
 import pytest
 
-from pyfu import Value, Complex, UnitMismatchError
+from tunits import Value, Complex, UnitMismatchError
 
 
 def test_construction() -> None:
@@ -38,7 +38,7 @@ def test_dimensionless() -> None:
 
 
 def test_addition():
-    from pyfu.units import kilometer
+    from tunits.units import kilometer
 
     n = Value(2, '')
     x = Value(1.0, kilometer)
@@ -58,7 +58,7 @@ def test_addition():
 
 
 def test_multiplication():
-    from pyfu.units import meter, mm, second
+    from tunits.units import meter, mm, second
 
     x = Value(1.0 + 2j, meter)
     y = Value(3, mm)
@@ -68,7 +68,7 @@ def test_multiplication():
 
 
 def test_power():
-    from pyfu.units import km, m, minute, s, um, mm
+    from tunits.units import km, m, minute, s, um, mm
 
     x = 2 * mm
     y = 4 * mm
@@ -82,7 +82,7 @@ def test_power():
 
 
 def test_repr():
-    from pyfu.units import km, kg, mm
+    from tunits.units import km, kg, mm
 
     assert repr(Value(1, mm)) == "Value(1.0, 'mm')"
     assert repr(Value(4, mm)) == "Value(4.0, 'mm')"
@@ -90,7 +90,7 @@ def test_repr():
 
 
 def test_str():
-    from pyfu.units import mm, meter, kilometer, rad, cyc
+    from tunits.units import mm, meter, kilometer, rad, cyc
 
     assert str(Value(1, mm)) == 'mm'
     assert str(Value(4, mm)) == '4.0 mm'
@@ -102,7 +102,7 @@ def test_str():
 
 
 def test_div_mod():
-    from pyfu.units import us, ns
+    from tunits.units import us, ns
 
     x = 4.0009765625 * us
     assert x // (4 * ns) == 1000
@@ -113,7 +113,7 @@ def test_div_mod():
 
 
 def test_conversion():
-    from pyfu.units import mm
+    from tunits.units import mm
 
     x = Value(3, 'm')
     assert x['mm'] == 3000.0
@@ -149,7 +149,7 @@ def test_radians_vs_steradians() -> None:
 
 
 def test_division():
-    from pyfu.units import km, s, m
+    from tunits.units import km, s, m
 
     assert 5 * km / (2 * s) == Value(2500, 'm/s')
     with pytest.raises(UnitMismatchError):
@@ -165,7 +165,7 @@ def test_division():
 
 
 def test_get_item():
-    from pyfu.units import ns, s
+    from tunits.units import ns, s
 
     with pytest.raises(TypeError):
         _ = (ns / s)[2 * s / ns]
@@ -176,7 +176,7 @@ def test_get_item():
 
 
 def test_cycles():
-    from pyfu.units import cyc, rad
+    from tunits.units import cyc, rad
 
     assert np.isclose((3.14159265 * rad)[cyc], 0.5)
     assert np.isclose((1.0 * rad)[cyc], 0.15915494309)
@@ -184,7 +184,7 @@ def test_cycles():
 
 
 def test_decibels_vs_decibel_milliwatts():
-    from pyfu.units import dBm, dB, W
+    from tunits.units import dBm, dB, W
 
     assert dBm != dB * W
     assert not dBm.isCompatible(dB * W)
@@ -200,7 +200,7 @@ def test_hash() -> None:
 
 
 def test_numpy_sqrt():
-    from pyfu.units import m, km, cm
+    from tunits.units import m, km, cm
 
     u = np.sqrt(8 * km * m) - cm
     v = 8943.27191 * cm

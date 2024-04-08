@@ -12,16 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from . import _all_cythonized, units
+from tunits.proto import tunits_pb2
 
-# Initialize default unit database.
-from . import unit as _
+from tunits.core import (
+    Complex,
+    UnitMismatchError,
+    Value,
+    ValueArray,
+    WithUnit,
+)
 
-from src.proto import tunits_pb2
-
-# Expose the type/method API.
-Complex = _all_cythonized.Complex
-UnitMismatchError = _all_cythonized.UnitMismatchError
-Value = _all_cythonized.Value
-ValueArray = _all_cythonized.ValueArray
-WithUnit = _all_cythonized.WithUnit
+import tunits.units as units

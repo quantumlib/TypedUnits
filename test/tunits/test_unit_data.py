@@ -18,9 +18,9 @@ import numpy as np
 
 
 def test_all_default_units_and_simple_variations_thereof_are_parseable():
-    import pyfu.unit
+    import tunits.api.unit
 
-    db = pyfu.unit.default_unit_database
+    db = tunits.api.unit.default_unit_database
     for k, u in db.known_units.items():
         assert db.parse_unit_formula(k) == u
         for v in [u, 1 / u, 5 * u, 1.1 * u, u**2]:
@@ -28,7 +28,7 @@ def test_all_default_units_and_simple_variations_thereof_are_parseable():
 
 
 def test_unit_relationship_energy_stored_in_capacity():
-    from pyfu.units import uF, V, uJ
+    from tunits.units import uF, V, uJ
 
     capacitance = 2 * uF
     voltage = 5 * V
@@ -37,7 +37,7 @@ def test_unit_relationship_energy_stored_in_capacity():
 
 
 def test_durations():
-    from pyfu.units import week, year, day, hour, minute, second
+    from tunits.units import week, year, day, hour, minute, second
 
     a = week + year + day + hour + minute
     assert a.isCompatible(second)
@@ -46,19 +46,19 @@ def test_durations():
 
 
 def test_lengths():
-    from pyfu.units import inch, foot, yard, nautical_mile, angstrom, light_year, meter
+    from tunits.units import inch, foot, yard, nautical_mile, angstrom, light_year, meter
 
     a = inch + foot + yard + nautical_mile + angstrom + light_year
     assert a.isCompatible(meter)
     assert (foot + inch + yard) * 5000 == 6223 * meter
     assert np.isclose(nautical_mile / angstrom, 1.852e13)
-    from pyfu import Value
+    from tunits import Value
 
     assert light_year == Value(1, 'c*yr')
 
 
 def test_areas():
-    from pyfu.units import hectare, barn, meter
+    from tunits.units import hectare, barn, meter
 
     assert (hectare + barn).isCompatible(meter**2)
 
@@ -69,7 +69,7 @@ def test_areas():
 
 
 def test_angles():
-    from pyfu.units import deg, rad, cyc
+    from tunits.units import deg, rad, cyc
 
     assert (deg + cyc).isCompatible(rad)
     assert np.isclose((math.pi * rad)[deg], 180)
@@ -77,7 +77,7 @@ def test_angles():
 
 
 def test_volumes():
-    from pyfu.units import (
+    from tunits.units import (
         teaspoon,
         tablespoon,
         fluid_ounce,
@@ -97,19 +97,37 @@ def test_volumes():
 
 
 def test_masses():
-    from pyfu.units import ounce, pound, ton, megagram
+    from tunits.units import ounce, pound, ton, megagram
 
     assert np.isclose((ounce + pound + ton) / megagram, 0.9077, atol=1e-4)
 
 
 def test_pressures():
-    from pyfu.units import psi, Pa
+    from tunits.units import psi, Pa
 
     assert psi.isCompatible(Pa)
 
 
 def test_basic_constants():
-    from pyfu.units import c, mu0, eps0, G, hplanck, hbar, e, me, mp, Nav, k, m, s, kg, A, K, mol
+    from tunits.units import (
+        c,
+        mu0,
+        eps0,
+        G,
+        hplanck,
+        hbar,
+        e,
+        me,
+        mp,
+        Nav,
+        k,
+        m,
+        s,
+        kg,
+        A,
+        K,
+        mol,
+    )
 
     # Just some random products compared against results from Wolfram Alpha.
 
@@ -123,7 +141,7 @@ def test_basic_constants():
 
 
 def test_other_constants():
-    from pyfu.units import bohr_magneton, Bohr, degR, Hartree, rootHz, amu, kg, m, s, A, K
+    from tunits.units import bohr_magneton, Bohr, degR, Hartree, rootHz, amu, kg, m, s, A, K
 
     u = Hartree * rootHz * amu
     v = 7.239526e-45 * kg**2 * m**2 / s ** (2.5)

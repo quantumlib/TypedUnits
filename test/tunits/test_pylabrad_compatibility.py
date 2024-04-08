@@ -15,8 +15,8 @@
 import numpy as np
 import pytest
 
-import pyfu.like_pylabrad_units as fu
-from pyfu.like_pylabrad_units import UnitMismatchError
+import tunits.api.like_pylabrad_units as fu
+from tunits.api.like_pylabrad_units import UnitMismatchError
 
 ValueArray = fu.ValueArray
 Value = fu.Value
@@ -285,7 +285,7 @@ def test_unit_manual_creation():
 
 
 def test_iter():
-    from pyfu.like_pylabrad_units import ns, kg
+    from tunits.api.like_pylabrad_units import ns, kg
 
     data = np.arange(5) * ns
     for x in data:
@@ -303,7 +303,7 @@ def test_name():
 
 
 def test_equality_against_formulas():
-    from pyfu.like_pylabrad_units import m, s, J
+    from tunits.api.like_pylabrad_units import m, s, J
 
     assert m == 'm'
     assert m != 'km'
@@ -317,20 +317,20 @@ def test_equality_against_formulas():
     assert J / m**2 * s * s == 'kg'
 
     # This behavior is specific to the compatibility layer.
-    from pyfu.units import kilogram as not_compatible_kilogram
+    from tunits.units import kilogram as not_compatible_kilogram
 
     assert not_compatible_kilogram != 'kg'
 
 
 def test_sqrt():
-    from pyfu.like_pylabrad_units import kg, kiloliter, m
+    from tunits.api.like_pylabrad_units import kg, kiloliter, m
 
     assert (kg**2).sqrt() == kg
     assert kiloliter.sqrt() == m**1.5
 
 
 def test_is_compatible():
-    from pyfu.like_pylabrad_units import ns, kg, s
+    from tunits.api.like_pylabrad_units import ns, kg, s
 
     x = 5 * ns
     assert x.isCompatible('s')
@@ -347,7 +347,7 @@ def test_is_compatible():
 
 
 def test_scaled_get_item():
-    from pyfu.like_pylabrad_units import ns, s
+    from tunits.api.like_pylabrad_units import ns, s
 
     v = s * 1.0
     assert v[ns] == 10**9
@@ -357,13 +357,13 @@ def test_scaled_get_item():
 
 
 def test_flatten_value_units():
-    from pyfu.like_pylabrad_units import ns, m
+    from tunits.api.like_pylabrad_units import ns, m
 
     assert Value(ns * 5, 'meter') == ns * 5 * m
 
 
 def test_flatten_shared_units_into_parent():
-    from pyfu.like_pylabrad_units import ns, m
+    from tunits.api.like_pylabrad_units import ns, m
 
     with pytest.raises(UnitMismatchError):
         ValueArray([ns, m])
@@ -376,13 +376,13 @@ def test_flatten_shared_units_into_parent():
 
 
 def test_auto_wrap_value_in_array():
-    from pyfu.like_pylabrad_units import ns
+    from tunits.api.like_pylabrad_units import ns
 
     assert np.min([3 * ns, 2 * ns, 5 * ns]) == 2 * ns
 
 
 def test_put_in_array():
-    from pyfu.like_pylabrad_units import ns
+    from tunits.api.like_pylabrad_units import ns
 
     a = np.array(ns * 0)
     assert a[()] == ns * 0
@@ -393,7 +393,7 @@ def test_put_in_array():
 
 
 def test_unwrap_value_array():
-    from pyfu.like_pylabrad_units import ns
+    from tunits.api.like_pylabrad_units import ns
 
     a = np.array([1, 2, 3, 4] * ns)
     assert len(a) == 4

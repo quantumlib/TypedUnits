@@ -12,21 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os.path
-import setuptools  # type: ignore
+# This is needed in order to import .pyx files.
+import pyximport  # type: ignore
 
-from Cython.Build import cythonize
+pyximport.install()
 
-requirements = open('requirements.txt', 'r').readlines()
+import tunits.core._all_cythonized as _all_cythonized  # type: ignore
 
-setuptools.setup(
-    name="tunits",
-    version="0.0.1",
-    packages=['tunits'],
-    ext_modules=cythonize(
-        "tunits/core/_all_cythonized.pyx", compiler_directives={'language_level': 3}
-    ),
-    install_requires=requirements,
-    setup_requires=requirements,
-    python_requires=">=3.10.0",
-)
+# Expose the type/method API.
+Complex = _all_cythonized.Complex
+UnitMismatchError = _all_cythonized.UnitMismatchError
+Value = _all_cythonized.Value
+ValueArray = _all_cythonized.ValueArray
+WithUnit = _all_cythonized.WithUnit

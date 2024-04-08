@@ -19,7 +19,7 @@ from io import BytesIO
 import functools
 
 import numpy as np
-from src.proto import tunits_pb2
+from tunits.proto import tunits_pb2
 
 _PROTO_TO_UNIT_STRING = {
     'DECIBEL_MILLIWATTS': 'dBm',

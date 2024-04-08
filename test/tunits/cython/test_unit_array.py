@@ -15,7 +15,7 @@
 import pytest
 
 # noinspection PyProtectedMember
-from pyfu._all_cythonized import raw_UnitArray, UnitArray
+from tunits.core._all_cythonized import raw_UnitArray, UnitArray  # type: ignore
 
 du = raw_UnitArray([])
 

@@ -15,8 +15,6 @@
 from typing import TypeVar
 import numpy as np
 
-from src.proto import tunits_pb2
-
 T = TypeVar('Value', bound='Value')
 
 

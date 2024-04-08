@@ -43,7 +43,7 @@ dev_tools/build_protos.sh
 
 # Filenames with spaces will be ugly (each part will be listed separately)
 # but the error logic will still work.
-uncommitted=$(git status --porcelain 2>/dev/null | grep -E "^?? src/proto" | cut -d " " -f 3)
+uncommitted=$(git status --porcelain 2>/dev/null | grep -E "^?? tunits/proto" | cut -d " " -f 3)
 
 if [[ -n "$uncommitted" ]]; then
     echo -e "\033[31mERROR: Uncommitted generated files found! Please generate and commit these files using dev_tools/build-protos.sh:\033[0m"

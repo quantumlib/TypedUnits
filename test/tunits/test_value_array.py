@@ -14,27 +14,27 @@
 
 import numpy as np
 import pytest
-from pyfu._all_cythonized import raw_WithUnit, raw_UnitArray
+from tunits.core._all_cythonized import raw_WithUnit, raw_UnitArray  # type: ignore
 
-from pyfu import ValueArray, UnitMismatchError
+from tunits import ValueArray, UnitMismatchError
 
 
 def test_construction():
-    from pyfu.units import ns, ps
+    from tunits.units import ns, ps
 
     assert isinstance([1, 2, 3] * ns, ValueArray)
     assert np.array_equal([1, 2, 3] * ns, [1000, 2000, 3000] * ps)
 
 
 def test_slicing():
-    from pyfu.units import ms, ns
+    from tunits.units import ms, ns
 
     assert np.array_equal(([0, 1, 2, 3, 4] * ms)[3:], [3, 4] * ms)
     assert np.array_equal(([0, 1, 2, 3, 4] * ns)[::2], [0, 2, 4] * ns)
 
 
 def test_set_item():
-    from pyfu.units import km, m, s
+    from tunits.units import km, m, s
 
     v = [1, 2, 3] * km
 
@@ -48,7 +48,7 @@ def test_set_item():
 
 
 def test_addition():
-    from pyfu.units import km, m
+    from tunits.units import km, m
 
     assert np.array_equal([1, 2, 3] * km + [2, 3, 5] * m, [1002, 2003, 3005] * m)
 
@@ -59,7 +59,7 @@ def test_addition():
 
 
 def test_multiplication():
-    from pyfu.units import km, m
+    from tunits.units import km, m
 
     assert np.array_equal(([1, 2, 3] * km) * ([2, 3, 5] * m), [2, 6, 15] * (km * m))
 
@@ -77,13 +77,13 @@ def test_multiplication():
 
 
 def test_power():
-    from pyfu.units import s
+    from tunits.units import s
 
     assert np.array_equal(([1, 2, 3] * s) ** 2, [1, 4, 9] * s * s)
 
 
 def test_repr():
-    from pyfu.units import km, kg, s
+    from tunits.units import km, kg, s
 
     assert repr([] * s) == "ValueArray(array([], dtype=float64), 's')"
     assert repr([2, 3] * km) == "ValueArray(array([2., 3.]), 'km')"
@@ -123,14 +123,14 @@ def test_repr():
 
 
 def test_str():
-    from pyfu.units import mm
+    from tunits.units import mm
 
     assert str([] * mm**3) == '[] mm^3'
     assert str([2, 3, 5] * mm) == '[2. 3. 5.] mm'
 
 
 def test_array_dtype():
-    from pyfu.units import dekahertz, s
+    from tunits.units import dekahertz, s
 
     a = np.array(s * [1, 2, 3] * dekahertz, dtype=complex)
     a += 1j
@@ -146,7 +146,7 @@ def test_array_dtype():
 
 
 def test_multi_index():
-    from pyfu.units import m
+    from tunits.units import m
 
     assert (m * [[2, 3], [4, 5], [6, 7]])[0, 0] == m * 2
 
@@ -157,14 +157,14 @@ def test_multi_index():
 
 
 def test_predicate_index():
-    from pyfu.units import m
+    from tunits.units import m
 
     v = m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]]
     assert np.array_equal(v[v < 6 * m], [2, 3, 4, 5] * m)
 
 
 def test_extract_unit():
-    from pyfu.units import m
+    from tunits.units import m
 
     # Singleton.
     u = ValueArray(np.array([m * 2]).reshape(()))
@@ -183,7 +183,7 @@ def test_extract_unit():
 
 
 def test_numpy_kron():
-    from pyfu.units import km, ns
+    from tunits.units import km, ns
 
     u = km * [2, 3, 5]
     v = ns * [7, 11]

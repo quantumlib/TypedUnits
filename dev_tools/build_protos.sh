@@ -28,4 +28,4 @@ trap "{ echo -e '\033[31mFAILED\033[0m'; }" ERR
 cd "$(dirname "${BASH_SOURCE[0]}")"
 cd "$(git rev-parse --show-toplevel)"
 
-python -m grpc_tools.protoc -I=. --python_out=. --mypy_out=. src/proto/*.proto
+python -m grpc_tools.protoc -I=. --python_out=. --mypy_out=. tunits/proto/*.proto

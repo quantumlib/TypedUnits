@@ -18,7 +18,7 @@ Exposes standard units as module variables.
 For example, '1/units.millisecond' is equal to 'units.kHz'.
 """
 
-from . import unit as __unit
+import tunits.api.unit as __unit
 
 # Explicitly expose units.
 A = __unit.default_unit_database.known_units['A']
