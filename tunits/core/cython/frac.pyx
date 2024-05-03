@@ -28,10 +28,9 @@ cdef struct frac:
 cpdef long long gcd(long long a, long long b):
     if a < 0 or b < 0:
        return gcd(abs(a), abs(b))
-    if a == 0:
-        return b
-    return gcd(b % a, a)
-
+    while b != 0:
+        a, b = b, a%b
+    return a
 
 # Returns an equivalent fraction, without common factors between numerator and
 # denominator and with the negative sign on the numerator (if present).

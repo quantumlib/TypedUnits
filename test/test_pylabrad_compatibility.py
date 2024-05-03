@@ -15,25 +15,25 @@
 import numpy as np
 import pytest
 
-import tunits.api.like_pylabrad_units as fu
-from tunits.api.like_pylabrad_units import UnitMismatchError
+import tunits.api.like_pylabrad_units as u
+from tunits_core import UnitMismatchError
 
-ValueArray = fu.ValueArray
-Value = fu.Value
+ValueArray = u.ValueArray
+Value = u.Value
 
 
 def test_arithmetic() -> None:
-    m = fu.Unit('m')
-    kg = fu.Unit('kg')
-    km = fu.Unit('km')
+    m = u.Unit('m')
+    kg = u.Unit('kg')
+    km = u.Unit('km')
 
-    assert fu.Value(5.0, None) * m == 5.0 * m
+    assert u.Value(5.0, None) * m == 5.0 * m
 
     # addition
     assert 1.0 * kg + 0.0 * kg == 1.0 * kg
-    with pytest.raises(fu.UnitMismatchError):
+    with pytest.raises(u.UnitMismatchError):
         _ = 1.0 * kg + 1.0 * m
-    with pytest.raises(fu.UnitMismatchError):
+    with pytest.raises(u.UnitMismatchError):
         _ = 1.0 * kg + 2.0
     assert km == 1000 * m
     assert 1.0 * km / m + 5.0 == 1005
@@ -64,7 +64,7 @@ def test_value_array() -> None:
 
 
 def test_dimensionless_angle() -> None:
-    a = np.array(fu.DimensionlessArray([1, 2, 3]))
+    a = np.array(u.DimensionlessArray([1, 2, 3]))
     assert len(a) == 3
     assert a[0] == 1
     assert a[1] == 2
@@ -77,58 +77,58 @@ def test_is_finite() -> None:
 
 
 def test_negative_powers() -> None:
-    assert str(fu.Unit('1/s')) in ['s^-1', '1/s']
-    assert str(fu.Unit('1/s^1/2')) in ['s^-1/2', '1/s^(1/2)']
+    assert str(u.Unit('1/s')) in ['s^-1', '1/s']
+    assert str(u.Unit('1/s^1/2')) in ['s^-1/2', '1/s^(1/2)']
 
 
 def test_type_conversions() -> None:
-    m = fu.Unit('m')
-    V = fu.Unit('V')
-    GHz = fu.Unit('GHz')
+    m = u.Unit('m')
+    V = u.Unit('V')
+    GHz = u.Unit('GHz')
     x1 = 1.0 * m
     x2 = 5j * V
     a = np.arange(10) * 1.0
-    va = fu.ValueArray(np.arange(10) * 1.0, 'GHz')
+    va = u.ValueArray(np.arange(10) * 1.0, 'GHz')
 
     # Unit times number
-    assert isinstance(1.0 * m, fu.Value)
-    assert isinstance(1 * m, fu.Value)
-    assert isinstance(m * 1.0, fu.Value)
-    assert isinstance(m * 1, fu.Value)
+    assert isinstance(1.0 * m, u.Value)
+    assert isinstance(1 * m, u.Value)
+    assert isinstance(m * 1.0, u.Value)
+    assert isinstance(m * 1, u.Value)
 
     # Value times value or number
-    assert isinstance(x1 * x1, fu.Value)
-    assert isinstance(x1 * 5, fu.Value)
-    assert isinstance(0 * x1, fu.Value)
+    assert isinstance(x1 * x1, u.Value)
+    assert isinstance(x1 * 5, u.Value)
+    assert isinstance(0 * x1, u.Value)
 
     # Unit times complex
-    assert isinstance((1 + 1j) * V, fu.Complex)
-    assert isinstance(V * (1 + 1j), fu.Complex)
+    assert isinstance((1 + 1j) * V, u.Complex)
+    assert isinstance(V * (1 + 1j), u.Complex)
 
     # Value times Complex/complex
-    assert isinstance(x1 * 1j, fu.Complex)
-    assert isinstance(1j * x1, fu.Complex)
-    assert isinstance(x2 * x1, fu.Complex)
-    assert isinstance(x1 * x2, fu.Complex)
+    assert isinstance(x1 * 1j, u.Complex)
+    assert isinstance(1j * x1, u.Complex)
+    assert isinstance(x2 * x1, u.Complex)
+    assert isinstance(x1 * x2, u.Complex)
 
     # Unit/Value/ValueArray times array
-    assert isinstance(x1 * a, fu.ValueArray)
-    assert isinstance(x2 * a, fu.ValueArray)
-    assert isinstance(GHz * a, fu.ValueArray)
-    assert isinstance(va * a, fu.ValueArray)
+    assert isinstance(x1 * a, u.ValueArray)
+    assert isinstance(x2 * a, u.ValueArray)
+    assert isinstance(GHz * a, u.ValueArray)
+    assert isinstance(va * a, u.ValueArray)
 
     # Unit/Value/ValueArray times ValueArray
-    assert isinstance(x1 * va, fu.ValueArray)
-    assert isinstance(x2 * va, fu.ValueArray)
-    assert isinstance(GHz * va, fu.ValueArray)
-    assert isinstance(va * va, fu.ValueArray)
+    assert isinstance(x1 * va, u.ValueArray)
+    assert isinstance(x2 * va, u.ValueArray)
+    assert isinstance(GHz * va, u.ValueArray)
+    assert isinstance(va * va, u.ValueArray)
 
     # array times ?
-    assert isinstance(a * x1, fu.ValueArray)
-    assert isinstance(a * x2, fu.ValueArray)
-    assert isinstance(a * GHz, fu.ValueArray)
-    assert isinstance(a * va, fu.ValueArray)
-    assert isinstance(va * va, fu.ValueArray)
+    assert isinstance(a * x1, u.ValueArray)
+    assert isinstance(a * x2, u.ValueArray)
+    assert isinstance(a * GHz, u.ValueArray)
+    assert isinstance(a * va, u.ValueArray)
+    assert isinstance(va * va, u.ValueArray)
 
     # values
     assert (a * x1)[2] == 2 * m
@@ -140,16 +140,16 @@ def test_type_conversions() -> None:
     assert (va * va)[2] == 4 * GHz * GHz
 
     # ValueArray times ?
-    assert isinstance(va * x1, fu.ValueArray)
-    assert isinstance(va * x2, fu.ValueArray)
-    assert isinstance(va * GHz, fu.ValueArray)
-    assert isinstance(va * a, fu.ValueArray)
+    assert isinstance(va * x1, u.ValueArray)
+    assert isinstance(va * x2, u.ValueArray)
+    assert isinstance(va * GHz, u.ValueArray)
+    assert isinstance(va * a, u.ValueArray)
 
 
 def test_comparison() -> None:
-    s = fu.Unit('s')
-    ms = fu.Unit('ms')
-    kg = fu.Unit('kg')
+    s = u.Unit('s')
+    ms = u.Unit('ms')
+    kg = u.Unit('kg')
     assert 1 * s > 10 * ms, '1*s > 10*ms'
     assert 1 * s >= 10 * ms, '1*s >= 10*ms'
     assert 1 * s < 10000 * ms, '1*s > 10000*ms'
@@ -172,8 +172,8 @@ def test_comparison() -> None:
         _ = 4 * s > 1
 
 
-def test_complex():
-    V = fu.Unit('V')
+def test_complex() -> None:
+    V = u.Unit('V')
 
     assert 1j * V != 1.0 * V
     assert 1j * V == 1.0j * V
@@ -182,26 +182,26 @@ def test_complex():
         _ = 1.0j * V < 2j * V
 
 
-def test_dimensionless():
-    ns = fu.Unit('ns')
-    GHz = fu.Unit('GHz')
+def test_dimensionless() -> None:
+    ns = u.Unit('ns')
+    GHz = u.Unit('GHz')
 
     assert float((5 * ns) * (5 * GHz)) == 25.0
     assert hasattr((5 * ns) * (5 * GHz), 'inUnitsOf')
     assert ((5 * ns) * (5 * GHz)).isDimensionless()
     assert (5 * ns) * (5 * GHz) < 50
-    assert isinstance(fu.WithUnit(1, ''), fu.WithUnit)
-    assert isinstance(5.0 * fu.WithUnit(1, ''), fu.Value)
+    assert isinstance(u.WithUnit(1, ''), u.WithUnit)
+    assert isinstance(5.0 * u.Value(1, ''), u.Value)
 
     assert (5 * ns * 5j * GHz) == 25j
     assert (5 * ns * 5j * GHz).isDimensionless()
 
 
-def test_angle():
-    rad = fu.Unit('rad')
+def test_angle() -> None:
+    rad = u.Unit('rad')
     assert rad.is_angle
     assert rad.isAngle()
-    x = fu.Unit('rad*m/s')
+    x = u.Unit('rad*m/s')
     assert not x.is_angle
     assert not (3.14 * rad).isDimensionless()
     assert not (3.14 * rad**2).isDimensionless()
@@ -210,9 +210,9 @@ def test_angle():
 
 
 def test_inf_nan() -> None:
-    ms = fu.Unit('ms')
-    GHz = fu.Unit('GHz')
-    MHz = fu.Unit('MHz')
+    ms = u.Unit('ms')
+    GHz = u.Unit('GHz')
+    MHz = u.Unit('MHz')
 
     assert float('inf') * GHz == float('inf') * MHz
     assert float('inf') * GHz != float('inf') * ms
@@ -221,9 +221,9 @@ def test_inf_nan() -> None:
     assert float('nan') * GHz != float('nan') * ms
 
 
-def test_in_units_of():
-    s = fu.Unit('s')
-    ms = fu.Unit('ms')
+def test_in_units_of() -> None:
+    s = u.Unit('s')
+    ms = u.Unit('ms')
     assert (1 * s).inUnitsOf(ms) == 1000 * ms
     assert (1 * s).inUnitsOf('ms') == 1000 * ms
 
@@ -234,7 +234,7 @@ def test_base_unit_powers() -> None:
 
 
 def test_unit_powers() -> None:
-    assert fu.Unit('ns') ** 2 == fu.Unit('ns^2')
+    assert u.Unit('ns') ** 2 == u.Unit('ns^2')
 
 
 def test_array_priority() -> None:
@@ -250,7 +250,7 @@ def test_array_priority() -> None:
     arithmetic operations.
     """
     x = np.float64(1)
-    y = fu.Value(2)
+    y = u.Value(2)
     assert x < y
     z = np.arange(5)
     assert ((x < z) == [False, False, True, True, True]).all()
@@ -258,52 +258,54 @@ def test_array_priority() -> None:
 
 def test_none() -> None:
     with pytest.raises(Exception):
-        fu.Unit(None)
+        u.Unit(None)
     with pytest.raises(TypeError):
-        _ = None * fu.Unit('MHz')
+        _ = None * u.Unit('MHz')  # type: ignore
 
 
-def test_non_si():
-    fu.addNonSI('count', True)
-    x = 5 * fu.Unit('kcount')
+def test_non_si() -> None:
+    u.addNonSI('count', True)
+    x = 5 * u.Unit('kcount')
     assert x['count'] == 5000.0
-    assert x.inBaseUnits() == 5000.0 * fu.Unit('count')
-    assert (x**2).unit == fu.Unit('kcount^2')
+    assert x.inBaseUnits() == 5000.0 * u.Unit('count')
+    assert (x**2).unit == u.Unit('kcount^2')
 
 
-def test_unit_auto_creation():
-    ts = fu.Unit('pants/s')
+def test_unit_auto_creation() -> None:
+    ts = u.Unit('pants/s')
     assert (1 * ts)['pants/h'] == 3600.0
     assert str(ts) == 'pants/s'
 
 
-def test_unit_manual_creation():
-    fu.addNonSI('tshirt')
-    ts = fu.Unit('tshirt/s')
+def test_unit_manual_creation() -> None:
+    u.addNonSI('tshirt')
+    ts = u.Unit('tshirt/s')
     assert (1 * ts)['tshirt/h'] == 3600.0
     assert str(ts) == 'tshirt/s'
 
 
-def test_iter():
-    from tunits.api.like_pylabrad_units import ns, kg
+def test_iter() -> None:
+    from tunits.units import ns, kg
 
     data = np.arange(5) * ns
     for x in data:
-        assert isinstance(x, fu.Value)
+        assert isinstance(x, u.Value)
     with pytest.raises(TypeError):
         iter(5 * kg)
     with pytest.raises(TypeError):
-        for _ in 5 * kg:
+        for _ in 5 * kg:  # type: ignore
             pass
     assert not np.iterable(5 * kg)
 
 
-def test_name():
-    assert fu.ns.name == 'ns'
+def test_name() -> None:
+    from tunits.api.like_pylabrad_units import ns  # type: ignore[attr-defined]
+
+    assert ns.name == 'ns'
 
 
-def test_equality_against_formulas():
-    from tunits.api.like_pylabrad_units import m, s, J
+def test_equality_against_formulas() -> None:
+    from tunits.api.like_pylabrad_units import m, s, J  # type: ignore[attr-defined]
 
     assert m == 'm'
     assert m != 'km'
@@ -322,15 +324,15 @@ def test_equality_against_formulas():
     assert not_compatible_kilogram != 'kg'
 
 
-def test_sqrt():
-    from tunits.api.like_pylabrad_units import kg, kiloliter, m
+def test_sqrt() -> None:
+    from tunits.units import kg, kiloliter, m
 
     assert (kg**2).sqrt() == kg
     assert kiloliter.sqrt() == m**1.5
 
 
-def test_is_compatible():
-    from tunits.api.like_pylabrad_units import ns, kg, s
+def test_is_compatible() -> None:
+    from tunits.units import ns, kg, s
 
     x = 5 * ns
     assert x.isCompatible('s')
@@ -346,8 +348,8 @@ def test_is_compatible():
         x.isCompatible(dict())
 
 
-def test_scaled_get_item():
-    from tunits.api.like_pylabrad_units import ns, s
+def test_scaled_get_item() -> None:
+    from tunits.units import ns, s
 
     v = s * 1.0
     assert v[ns] == 10**9
@@ -356,14 +358,14 @@ def test_scaled_get_item():
     assert (5 * s / ns)[''] == 5 * 10**9
 
 
-def test_flatten_value_units():
-    from tunits.api.like_pylabrad_units import ns, m
+def test_flatten_value_units() -> None:
+    from tunits.units import ns, m
 
     assert Value(ns * 5, 'meter') == ns * 5 * m
 
 
-def test_flatten_shared_units_into_parent():
-    from tunits.api.like_pylabrad_units import ns, m
+def test_flatten_shared_units_into_parent() -> None:
+    from tunits.units import ns, m
 
     with pytest.raises(UnitMismatchError):
         ValueArray([ns, m])
@@ -375,14 +377,14 @@ def test_flatten_shared_units_into_parent():
     assert v[2] == 0.2 * ns
 
 
-def test_auto_wrap_value_in_array():
-    from tunits.api.like_pylabrad_units import ns
+def test_auto_wrap_value_in_array() -> None:
+    from tunits.units import ns
 
     assert np.min([3 * ns, 2 * ns, 5 * ns]) == 2 * ns
 
 
-def test_put_in_array():
-    from tunits.api.like_pylabrad_units import ns
+def test_put_in_array() -> None:
+    from tunits.units import ns
 
     a = np.array(ns * 0)
     assert a[()] == ns * 0
@@ -392,10 +394,11 @@ def test_put_in_array():
     assert a[0] == ns * 0
 
 
-def test_unwrap_value_array():
-    from tunits.api.like_pylabrad_units import ns
+def test_unwrap_value_array() -> None:
+    from tunits.units import ns
 
-    a = np.array([1, 2, 3, 4] * ns)
+    v = ns * [1, 2, 3, 4]
+    a = np.array(v)
     assert len(a) == 4
     assert a[0] == ns
     assert a[1] == ns * 2
@@ -424,8 +427,8 @@ def test_real_imag() -> None:
 
 
 def test_units_rounding() -> None:
-    GHz = fu.Unit('GHz')
-    MHz = fu.Unit('MHz')
+    GHz = u.Unit('GHz')
+    MHz = u.Unit('MHz')
 
     value = Value(1.1, 'GHz')
     assert value.round('GHz') == 1 * GHz

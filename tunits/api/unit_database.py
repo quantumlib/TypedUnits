@@ -12,16 +12,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Optional, Iterable
+from typing import Any, Dict, Optional, Iterable, TYPE_CHECKING
 
 import numpy as np
 
-from tunits.core import _all_cythonized
+import tunits_core
 from tunits.api import unit_grammar
 from tunits.api.base_unit_data import BaseUnitData
 from tunits.api.derived_unit_data import DerivedUnitData
 from tunits.api.prefix_data import PrefixData
 from tunits.api.physical_constant_data import PhysicalConstantData
+
+
+if TYPE_CHECKING:
+    import pyparsing
 
 
 class UnitDatabase:
@@ -37,18 +41,16 @@ class UnitDatabase:
         :param auto_create_units: Determines if unrecognized strings are
         interpreted as new units or not by default.
         """
-        self.known_units: Dict[str, _all_cythonized.WithUnit] = {}
+        self.known_units: Dict[str, tunits_core.Value] = {}
         self.auto_create_units = auto_create_units
 
-    def get_unit(
-        self, unit_name: str, auto_create: Optional[bool] = None
-    ) -> _all_cythonized.WithUnit:
+    def get_unit(self, unit_name: str, auto_create: Optional[bool] = None) -> tunits_core.Value:
         """
         :param str unit_name:
         :param None|bool auto_create: If this is set, a missing unit will be
         created and returned instead of causing an error. If not specified,
         defaults to the 'auto_create_units' attribute of the receiving instance.
-        :return WithUnit: The unit with the given name.
+        :return Value: The unit with the given name.
         """
         auto_create = self.auto_create_units if auto_create is None else auto_create
         if unit_name not in self.known_units:
@@ -59,26 +61,28 @@ class UnitDatabase:
 
     def parse_unit_formula(
         self, formula: str, auto_create: Optional[bool] = None
-    ) -> _all_cythonized.WithUnit:
+    ) -> tunits_core.Value:
         """
         :param str formula: Describes a combination of units.
         :param None|bool auto_create: If this is set, missing unit strings will
         cause new units to be created and returned instead of causing an error.
         If not specified, defaults to the 'auto_create_units' attribute of the
         receiving instance.
-        :return WithUnit: The value described by the formula.
+        :return Value: The value described by the formula.
         """
         if formula in self.known_units:
             return self.known_units[formula]
         parsed = unit_grammar.unit.parseString(formula)
-        result = _all_cythonized.WithUnit(parsed.factor or 1)
+        result = tunits_core.Value(parsed.factor or 1)
         for item in parsed.posexp:
             result *= self._parse_unit_item(item, +1, auto_create)
         for item in parsed.negexp:
             result *= self._parse_unit_item(item, -1, auto_create)
         return result
 
-    def _parse_unit_item(self, item, neg, auto_create=None):
+    def _parse_unit_item(
+        self, item: 'pyparsing.results.ParseResults', neg: int, auto_create: bool | None = None
+    ) -> tunits_core.Value:
         """
         :param item: A unit+exponent group parsed by unit_grammar.
         :param neg: Are we multiplying (+1) or dividing (-1)?
@@ -91,14 +95,14 @@ class UnitDatabase:
         unit_val = self.get_unit(unit_name, auto_create)
         return unit_val ** (sign * float(numer) / denom)
 
-    def add_unit(self, unit_name: str, unit_base_value: _all_cythonized.WithUnit) -> None:
+    def add_unit(self, unit_name: str, unit_base_value: tunits_core.Value) -> None:
         """
         Adds a unit to the database, pointing it at the given value.
         :param str unit_name: Key for the new unit.
-        :param WithUnit unit_base_value: The unit's value.
+        :param Value unit_base_value: The unit's value.
         """
-        if not isinstance(unit_base_value, _all_cythonized.WithUnit):
-            raise TypeError('unit_base_value must be a WithUnit')
+        if not isinstance(unit_base_value, tunits_core.Value):
+            raise TypeError('unit_base_value must be a Value')
         if unit_name in self.known_units:
             raise RuntimeError(
                 "Unit name '%s' already taken by '%s'."
@@ -111,8 +115,8 @@ class UnitDatabase:
         Adds a plain unit, not defined in terms of anything else, to the database.
         :param str unit_name: Key and unit array entry for the new unit.
         """
-        ua = _all_cythonized.UnitArray(unit_name)
-        unit = _all_cythonized.raw_WithUnit(
+        ua = tunits_core.UnitArray(unit_name)
+        unit = tunits_core.raw_WithUnit(
             1, {'factor': 1.0, 'ratio': {'numer': 1, 'denom': 1}, 'exp10': 0}, ua, ua
         )
         self.add_unit(unit_name, unit)
@@ -129,7 +133,7 @@ class UnitDatabase:
         self,
         unit_name: str,
         formula: str,
-        factor: int | float | complex | np.number = 1.0,
+        factor: int | float | complex | np.number[Any] = 1.0,
         numer: int = 1,
         denom: int = 1,
         exp10: int = 0,
@@ -147,7 +151,7 @@ class UnitDatabase:
         """
         parent = self.parse_unit_formula(formula, auto_create=False)
 
-        unit = _all_cythonized.raw_WithUnit(
+        unit = tunits_core.raw_WithUnit(
             1,
             {
                 'factor': factor * parent.factor * parent.value,
@@ -155,7 +159,7 @@ class UnitDatabase:
                 'exp10': exp10 + parent.exp10,
             },
             parent.base_units,
-            _all_cythonized.UnitArray(unit_name),
+            tunits_core.UnitArray(unit_name),
         )
 
         self.add_unit(unit_name, unit)
@@ -225,7 +229,7 @@ class UnitDatabase:
 
     def _expected_value_for_unit_array(
         self, unit_array: Iterable[tuple[str, int, int]]
-    ) -> _all_cythonized.Value | None:
+    ) -> tunits_core.Value | None:
         """
         Determines the expected conversion factor for the given UnitArray by
         looking up its unit names in the database and multiplying up each of
@@ -234,20 +238,20 @@ class UnitDatabase:
         :param (str, int, int) unit_array: An array of unit names and exponents.
         :return Value: A value containing the net conversion factor.
         """
-        result = _all_cythonized.Value(1)
+        result = tunits_core.Value(1)
         for name, exp_numer, exp_denom in unit_array:
             if name not in self.known_units:
                 return None
             result *= self.known_units[name] ** (float(exp_numer) / exp_denom)
         return result
 
-    def is_value_consistent_with_database(self, value: _all_cythonized.WithUnit) -> bool:
+    def is_value_consistent_with_database(self, value: tunits_core.Value) -> bool:
         """
         Determines if the value's base and display units are known and that
         the conversion factor between them is consistent with the known unit
         scales.
 
-        :param WithUnit value:
+        :param Value value:
         :return bool:
         """
         base = self._expected_value_for_unit_array(value.base_units)
@@ -263,5 +267,5 @@ class UnitDatabase:
 
         # Conversion makes sense?
         conv = value.unit * base / display
-        c = conv.numer / conv.denom * (10**conv.exp10) * conv.factor
+        c = conv.numer / conv.denom * (10 ** float(conv.exp10)) * conv.factor
         return abs(c - 1) < 0.0001

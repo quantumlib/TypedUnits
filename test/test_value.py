@@ -37,7 +37,7 @@ def test_dimensionless() -> None:
     assert y == 1500.0
 
 
-def test_addition():
+def test_addition() -> None:
     from tunits.units import kilometer
 
     n = Value(2, '')
@@ -57,7 +57,7 @@ def test_addition():
     assert n + 1 == 3
 
 
-def test_multiplication():
+def test_multiplication() -> None:
     from tunits.units import meter, mm, second
 
     x = Value(1.0 + 2j, meter)
@@ -67,7 +67,7 @@ def test_multiplication():
     assert (x / y).isDimensionless()
 
 
-def test_power():
+def test_power() -> None:
     from tunits.units import km, m, minute, s, um, mm
 
     x = 2 * mm
@@ -81,7 +81,7 @@ def test_power():
     assert np.isclose((60 * s * minute) ** 0.5 / s, minute / s)
 
 
-def test_repr():
+def test_repr() -> None:
     from tunits.units import km, kg, mm
 
     assert repr(Value(1, mm)) == "Value(1.0, 'mm')"
@@ -89,7 +89,7 @@ def test_repr():
     assert repr(Value(1j + 5, km * kg)) == "Value((5+1j), 'kg*km')"
 
 
-def test_str():
+def test_str() -> None:
     from tunits.units import mm, meter, kilometer, rad, cyc
 
     assert str(Value(1, mm)) == 'mm'
@@ -101,7 +101,7 @@ def test_str():
     assert str((4 * kilometer) ** 0.5) == '2.0 km^(1/2)'
 
 
-def test_div_mod():
+def test_div_mod() -> None:
     from tunits.units import us, ns
 
     x = 4.0009765625 * us
@@ -112,7 +112,7 @@ def test_div_mod():
     assert r == x - 4 * us
 
 
-def test_conversion():
+def test_conversion() -> None:
     from tunits.units import mm
 
     x = Value(3, 'm')
@@ -148,7 +148,7 @@ def test_radians_vs_steradians() -> None:
     assert Value(1, 'rad') ** (4 / 3.0) == Value(1, 'sr') ** (2 / 3.0)
 
 
-def test_division():
+def test_division() -> None:
     from tunits.units import km, s, m
 
     assert 5 * km / (2 * s) == Value(2500, 'm/s')
@@ -164,7 +164,7 @@ def test_division():
     assert (5 * km).__floordiv__(64 * m) == 78
 
 
-def test_get_item():
+def test_get_item() -> None:
     from tunits.units import ns, s
 
     with pytest.raises(TypeError):
@@ -175,7 +175,7 @@ def test_get_item():
     assert Value(1, '')[ns / s] == 10**9
 
 
-def test_cycles():
+def test_cycles() -> None:
     from tunits.units import cyc, rad
 
     assert np.isclose((3.14159265 * rad)[cyc], 0.5)
@@ -183,7 +183,7 @@ def test_cycles():
     assert np.isclose((1.0 * cyc)[2 * rad], 3.14159265)
 
 
-def test_decibels_vs_decibel_milliwatts():
+def test_decibels_vs_decibel_milliwatts() -> None:
     from tunits.units import dBm, dB, W
 
     assert dBm != dB * W
@@ -199,7 +199,7 @@ def test_hash() -> None:
     assert hash(Value(4j, 'V')) is not None
 
 
-def test_numpy_sqrt():
+def test_numpy_sqrt() -> None:
     from tunits.units import m, km, cm
 
     u = np.sqrt(8 * km * m) - cm

@@ -5,3 +5,10 @@ skip-string-normalization = true
 
 [build-system]
 requires = ["setuptools", "wheel", "Cython"]
+
+
+[tool.pytest.ini_options]
+testpaths = [
+    "test",
+    "test_perf",
+]

@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# coding=utf-8
+from typing import Iterable, Callable, Any
+
 import math
 import random
 import time
-from typing import List, Optional
 
 import numpy as np
 
 import tunits
 
 
-def _perf_bar_text(avg, stddev, n=20):
+def _perf_bar_text(avg: float, stddev: float, n: int = 20) -> str:
     """
     Returns an ascii progress bar showing the average relative to 1 with '#'s
     and two standard deviations with '~'s. E.g. '#####~~~~~       '.
@@ -35,7 +35,12 @@ def _perf_bar_text(avg, stddev, n=20):
     return ('#' * n_avg + '~' * n_2dev).ljust(n, ' ')
 
 
-def _measure_duration(func, args_getter, repeats, expected_micros):
+def _measure_duration(
+    func: Callable[..., Any],
+    args_getter: Callable[[], Any],
+    repeats: int,
+    expected_micros: float | int,
+) -> tuple[float, float]:
     """
     :param func: The function to time.
     :param args_getter: Returns sampled arguments to pass to the function.
@@ -68,10 +73,12 @@ def _measure_duration(func, args_getter, repeats, expected_micros):
     return mean_duration, std_dev
 
 
-_perf_goal_results: List[Optional[str]] = []
+_perf_goal_results: list[str | None] = []
 
 
-def perf_goal(avg_micros: int = 0, avg_nanos: int = 0, repeats: int = 100, args=None):
+def perf_goal(
+    avg_micros: int = 0, avg_nanos: int = 0, repeats: int = 100, args: Any = None
+) -> Callable[..., Any]:
     """
     A decorator that turns a function into a perf test.
     :param avg_micros: Maximum acceptable average duration, in microseconds.
@@ -92,10 +99,10 @@ def perf_goal(avg_micros: int = 0, avg_nanos: int = 0, repeats: int = 100, args=
         else str(target_nanos).rjust(3) + ' nanos '
     )
 
-    def decorate(func):
+    def decorate(func: Callable[..., Any]) -> Callable[[], None]:
         name = func.__name__.replace('test_perf_', '')
 
-        def wrapped():
+        def wrapped() -> None:
             try:
                 _perf_goal_results[index] = '[fail] ' + name
 
@@ -141,24 +148,24 @@ class Sample:
     Recognized by perf_goal as an argument that should vary.
     """
 
-    def __init__(self, sample_function):
+    def __init__(self, sample_function: Callable[..., Any]):
         self.sample_function = sample_function
 
 
-def _sampled_generation(sampler_args, backing_size):
+def _sampled_generation(sampler_args: Iterable[Any], backing_size: int) -> Callable[[], float]:
     """
     When generating is more expensive than the thing being timed, we can save a
     lot of time by generating a reasonable number of samples then randomly
     choosing from those samples. This function does that.
     """
 
-    def args_gen():
-        ctx = dict()
+    def args_gen() -> list[Any]:
+        ctx: dict[str, Any] = dict()
         return [e.sample_function(ctx) if isinstance(e, Sample) else e for e in sampler_args]
 
-    previous_samples = []
+    previous_samples: list[Any] = []
 
-    def args_sample():
+    def args_sample() -> Any:
         if len(previous_samples) < backing_size:
             previous_samples.append(args_gen())
             return previous_samples[-1]
@@ -170,9 +177,9 @@ def _sampled_generation(sampler_args, backing_size):
 unit_list = [v for k, v in tunits.api.unit.default_unit_database.known_units.items()]
 
 
-def _sample_random_unit_combo():
-    r = 10 * (random.random() + 0.01) * (-1 if random.random() < 0.5 else +1)
-    r *= random.choice(unit_list)
+def _sample_random_unit_combo() -> tunits.Value:
+    v = 10 * (random.random() + 0.01) * (-1 if random.random() < 0.5 else +1)
+    r = random.choice(unit_list) * v
     r *= random.choice(unit_list)
     r /= random.choice(unit_list)
     if random.random() > 0.5:
@@ -182,7 +189,7 @@ def _sample_random_unit_combo():
     return r
 
 
-def _sample_matching_combo_sampler(ctx):
+def _sample_matching_combo_sampler(ctx: dict[str, tunits.Value]) -> tunits.Value:
     key = 'a_compatible_unit'
     if key not in ctx:
         ctx[key] = _sample_random_unit_combo()

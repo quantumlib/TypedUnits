@@ -12,19 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# noinspection PyProtectedMember
-from tunits.core import _all_cythonized as u
+from typing import Any
+
+import tunits.core as u
+from test.test_utils import frac, conv
 
 
-def frac(numer=1, denom=1):
-    return {'numer': numer, 'denom': denom}
-
-
-def conv(factor=1.0, numer=1, denom=1, exp10=0):
-    return {'factor': factor, 'ratio': frac(numer, denom), 'exp10': exp10}
-
-
-def test_conversion_to_double():
+def test_conversion_to_double() -> None:
     # Identity.
     assert u.conversion_to_double(conv()) == 1
 
@@ -38,7 +32,7 @@ def test_conversion_to_double():
     assert u.conversion_to_double(conv(factor=1.75, numer=5, denom=8, exp10=2)) == 109.375
 
 
-def test_conversion_times():
+def test_conversion_times() -> None:
     # Identity.
     assert u.conversion_times(conv(), conv()) == conv()
 
@@ -56,7 +50,7 @@ def test_conversion_times():
     assert p == conv(factor=3.14 * 2.71, numer=1, denom=18, exp10=-3)
 
 
-def test_conversion_div():
+def test_conversion_div() -> None:
     # Identity.
     assert u.conversion_div(conv(), conv()) == conv()
 
@@ -74,7 +68,7 @@ def test_conversion_div():
     assert d == conv(factor=3.14 / 2.71, numer=25, denom=8, exp10=7)
 
 
-def test_inverse_conversion():
+def test_inverse_conversion() -> None:
     # Identity.
     assert u.inverse_conversion(conv()) == conv()
 
@@ -89,7 +83,7 @@ def test_inverse_conversion():
     assert c == conv(factor=1 / 3.14, numer=12, denom=5, exp10=-2)
 
 
-def test_conversion_raise_to():
+def test_conversion_raise_to() -> None:
     # Identity.
     assert u.conversion_raise_to(conv(), frac()) == conv()
     assert u.conversion_raise_to(conv(2, 3, 4, 5), frac()) == conv(2, 3, 4, 5)

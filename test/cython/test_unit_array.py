@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
 import pytest
 
-# noinspection PyProtectedMember
-from tunits.core._all_cythonized import raw_UnitArray, UnitArray  # type: ignore
+from tunits.core import raw_UnitArray, UnitArray
 
 du = raw_UnitArray([])
 
 
-def test_construction_versus_items():
+def test_construction_versus_items() -> None:
     empty = UnitArray()
     assert len(empty) == 0
     assert list(empty) == []
@@ -31,9 +31,9 @@ def test_construction_versus_items():
     assert list(singleton) == [('arbitrary', 1, 1)]
 
     with pytest.raises(TypeError):
-        raw_UnitArray(1)
+        raw_UnitArray(1)  # type: ignore
     with pytest.raises(TypeError):
-        raw_UnitArray((2, 'a', 'c'))
+        raw_UnitArray((2, 'a', 'c'))  # type: ignore
 
     raw0 = raw_UnitArray([])
     assert len(raw0) == 0
@@ -51,7 +51,7 @@ def test_construction_versus_items():
     assert list(raw2) == [('a', 3, 7), ('b', 2, 5)]
 
 
-def test_repr():
+def test_repr() -> None:
     assert repr(du) == 'raw_UnitArray([])'
     assert repr(UnitArray('a')), "raw_UnitArray([('a', 1 == 1)])"
 
@@ -63,7 +63,7 @@ def test_repr():
     )
 
 
-def test_str():
+def test_str() -> None:
     assert str(du) == ''
     assert str(UnitArray('a')) == 'a'
 
@@ -76,8 +76,8 @@ def test_str():
     )
 
 
-def test_equality():
-    equivalence_groups = [
+def test_equality() -> None:
+    equivalence_groups: list[list[Any]] = [
         [0],
         [[]],
         [""],
@@ -104,7 +104,7 @@ def test_equality():
                         assert e1 != e2
 
 
-def test_multiplicative_identity():
+def test_multiplicative_identity() -> None:
     various = [UnitArray('a'), raw_UnitArray([('a', 2, 3), ('b', 1, 1)]), du]
     for e in various:
         assert du * e == e
@@ -112,7 +112,7 @@ def test_multiplicative_identity():
         assert e / du == e
 
 
-def test_multiplication():
+def test_multiplication() -> None:
     assert UnitArray('a') * UnitArray('b') == raw_UnitArray([('a', 1, 1), ('b', 1, 1)])
     assert UnitArray('b') * UnitArray('a') == raw_UnitArray([('a', 1, 1), ('b', 1, 1)])
     assert raw_UnitArray([('a', 2, 7)]) * raw_UnitArray([('a', 3, 5)]) == raw_UnitArray(
@@ -126,7 +126,7 @@ def test_multiplication():
     )
 
 
-def test_division():
+def test_division() -> None:
     assert du / UnitArray('b') == raw_UnitArray([('b', -1, 1)])
     assert UnitArray('a') / UnitArray('b') == raw_UnitArray([('a', 1, 1), ('b', -1, 1)])
     assert UnitArray('b') / UnitArray('a') == raw_UnitArray([('a', -1, 1), ('b', 1, 1)])
@@ -141,7 +141,7 @@ def test_division():
     )
 
 
-def test_pow():
+def test_pow() -> None:
     assert du**2 == du
     assert UnitArray('a') ** 0 == du
     assert UnitArray('a') ** 2 == raw_UnitArray([('a', 2, 1)])

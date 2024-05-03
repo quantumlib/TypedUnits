@@ -14,4 +14,4 @@
 # limitations under the License.
 
 
-python -m pytest --capture=no test_perf/
+pytest --capture=no test_perf/

@@ -14,7 +14,7 @@
 
 """
 Defines named physical constants exposed in the default unit database and as
-members of pyfu.units (and pyfu.like_pylabrad_units).
+members of tunits.units (and tunits.api.like_pylabrad_units).
 
 Constants differ from derived units in that they don't affect the displayed
 units of values. For example, `str(2 * c)` will return '599584916.0 m/s' instead

@@ -12,9 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import os.path
-import setuptools  # type: ignore
-
+import setuptools
 from Cython.Build import cythonize
 
 requirements = open('requirements.txt', 'r').readlines()
@@ -22,9 +20,11 @@ requirements = open('requirements.txt', 'r').readlines()
 setuptools.setup(
     name="tunits",
     version="0.0.1",
-    packages=['tunits'],
+    packages=['tunits.proto', 'tunits.core', 'tunits.api', 'tunits'],
+    package_data={'tunits_core': ['py.typed', 'tunits_core.pyi']},
     ext_modules=cythonize(
-        "tunits/core/_all_cythonized.pyx", compiler_directives={'language_level': 3}
+        [setuptools.Extension('tunits_core', ['tunits/core/_all_cythonized.pyx'])],
+        compiler_directives={'language_level': 3},
     ),
     install_requires=requirements,
     setup_requires=requirements,

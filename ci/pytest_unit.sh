@@ -14,4 +14,4 @@
 # limitations under the License.
 
 
-python -m pytest --capture=no test/
+pytest --capture=no test/

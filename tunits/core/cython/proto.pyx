@@ -31,7 +31,7 @@ _PROTO_TO_UNIT_STRING = {
 }
 
 _UNIT_STRING_TO_PROTO = {v: k for k, v in _PROTO_TO_UNIT_STRING.items()}
-_SCALE_PREFIXES = {
+SCALE_PREFIXES = {
     'y': -24,
     'z': -21,
     'a': -18,
@@ -55,7 +55,7 @@ _SCALE_PREFIXES = {
     'Y': 24,
 }
 
-_ENUM_TO_SCALE_SYMBOL = {v: k for k, v in _SCALE_PREFIXES.items()}
+_ENUM_TO_SCALE_SYMBOL = {v: k for k, v in SCALE_PREFIXES.items()}
 
 _SERIALIZATION_ERROR_MESSAGE = (
     "can't map unit={} to a proto enum value. If it's "
@@ -97,7 +97,7 @@ def _unit_name_to_proto(unit_name: str) -> Optional[tunits_pb2.Unit]:
         return tunits_pb2.Unit(
             unit=_UNIT_STRING_TO_PROTO[unit_name],
         )
-    for scale_prefix, scale_value in _SCALE_PREFIXES.items():
+    for scale_prefix, scale_value in SCALE_PREFIXES.items():
         suffix = unit_name[len(scale_prefix) :]
         if unit_name.startswith(scale_prefix) and suffix in _UNIT_STRING_TO_PROTO:
             return tunits_pb2.Unit(

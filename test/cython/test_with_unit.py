@@ -12,16 +12,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
 import copy
 
 import numpy as np
 import pytest
 
-# We're testing it, so we're allowed to look.
-# noinspection PyProtectedMember
-from tunits.core._all_cythonized import raw_WithUnit, raw_UnitArray  # type: ignore
+from tunits.core import raw_WithUnit, raw_UnitArray, WithUnit
 
 from tunits import UnitMismatchError, ValueArray, Value, Complex
+from test.test_utils import frac, conv, val
 
 dimensionless = raw_UnitArray([])
 s = raw_UnitArray([('s', 1, 1)])
@@ -33,20 +33,7 @@ mps = raw_UnitArray([('m', 1, 1), ('s', -1, 1)])
 kph = raw_UnitArray([('m', 1000, 1), ('s', -1, 3600)])
 
 
-def frac(numer=1, denom=1):
-    return {'numer': numer, 'denom': denom}
-
-
-def conv(factor=1.0, numer=1, denom=1, exp10=0):
-    return {'factor': factor, 'ratio': frac(numer, denom), 'exp10': exp10}
-
-
-# noinspection PyShadowingNames
-def val(value, conv=conv(), units=dimensionless, display_units=None):
-    return raw_WithUnit(value, conv, units, units if display_units is None else display_units)
-
-
-def deep_equal(a, b):
+def deep_equal(a: WithUnit, b: WithUnit) -> bool:
     """Compares value, units, numerator, denominator, and exponent.
 
     Args:
@@ -71,7 +58,7 @@ def deep_equal(a, b):
     return a.numer == b.numer and a.denom == b.denom and a.factor == b.factor and a.exp10 == b.exp10
 
 
-def test_raw_versus_properties():
+def test_raw_versus_properties() -> None:
     x = val(2, conv(factor=3, numer=4, denom=5, exp10=6), mps, kph)
     assert x.value == 2
     assert x.factor == 3
@@ -86,7 +73,7 @@ def test_raw_versus_properties():
     assert isinstance(val([2]), ValueArray)
 
 
-def test_abs():
+def test_abs() -> None:
     assert abs(val(2)) == val(2)
 
     # If we have a negative unit, abs is w.r.t. the derived unit.
@@ -96,8 +83,8 @@ def test_abs():
     assert abs(val(2, conv(-1.5, numer=-2))) == val(6)
 
 
-def test_equality():
-    equivalence_groups = [
+def test_equality() -> None:
+    equivalence_groups: list[list[Any]] = [
         [""],
         ["other types"],
         [list],
@@ -151,7 +138,7 @@ def test_equality():
                         assert e1 != e2
 
 
-def test_ordering():
+def test_ordering() -> None:
     with pytest.raises(UnitMismatchError):
         _ = val(1) < val(1, units=m)
         _ = val(1) > val(1, units=m)
@@ -189,7 +176,7 @@ def test_ordering():
                     assert not (a >= b)
 
 
-def test_array_equality():
+def test_array_equality() -> None:
     assert np.array_equal(5 == val([]), [])
     assert np.array_equal([] == val([], conv(2), mps), [])
     assert np.array_equal([1] == val([0]), [False])
@@ -205,7 +192,7 @@ def test_array_equality():
     assert np.array_equal([1, 2] == val([0.5, 1], conv(2)), [True, True])
 
 
-def test_array_ordering():
+def test_array_ordering() -> None:
     with pytest.raises(UnitMismatchError):
         _ = val([]) < val([], units=m)
         _ = val([]) > val([], units=m)
@@ -218,7 +205,7 @@ def test_array_ordering():
     assert np.array_equal(val([2, 3, 4], units=m) > val([3, 3, 3], units=m), [False, False, True])
 
 
-def test_int():
+def test_int() -> None:
     with pytest.raises(TypeError):
         int(val(1, units=mps))
     with pytest.raises(TypeError):
@@ -243,7 +230,7 @@ def test_int():
     assert u == 750000
 
 
-def test_float():
+def test_float() -> None:
     with pytest.raises(TypeError):
         float(val(1, units=mps))
     with pytest.raises(TypeError):
@@ -264,7 +251,7 @@ def test_float():
     assert u == 750000
 
 
-def test_complex():
+def test_complex() -> None:
     with pytest.raises(TypeError):
         complex(val(1j, units=m))
     with pytest.raises(TypeError):
@@ -279,7 +266,7 @@ def test_complex():
     assert v == 750000 + 900000j
 
 
-def test_array():
+def test_array() -> None:
     u = np.array(val([1, 2], units=m))
     assert isinstance(u, np.ndarray)
     assert isinstance(u[0], Value)
@@ -299,7 +286,7 @@ def test_array():
     assert np.array_equal([300000, 450000 + 150000j], u)
 
 
-def test_copy():
+def test_copy() -> None:
     a = val(2, conv(3, 4, 5, 6), mps, kph)
     assert a is copy.copy(a)
     assert a is copy.deepcopy(a)
@@ -320,7 +307,7 @@ def test_copy():
     assert not np.array_equal(c, c2)
 
 
-def test_addition():
+def test_addition() -> None:
     with pytest.raises(UnitMismatchError):
         _ = val(2, units=m) + val(3, units=s)
     with pytest.raises(UnitMismatchError):
@@ -362,7 +349,7 @@ def test_addition():
         _ = val(0, units=s) + val(3, units=m)
 
 
-def test_subtraction():
+def test_subtraction() -> None:
     with pytest.raises(UnitMismatchError):
         _ = val(2, units=m) - val(3, units=s)
     with pytest.raises(UnitMismatchError):
@@ -385,7 +372,7 @@ def test_subtraction():
         _ = val(0, units=s) - val(3, units=m)
 
 
-def test_multiplication():
+def test_multiplication() -> None:
     assert val(2) * val(5) == 10
 
     assert deep_equal(val(2, units=m) * val(3, units=s), val(6, units=m * s))
@@ -396,7 +383,7 @@ def test_multiplication():
     )
 
 
-def test_division():
+def test_division() -> None:
     assert val(5) / val(2) == 2.5
 
     assert deep_equal(val(7, units=m) / val(4, units=s), val(1.75, units=m / s))
@@ -407,7 +394,7 @@ def test_division():
     )
 
 
-def test_int_division():
+def test_int_division() -> None:
     with pytest.raises(UnitMismatchError):
         _ = val(1, units=m) // val(1, units=s)
 
@@ -424,7 +411,7 @@ def test_int_division():
     assert val(7, conv(2), m, s) // val(4, units=m, display_units=h) == 3
 
 
-def test_mod():
+def test_mod() -> None:
     with pytest.raises(UnitMismatchError):
         _ = val(1, units=m) % val(1, units=s)
 
@@ -435,7 +422,7 @@ def test_mod():
     assert deep_equal(val(7, conv(3), m, s) % val(4, conv(2), m, h), val(2.5, conv(2), m, h))
 
 
-def test_div_mod():
+def test_div_mod() -> None:
     with pytest.raises(UnitMismatchError):
         _ = divmod(val(1, units=m), val(1, units=s))
 
@@ -444,9 +431,9 @@ def test_div_mod():
     assert deep_equal(r, val(2.5, conv(2), m, h))
 
 
-def test_pow():
+def test_pow() -> None:
     with pytest.raises(TypeError):
-        _ = 2 ** val(1, units=m)
+        _ = 2 ** val(1, units=m)  # type: ignore
 
     assert deep_equal(val(2, units=m) ** -2, val(0.25, units=m**-2))
     assert deep_equal(val(2, units=m) ** -1, val(0.5, units=m**-1))
@@ -468,15 +455,15 @@ def test_pow():
     assert deep_equal(val(4, conv(numer=2)) ** 0.5, val(2, conv(factor=2**0.5)))
 
 
-def test_pos():
+def test_pos() -> None:
     assert deep_equal(+val(2, conv(3, 5, 7, 11), mps, kph), val(2, conv(3, 5, 7, 11), mps, kph))
 
 
-def test_neg():
+def test_neg() -> None:
     assert deep_equal(-val(2, conv(3, 5, 7, 11), mps, kph), val(-2, conv(3, 5, 7, 11), mps, kph))
 
 
-def test_non_zero():
+def test_non_zero() -> None:
     assert not bool(val(0, conv(3, 5, 7, 11), mps, kph))
     assert not bool(val(0))
     assert bool(val(2, conv(3, 5, 7, 11), mps, kph))
@@ -485,7 +472,7 @@ def test_non_zero():
     assert np.size(val([])) == 0
 
 
-def test_numpy_method_is_finite():
+def test_numpy_method_is_finite() -> None:
     with pytest.raises(TypeError):
         np.isfinite(val([], units=m))
     with pytest.raises(TypeError):
@@ -498,7 +485,7 @@ def test_numpy_method_is_finite():
     assert np.array_equal(np.isfinite(v), [[True, True], [True, False]])
 
 
-def test_get_item():
+def test_get_item() -> None:
     u = val(1, conv(exp10=1))
     v = val(2, conv(numer=3, denom=5, exp10=7), mps, kph)
 
@@ -531,7 +518,7 @@ def test_get_item():
     assert val(2, conv(numer=3, exp10=7), mps, kph)[v] == 5
 
 
-def test_iter():
+def test_iter() -> None:
     a = []
     for e in val([1, 2, 4], conv(numer=2), mps, kph):
         a.append(e)
@@ -542,8 +529,8 @@ def test_iter():
     assert deep_equal(a[2], val(4, conv(numer=2), mps, kph))
 
 
-def test_hash():
-    d = dict()
+def test_hash() -> None:
+    d: dict[Any, Any] = dict()
     v = val(2, conv(denom=5), mps, kph)
     w = val(3, conv(exp10=7), mps, kph)
     d[v] = 5
@@ -553,7 +540,7 @@ def test_hash():
     assert d[w] == "b"
 
 
-def test_str():
+def test_str() -> None:
     assert str(val(2, conv(3, 4, 5, 6), s, m)) == '2.0 m'
     assert str(val(2j, conv(3, 4, 5, 6), s)) == '2j s'
     assert str(val(1, units=m, display_units=s)) == 's'
@@ -563,7 +550,7 @@ def test_str():
     assert str(val([2, 3], units=h, display_units=mps)) == '[2 3] m/s'
 
 
-def test_is_compatible():
+def test_is_compatible() -> None:
     equivalence_groups = [
         [val(0), val(1)],
         [val(1, units=m), val(5, conv(3), units=m, display_units=s)],
@@ -577,7 +564,7 @@ def test_is_compatible():
                     assert e1.isCompatible(e2) == (g1 is g2)
 
 
-def test_is_angle():
+def test_is_angle() -> None:
     assert not val(1).isAngle()
     assert not val(1).is_angle
     assert not val(1, units=m).isAngle()
@@ -588,7 +575,7 @@ def test_is_angle():
     assert not val(1, units=rad**2).is_angle
 
 
-def test_in_units_of():
+def test_in_units_of() -> None:
     with pytest.raises(UnitMismatchError):
         val(1, units=m).inUnitsOf(val(2, units=s))
 
@@ -601,5 +588,5 @@ def test_in_units_of():
     )
 
 
-def test_unit():
+def test_unit() -> None:
     assert deep_equal(val(7, conv(2, 3, 4, 5), m, s).unit, val(1, conv(2, 3, 4, 5), m, s))

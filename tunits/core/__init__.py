@@ -12,16 +12,4 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This is needed in order to import .pyx files.
-import pyximport  # type: ignore
-
-pyximport.install()
-
-import tunits.core._all_cythonized as _all_cythonized  # type: ignore
-
-# Expose the type/method API.
-Complex = _all_cythonized.Complex
-UnitMismatchError = _all_cythonized.UnitMismatchError
-Value = _all_cythonized.Value
-ValueArray = _all_cythonized.ValueArray
-WithUnit = _all_cythonized.WithUnit
+from tunits_core import *

@@ -16,6 +16,7 @@ import itertools
 import pytest
 import numpy as np
 from tunits import units, Value, ValueArray, Complex, tunits_pb2
+from tunits.core import SCALE_PREFIXES
 
 _ONE_UNIT = [
     units.dBm,
@@ -45,7 +46,7 @@ _TWO_UNITS = [
 
 
 @pytest.mark.parametrize('unit', _ONE_UNIT + _TWO_UNITS)
-def test_value_conversion_trip(unit):
+def test_value_conversion_trip(unit: Value) -> None:
     rs = np.random.RandomState(0)
     for value in rs.random(10):
         v = value * unit
@@ -53,7 +54,7 @@ def test_value_conversion_trip(unit):
 
 
 @pytest.mark.parametrize('unit', _ONE_UNIT + _TWO_UNITS)
-def test_complex_conversion_trip(unit):
+def test_complex_conversion_trip(unit: Value) -> None:
     rs = np.random.RandomState(0)
     for value in rs.random(10):
         v = 1j * value * unit
@@ -61,7 +62,7 @@ def test_complex_conversion_trip(unit):
 
 
 @pytest.mark.parametrize('unit', _ONE_UNIT + _TWO_UNITS)
-def test_valuearray_conversion_trip(unit):
+def test_valuearray_conversion_trip(unit: Value) -> None:
     rs = np.random.RandomState(0)
     for value in rs.random((4, 2, 4, 3)):
         v = value * unit
@@ -71,7 +72,7 @@ def test_valuearray_conversion_trip(unit):
 
 
 @pytest.mark.parametrize('unit', _ONE_UNIT + _TWO_UNITS)
-def test_complex_valuearray_conversion_trip(unit):
+def test_complex_valuearray_conversion_trip(unit: Value) -> None:
     rs = np.random.RandomState(0)
     for real, imag in zip(rs.random((4, 2, 4, 3)), rs.random((4, 2, 4, 3))):
         v = (real + 1j * imag) * unit
@@ -87,30 +88,30 @@ def test_complex_valuearray_conversion_trip(unit):
         units.V * units.Ohm,
     ],
 )
-def test_unsupported_unit_conversion_raises_valueerror(unit):
+def test_unsupported_unit_conversion_raises_valueerror(unit: Value) -> None:
     with pytest.raises(ValueError):
         _ = unit.to_proto()
 
 
-def test_valuearray_shape_mismatch():
+def test_valuearray_shape_mismatch() -> None:
     msg = tunits_pb2.ValueArray()
     msg.reals.values.extend([1, 2])
     with pytest.raises(ValueError):
         ValueArray.from_proto(msg)
 
 
-def test_emptyarray_is_invalid():
+def test_emptyarray_is_invalid() -> None:
     msg = tunits_pb2.ValueArray()
     with pytest.raises(ValueError):
         _ = ValueArray.from_proto(msg)
 
 
-def test_empty_unit_is_valid():
+def test_empty_unit_is_valid() -> None:
     msg = tunits_pb2.Value(real_value=1)
     _ = Value.from_proto(msg)
 
 
-def test_empty_value_is_invalid():
+def test_empty_value_is_invalid() -> None:
     msg = tunits_pb2.Value(units=[tunits_pb2.Unit()])
     with pytest.raises(ValueError):
         _ = Value.from_proto(msg)
@@ -119,19 +120,17 @@ def test_empty_value_is_invalid():
         _ = Complex.from_proto(msg)
 
 
-def test_unit_exponent_with_zero_denominator_raises():
+def test_unit_exponent_with_zero_denominator_raises() -> None:
     with pytest.raises(ValueError):
         _ = Value.from_proto(
             tunits_pb2.Value(units=[tunits_pb2.Unit(exponent=tunits_pb2.Fraction(denominator=0))])
         )
 
 
-def test_scale_values_are_correct():
-    from tunits.core._all_cythonized import _SCALE_PREFIXES  # type: ignore
-
-    assert len(_SCALE_PREFIXES) == len(
+def test_scale_values_are_correct() -> None:
+    assert len(SCALE_PREFIXES) == len(
         tunits_pb2.Scale.items()
-    ), f'differing number of scales in proto and _SCALE_PREFIXES. If you are adding new scales please update the _SCALE_PREFIXES map'
+    ), f'differing number of scales in proto and SCALE_PREFIXES. If you are adding new scales please update the SCALE_PREFIXES map'
 
     scale_to_prefix = {
         'YOTTA': 'Y',
@@ -157,4 +156,4 @@ def test_scale_values_are_correct():
         'YOCTO': 'y',
     }
     for scale, prefix in scale_to_prefix.items():
-        assert tunits_pb2.Scale.Value(scale) == _SCALE_PREFIXES[prefix]
+        assert tunits_pb2.Scale.Value(scale) == SCALE_PREFIXES[prefix]

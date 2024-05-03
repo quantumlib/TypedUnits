@@ -12,86 +12,87 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
 import unittest
 
 from tunits import Value
-from test_perf.perf_testing_util import a_random_compatible_unit_val, a_random_unit_val, perf_goal
+from .perf_testing_util import a_random_compatible_unit_val, a_random_unit_val, perf_goal
 
 
 @perf_goal(avg_micros=2, args=[a_random_compatible_unit_val] * 2)
-def test_perf_add(a, b):
+def test_perf_add(a: Value, b: Value) -> Value:
     return a + b
 
 
 @perf_goal(avg_micros=3, args=[a_random_unit_val])
-def test_perf_scale(a):
+def test_perf_scale(a: Value) -> Value:
     return a * 3.14
 
 
 @perf_goal(avg_micros=4, args=[a_random_unit_val] * 2)
-def test_perf_multiply(a, b):
+def test_perf_multiply(a: Value, b: Value) -> Value:
     return a * b
 
 
 @perf_goal(avg_micros=2, args=[a_random_compatible_unit_val] * 2)
-def test_perf_get_item(a, b):
+def test_perf_get_item(a: Value, b: Value) -> Value:
     return a[b]
 
 
 @perf_goal(avg_micros=3, args=[a_random_compatible_unit_val] * 2)
-def test_perf_divmod(a, b):
+def test_perf_divmod(a: Value, b: Value) -> Any:
     return divmod(a, b)
 
 
 @perf_goal(avg_micros=20, args=[a_random_compatible_unit_val] * 2)
-def test_perf_import_multiply_add_heterogeneous(a, b):
+def test_perf_import_multiply_add_heterogeneous(a: Value, b: Value) -> Value:
     from tunits.units import kilometer, inch
 
     return a * kilometer + b * inch
 
 
 @perf_goal(avg_micros=1, args=[a_random_unit_val])
-def test_perf_abs(a):
+def test_perf_abs(a: Value) -> Value:
     return abs(a)
 
 
 @perf_goal(avg_micros=5, args=[a_random_unit_val])
-def test_perf_pow(a):
+def test_perf_pow(a: Value) -> Value:
     return abs(a) ** (2 / 3.0)
 
 
 @perf_goal(avg_micros=10, args=[a_random_unit_val])
-def test_perf_str(a):
+def test_perf_str(a: Value) -> str:
     return str(a)
 
 
 @perf_goal(avg_micros=80, args=[a_random_unit_val])
-def test_perf_repr(a):
+def test_perf_repr(a: Value) -> str:
     return repr(a)
 
 
 @perf_goal(avg_micros=5)
-def test_perf_parse_atom():
+def test_perf_parse_atom() -> Value:
     return Value(1, 'kilogram')
 
 
 @perf_goal(avg_micros=750)
-def test_perf_parse_formula():
+def test_perf_parse_formula() -> Value:
     return Value(1, 'm*s/kg^4')
 
 
 @perf_goal(avg_micros=1, args=[a_random_unit_val] * 2)
-def test_perf_is_compatible(a, b):
+def test_perf_is_compatible(a: Value, b: Value) -> bool:
     return a.isCompatible(b)
 
 
 @perf_goal(avg_nanos=750, args=[a_random_unit_val] * 2)
-def test_perf_equate(a, b):
+def test_perf_equate(a: Value, b: Value) -> bool:
     return a == b
 
 
 @perf_goal(avg_micros=2, args=[a_random_compatible_unit_val] * 2)
-def test_perf_compare(a, b):
+def test_perf_compare(a: Value, b: Value) -> bool:
     return a < b
 
 

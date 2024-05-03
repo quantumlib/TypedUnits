@@ -15,6 +15,7 @@
 # Combines all the .pyx files together, so they are compiled and optimized as
 # a single thing (and have access to their respective fast cdefs).
 
+include "../proto/tunits_pb2.py"
 include "cython/proto.pyx"
 include "cython/frac.pyx"
 include "cython/conversion.pyx"

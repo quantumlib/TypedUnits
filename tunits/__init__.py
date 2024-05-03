@@ -14,7 +14,7 @@
 
 from tunits.proto import tunits_pb2
 
-from tunits.core import (
+from tunits_core import (
     Complex,
     UnitMismatchError,
     Value,
@@ -22,4 +22,5 @@ from tunits.core import (
     WithUnit,
 )
 
-import tunits.units as units
+import tunits.core
+import tunits.api

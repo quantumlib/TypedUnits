@@ -1,4 +1,4 @@
-## Pyfu - Fast Python Units
+## TUnits - Fast Python Units
 
 | GCB CI status: |
 | ---------- |
@@ -11,8 +11,8 @@ Defines SI units, SI prefixes, and some derived units.
 ## Example
 
 ```python
-import pyfu
-from pyfu.units import meter, km, N
+import tunits
+from tunits.units import meter, km, N
 
 print(5*meter + km)
 # 1005.0 meter
@@ -23,7 +23,7 @@ print(N/meter)
 print((N/meter).inBaseUnits())
 # kg/s^2
 
-print(2*km / pyfu.Value(3, 's'))
+print(2*km / tunits.Value(3, 's'))
 # 0.666666666667 km/s
 ```
 
@@ -61,10 +61,16 @@ print(2*km / pyfu.Value(3, 's'))
     pip install -r dev_tools/dev.env.txt
     ```
 
+1. Install TUnits
+
+    ```bash
+    pip install .
+    ```
+
 1. Test.
 
     ```bash
-    python -m pytest
+    pytest
     ```
 
 

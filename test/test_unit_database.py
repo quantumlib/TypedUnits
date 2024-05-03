@@ -13,7 +13,7 @@
 # limitations under the License.
 
 import pytest
-from tunits.core._all_cythonized import raw_WithUnit, raw_UnitArray  # type: ignore
+from tunits.core import raw_WithUnit, raw_UnitArray
 from pyparsing import ParseException
 
 from tunits.api.base_unit_data import BaseUnitData
@@ -21,22 +21,7 @@ from tunits.api.derived_unit_data import DerivedUnitData
 from tunits.api.prefix_data import PrefixData, SI_PREFIXES
 from tunits.api.unit_database import UnitDatabase
 
-
-def frac(numer=1, denom=1):
-    return {'numer': numer, 'denom': denom}
-
-
-def unit(key):
-    return raw_UnitArray([(key, 1, 1)])
-
-
-def conv(factor=1.0, numer=1, denom=1, exp10=0):
-    return {'factor': factor, 'ratio': frac(numer, denom), 'exp10': exp10}
-
-
-# noinspection PyShadowingNames
-def val(value, conv=conv(), units=raw_UnitArray([]), display_units=None):
-    return raw_WithUnit(value, conv, units, units if display_units is None else display_units)
+from test.test_utils import val, unit, conv
 
 
 def test_auto_create() -> None:
@@ -61,7 +46,7 @@ def test_auto_create_disabled_when_purposefully_adding_units() -> None:
         db.add_alternate_unit_name('new', 'missing')
 
 
-def test_get_unit_with_auto_create_override():
+def test_get_unit_with_auto_create_override() -> None:
     db_auto = UnitDatabase(auto_create_units=True)
     db_manual = UnitDatabase(auto_create_units=False)
 
@@ -81,7 +66,7 @@ def test_get_unit_with_auto_create_override():
     assert str(u) == 'empty'
 
 
-def test_add_root_unit():
+def test_add_root_unit() -> None:
     db = UnitDatabase(auto_create_units=False)
     db.add_root_unit('cats')
 
@@ -99,7 +84,7 @@ def test_add_root_unit():
         db.add_root_unit('cats')
 
 
-def test_add_base_unit_with_prefixes():
+def test_add_base_unit_with_prefixes() -> None:
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(
         BaseUnitData('b', 'base', True),
@@ -134,7 +119,7 @@ def test_add_base_unit_with_prefixes():
         db.get_unit('pre_b')
 
 
-def test_add_base_unit_without_prefixes():
+def test_add_base_unit_without_prefixes() -> None:
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(
         BaseUnitData('b', 'base', False),
@@ -171,7 +156,7 @@ def test_add_base_unit_without_prefixes():
         db.get_unit('pre_b')
 
 
-def test_add_derived_unit_with_prefixes():
+def test_add_derived_unit_with_prefixes() -> None:
     db = UnitDatabase(auto_create_units=False)
     with pytest.raises(KeyError):
         db.add_derived_unit_data(DerivedUnitData('tails', 't', 'shirts'), [])
@@ -208,7 +193,7 @@ def test_add_derived_unit_with_prefixes():
         db.get_unit('super_t')
 
 
-def test_add_derived_unit_without_prefixes():
+def test_add_derived_unit_without_prefixes() -> None:
     db = UnitDatabase(auto_create_units=False)
 
     db.add_root_unit('shirts')
@@ -240,7 +225,7 @@ def test_add_derived_unit_without_prefixes():
         db.get_unit('super_t')
 
 
-def test_kilogram_special_case():
+def test_kilogram_special_case() -> None:
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(BaseUnitData('kg', 'kilogram'), SI_PREFIXES)
     assert db.get_unit('g').base_units == raw_UnitArray([('kg', 1, 1)])
@@ -248,7 +233,7 @@ def test_kilogram_special_case():
     assert db.get_unit('kg') * 1000 == db.get_unit('Mg')
 
 
-def test_parse_unit_formula():
+def test_parse_unit_formula() -> None:
     db = UnitDatabase(auto_create_units=False)
     db.add_root_unit('cats')
     db.add_root_unit('dogs')
@@ -270,7 +255,7 @@ def test_parse_unit_formula():
     assert db.parse_unit_formula('cats/dogs*mice') == (cats / dogs) * mice
 
 
-def test_parse_float_formula():
+def test_parse_float_formula() -> None:
     db = UnitDatabase(auto_create_units=False)
     db.add_root_unit('J')
     db.add_root_unit('s')
@@ -282,7 +267,7 @@ def test_parse_float_formula():
     assert db.parse_unit_formula('2.06783276917e-15 J*s/C') == 2.06783276917e-15 * J * s / C
 
 
-def test_is_consistent_with_database():
+def test_is_consistent_with_database() -> None:
     db = UnitDatabase(auto_create_units=True)
 
     # Empty.

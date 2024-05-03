@@ -17,7 +17,7 @@ import math
 import numpy as np
 
 
-def test_all_default_units_and_simple_variations_thereof_are_parseable():
+def test_all_default_units_and_simple_variations_thereof_are_parseable() -> None:
     import tunits.api.unit
 
     db = tunits.api.unit.default_unit_database
@@ -27,7 +27,7 @@ def test_all_default_units_and_simple_variations_thereof_are_parseable():
             assert db.parse_unit_formula(str(v)) == v
 
 
-def test_unit_relationship_energy_stored_in_capacity():
+def test_unit_relationship_energy_stored_in_capacity() -> None:
     from tunits.units import uF, V, uJ
 
     capacitance = 2 * uF
@@ -36,7 +36,7 @@ def test_unit_relationship_energy_stored_in_capacity():
     assert stored == 25 * uJ
 
 
-def test_durations():
+def test_durations() -> None:
     from tunits.units import week, year, day, hour, minute, second
 
     a = week + year + day + hour + minute
@@ -45,7 +45,7 @@ def test_durations():
     assert np.isclose(year / second, 31557600)
 
 
-def test_lengths():
+def test_lengths() -> None:
     from tunits.units import inch, foot, yard, nautical_mile, angstrom, light_year, meter
 
     a = inch + foot + yard + nautical_mile + angstrom + light_year
@@ -57,7 +57,7 @@ def test_lengths():
     assert light_year == Value(1, 'c*yr')
 
 
-def test_areas():
+def test_areas() -> None:
     from tunits.units import hectare, barn, meter
 
     assert (hectare + barn).isCompatible(meter**2)
@@ -68,7 +68,7 @@ def test_areas():
     assert hectare < barn * 10**33
 
 
-def test_angles():
+def test_angles() -> None:
     from tunits.units import deg, rad, cyc
 
     assert (deg + cyc).isCompatible(rad)
@@ -76,7 +76,7 @@ def test_angles():
     assert np.isclose((math.pi * rad)[cyc], 0.5)
 
 
-def test_volumes():
+def test_volumes() -> None:
     from tunits.units import (
         teaspoon,
         tablespoon,
@@ -96,19 +96,19 @@ def test_volumes():
     assert np.isclose(33.814 * fluid_ounce / liter, 1, atol=1e-5)
 
 
-def test_masses():
+def test_masses() -> None:
     from tunits.units import ounce, pound, ton, megagram
 
     assert np.isclose((ounce + pound + ton) / megagram, 0.9077, atol=1e-4)
 
 
-def test_pressures():
+def test_pressures() -> None:
     from tunits.units import psi, Pa
 
     assert psi.isCompatible(Pa)
 
 
-def test_basic_constants():
+def test_basic_constants() -> None:
     from tunits.units import (
         c,
         mu0,
@@ -140,7 +140,7 @@ def test_basic_constants():
     assert np.isclose(u / v, 1, atol=1e-3)
 
 
-def test_other_constants():
+def test_other_constants() -> None:
     from tunits.units import bohr_magneton, Bohr, degR, Hartree, rootHz, amu, kg, m, s, A, K
 
     u = Hartree * rootHz * amu

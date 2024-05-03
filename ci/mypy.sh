@@ -18,4 +18,5 @@ set -Eeuo pipefail
 
 shopt -s globstar
 
-mypy ./**/*.py
+modules=(tunits test test_perf)
+mypy "${modules[@]}"

@@ -29,18 +29,14 @@ steps:
     waitFor: ['-']
 
   #
-  # Cythonize
+  # Static code checks
   #
 
-  - id: cythonize
+  - id: mypy
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['python setup.py build_ext --inplace']
+    args: ['./ci/mypy.sh']
     waitFor:
       - build-builder
-
-  #
-  # Test
-  #
 
   - id: shellcheck
     name: gcr.io/$PROJECT_ID/pyfu-builder
@@ -60,21 +56,31 @@ steps:
     waitFor:
       - build-builder
 
-  - id: mypy
+  - id: 'Check modified protos'
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['./ci/mypy.sh']
+    args: ['./ci/build_changed_protos.sh origin/main']
     waitFor:
       - build-builder
+
+  #
+  # Install
+  #
+
+  - id: install
+    name: gcr.io/$PROJECT_ID/pyfu-builder
+    args: ['pip install . --user']
+    waitFor: 
+      - mypy
+
+  #
+  # Test
+  #
 
   - id: pytest
     name: gcr.io/$PROJECT_ID/pyfu-builder
     args: ['./ci/pytest_unit.sh']
     waitFor:
-      - cythonize
-
-  - id: 'Check modified protos'
-    name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['./ci/build_changed_protos.sh origin/main']
+      - install
 
   - id: perf
     name: gcr.io/$PROJECT_ID/pyfu-builder

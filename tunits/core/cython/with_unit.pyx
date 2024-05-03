@@ -172,7 +172,7 @@ cdef class WithUnit:
         return right.__with_value(left.value * c + right.value)
 
     def __radd__(self, b):
-        if isinstance(b, (int, float, complex)):
+        if isinstance(b, (int, float, complex, np.number, list, tuple, np.ndarray)):
             return self + b
         return NotImplemented
 
@@ -180,7 +180,7 @@ cdef class WithUnit:
         return a + -b
 
     def __rsub__(self, b):
-        if isinstance(b, (int, float, complex)):
+        if isinstance(b, (int, float, complex, np.number, list, tuple, np.ndarray)):
             return -(self-b)
         return NotImplemented
 
@@ -233,7 +233,7 @@ cdef class WithUnit:
 
     def __rfloordiv__(self, b):
         if isinstance(b, (int, float, complex, np.number)):
-            return divmod(b, self)[0]
+            return divmod(WithUnit(b), self)[0]
         return NotImplemented
 
     def __mod__(a, b):

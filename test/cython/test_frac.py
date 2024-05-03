@@ -12,18 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# noinspection PyProtectedMember
-from tunits.core import _all_cythonized as u
 import pytest
+import tunits.core as u
+from test.test_utils import frac
 
 
-def frac(numer=1, denom=1):
-    return {'numer': numer, 'denom': denom}
-
-
-def test_gcd():
+def test_gcd() -> None:
     with pytest.raises(TypeError):
-        u.gcd("a", "b")
+        u.gcd("a", "b")  # type: ignore[arg-type]
 
     assert u.gcd(0, -2) == 2
     assert u.gcd(0, -1) == 1
@@ -59,9 +55,9 @@ def test_gcd():
     assert u.gcd(-541838, -778063) == 11
 
 
-def test_frac_least_terms():
+def test_frac_least_terms() -> None:
     with pytest.raises(TypeError):
-        u.frac_least_terms("a", "b")
+        u.frac_least_terms("a", "b")  # type: ignore[arg-type]
     with pytest.raises(ZeroDivisionError):
         u.frac_least_terms(0, 0)
     with pytest.raises(ZeroDivisionError):
@@ -82,7 +78,7 @@ def test_frac_least_terms():
     assert u.frac_least_terms(121, 33) == frac(11, 3)
 
 
-def test_frac_times():
+def test_frac_times() -> None:
     assert u.frac_times(frac(0), frac(5, 7)) == frac(0)
     assert u.frac_times(frac(0), frac(-5, 7)) == frac(0)
     assert u.frac_times(frac(2, 3), frac(0)) == frac(0)
@@ -94,7 +90,7 @@ def test_frac_times():
     assert u.frac_times(frac(-2, 3), frac(-5, 7)) == frac(10, 21)
 
 
-def test_frac_div():
+def test_frac_div() -> None:
     with pytest.raises(ZeroDivisionError):
         u.frac_div(frac(2, 3), frac(0))
 
@@ -108,7 +104,7 @@ def test_frac_div():
     assert u.frac_div(frac(-2, 3), frac(-5, 7)) == frac(14, 15)
 
 
-def test_float_to_twelths_frac():
+def test_float_to_twelths_frac() -> None:
     with pytest.raises(ValueError):
         u.float_to_twelths_frac(1.0 / 24)
     with pytest.raises(ValueError):
@@ -132,6 +128,6 @@ def test_float_to_twelths_frac():
     assert u.float_to_twelths_frac(float(1 << 55) / 3.0) == frac(1 << 55, 3)
 
 
-def test_frac_to_double():
+def test_frac_to_double() -> None:
     assert u.frac_to_double(frac(0)) == 0
     assert u.frac_to_double(frac(2, 3)) == 2.0 / 3

@@ -14,7 +14,7 @@
 
 from typing import Any
 
-from tunits.core import _all_cythonized
+import tunits_core
 
 from tunits.api import (
     base_unit_data,
@@ -25,15 +25,15 @@ from tunits.api import (
 )
 import numpy as np
 
-Complex = _all_cythonized.Complex
-Value = _all_cythonized.Value
-ValueArray = _all_cythonized.ValueArray
-WithUnit = _all_cythonized.WithUnit
+Complex = tunits_core.Complex
+Value = tunits_core.Value
+ValueArray = tunits_core.ValueArray
+WithUnit = tunits_core.WithUnit
 
 
 def _make_unit_database_from_unit_data() -> unit_database.UnitDatabase:
     db = unit_database.UnitDatabase()
-    db.add_unit('', WithUnit(1))
+    db.add_unit('', Value(1))
 
     for base in base_unit_data.ALL_BASE_UNITS:
         db.add_base_unit_data(base, prefix_data.SI_PREFIXES)
@@ -52,7 +52,7 @@ default_unit_database: unit_database.UnitDatabase = _make_unit_database_from_uni
 
 def _try_interpret_as_with_unit(
     obj: Any, avoid_ambiguity_with_indexing: bool = False
-) -> _all_cythonized.WithUnit | None:
+) -> tunits_core.WithUnit | None:
     """
     This method is given to WithUnit so that it can do a convenient conversion
     from a user-given object (such as a string formula or a float or a WithUnit)
@@ -69,7 +69,7 @@ def _try_interpret_as_with_unit(
     :raises TypeError: When avoid_ambiguity_with_indexing is set and the object
     is ambiguously similar to an index.
     """
-    if isinstance(obj, _all_cythonized.WithUnit):
+    if isinstance(obj, tunits_core.WithUnit):
         if (
             avoid_ambiguity_with_indexing
             and obj.isDimensionless()
@@ -97,7 +97,7 @@ def _try_interpret_as_with_unit(
     return None
 
 
-_all_cythonized.init_base_unit_functions(
+tunits_core.init_base_unit_functions(
     _try_interpret_as_with_unit, default_unit_database.is_value_consistent_with_database
 )
 

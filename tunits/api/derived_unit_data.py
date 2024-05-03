@@ -14,13 +14,15 @@
 
 """
 Defines named physical units, specified in terms of other units, exposed in the
-default unit database and as members of pyfu.units (and
-pyfu.like_pylabrad_units).
+default unit database and as members of tunits.units (and
+tunits.api.like_pylabrad_units).
 
 Derived units are defined by conversion parameters and unit formulas. The
 formulas can mention base units and earlier derived units (but not later derived
 units or physical constants).
 """
+
+from typing import Any
 
 import math
 import numpy as np
@@ -36,7 +38,7 @@ class DerivedUnitData:
         symbol: str,
         name: str | None,
         formula: str,
-        value: int | float | complex | np.number = 1.0,
+        value: int | float | complex | np.number[Any] = 1.0,
         exp10: int = 0,
         numerator: int = 1,
         denominator: int = 1,

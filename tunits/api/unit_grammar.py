@@ -24,10 +24,11 @@ from pyparsing import (
     Combine,
     Group,
     ZeroOrMore,
+    ParserElement,
 )
 
 
-def _maybe_parens(token):
+def _maybe_parens(token: ParserElement) -> ParserElement:
     """
     :param ParserElement token:
     :return ParserElement:
