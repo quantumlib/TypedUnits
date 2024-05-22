@@ -15,3 +15,5 @@
 
 # Initialize default unit database.
 import tunits.api.unit as _
+
+from tunits.api.dimension import *

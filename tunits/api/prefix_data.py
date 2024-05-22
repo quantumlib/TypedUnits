@@ -12,21 +12,22 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from attrs import frozen
 
+
+@frozen
 class PrefixData:
-    """
-    Describes the properties of a unit prefix.
+    """Describes the properties of a unit prefix.
+
+    Attributes:
+        symbol: The short name for the prefix (e.g. 'G' for giga).
+        name: The full name of the prefix (e.g. 'giga').
+        exp10: The power of 10 the prefix corresponds to.
     """
 
-    def __init__(self, symbol: str, name: str, exp10: int):
-        """
-        :param str symbol: The short name for the prefix (e.g. 'G' for giga).
-        :param str name: The full name of the prefix (e.g. 'giga').
-        :param int exp10: The power of 10 the prefix corresponds to.
-        """
-        self.symbol = symbol
-        self.name = name
-        self.exp10 = exp10
+    symbol: str
+    name: str
+    exp10: int
 
 
 SI_PREFIXES = [

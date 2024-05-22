@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Iterable, Callable, Any
+from typing import Iterable, Callable, Any, Iterator
 
 import math
 import random
@@ -21,6 +21,12 @@ import time
 import numpy as np
 
 import tunits
+from tunits.api.dimension import ValueWithDimension, ArrayWithDimension
+from tunits import units
+
+_ALL_VALUES_WITH_DIMENSION = [
+    obj for name in dir(units) if isinstance(obj := getattr(units, name), ValueWithDimension)
+]
 
 
 def _perf_bar_text(avg: float, stddev: float, n: int = 20) -> str:
@@ -207,3 +213,29 @@ a_random_compatible_unit_array = Sample(
     lambda ctx: np.array([random.random() for _ in range(1024)])
     * _sample_matching_combo_sampler(ctx)
 )
+
+
+def _iter_all_dimensions() -> Iterator[ValueWithDimension]:
+    while True:
+        yield from _ALL_VALUES_WITH_DIMENSION
+
+
+_dimensions_itr = _iter_all_dimensions()
+
+
+def _sample_value_with_dimension(ctx: dict[str, ValueWithDimension]) -> ValueWithDimension:
+    key = 'dimension'
+    if key not in ctx:
+        ctx[key] = next(_dimensions_itr)
+    return ctx[key] * random.random()
+
+
+def _sample_array_with_dimension(ctx: dict[str, ValueWithDimension]) -> ArrayWithDimension:
+    key = 'dimension'
+    if key not in ctx:
+        ctx[key] = next(_dimensions_itr)
+    return ctx[key] * np.random.random(1024)  # type: ignore
+
+
+a_random_value_with_dimension = Sample(_sample_value_with_dimension)
+a_random_array_with_dimension = Sample(_sample_array_with_dimension)

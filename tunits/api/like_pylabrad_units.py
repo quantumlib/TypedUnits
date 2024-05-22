@@ -38,6 +38,7 @@ class DimensionlessArray(tunits_core.ValueArray):
 
 
 _WITH_UNIT = TypeVar('_WITH_UNIT', bound=WithUnit)
+ValueType = TypeVar('ValueType', bound=Value)
 
 
 class Unit(tunits_core.Value):
@@ -68,7 +69,7 @@ class Unit(tunits_core.Value):
         return Unit(Value(self).__pow__(exponent, modulus))
 
     @overload
-    def __mul__(self, other: int | float | np.number[Any]) -> Value: ...
+    def __mul__(self: ValueType, other: int | float | np.number[Any]) -> ValueType: ...
     @overload
     def __mul__(self, other: complex) -> Complex: ...
     @overload
@@ -99,7 +100,7 @@ class Unit(tunits_core.Value):
         return product
 
     @overload
-    def __truediv__(self, other: int | float | np.number[Any]) -> Value: ...
+    def __truediv__(self: ValueType, other: int | float | np.number[Any]) -> ValueType: ...
     @overload
     def __truediv__(self, other: complex) -> Complex: ...
     @overload

@@ -85,21 +85,21 @@ def test_power() -> None:
 def test_repr() -> None:
     from tunits.units import km, kg, s
 
-    assert repr(s * []) == "ValueArray(array([], dtype=float64), 's')"
-    assert repr(km * [2, 3]) == "ValueArray(array([2., 3.]), 'km')"
+    assert repr(s * []) == "TimeArray(array([], dtype=float64), 's')"
+    assert repr(km * [2, 3]) == "LengthArray(array([2., 3.]), 'km')"
     assert repr(km * kg * [3j]) == "ValueArray(array([0.+3.j]), 'kg*km')"
     assert repr(km**2 * [-1] / kg**3 * s) == "ValueArray(array([-1.]), 'km^2*s/kg^3')"
     assert repr(km ** (2 / 3.0) * [-1] / kg**3 * s) == "ValueArray(array([-1.]), 'km^(2/3)*s/kg^3')"
 
     # Numpy abbreviation is allowed.
     assert (
-        repr(list(range(50000)) * km) == "ValueArray(array([0.0000e+00, 1.0000e+00,"
+        repr(list(range(50000)) * km) == "LengthArray(array([0.0000e+00, 1.0000e+00,"
         " 2.0000e+00, ..., 4.9997e+04,"
         " 4.9998e+04,\n       4.9999e+04]), 'km')"
     )
 
     # Fallback case.
-    v = raw_WithUnit(
+    v: ValueArray = raw_WithUnit(
         [1, 2, 3],
         {
             'factor': 3.0,

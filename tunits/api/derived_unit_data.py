@@ -24,44 +24,35 @@ units or physical constants).
 
 from typing import Any
 
+from attrs import frozen
+
 import math
 import numpy as np
 
 
+@frozen
 class DerivedUnitData:
-    """
-    Describes the properties of a derived unit.
+    """Describes the properties of a derived unit.
+
+    Attributes:
+        symbol: The short name for the unit (e.g. 'm' for meter).
+        name: A full name for the unit (e.g. 'meter').
+        formula: A formula defining the unit in terms of others.
+        value: A floating-point scale factor.
+        exp10: An integer power-of-10 exponent scale factor.
+        numerator: A small integer scale factor.
+        denominator: A small integer inverse scale factor.
+        use_prefixes: Should there be 'kiloUNIT', 'milliUNIT', etc.
     """
 
-    def __init__(
-        self,
-        symbol: str,
-        name: str | None,
-        formula: str,
-        value: int | float | complex | np.number[Any] = 1.0,
-        exp10: int = 0,
-        numerator: int = 1,
-        denominator: int = 1,
-        use_prefixes: bool = False,
-    ):
-        """
-        :param str symbol: The short name for the unit (e.g. 'm' for meter).
-        :param str None|name: A full name for the unit (e.g. 'meter').
-        :param str formula: A formula defining the unit in terms of others.
-        :param int|float|complex value: A floating-point scale factor.
-        :param int exp10: An integer power-of-10 exponent scale factor.
-        :param int numerator: A small integer scale factor.
-        :param int denominator: A small integer inverse scale factor.
-        :param bool use_prefixes: Should there be 'kiloUNIT', 'milliUNIT', etc.
-        """
-        self.symbol = symbol
-        self.name = name
-        self.formula = formula
-        self.value = value
-        self.exp10 = exp10
-        self.numerator = numerator
-        self.denominator = denominator
-        self.use_prefixes = use_prefixes
+    symbol: str
+    name: str | None
+    formula: str
+    value: int | float | complex | np.number[Any] = 1.0
+    exp10: int = 0
+    numerator: int = 1
+    denominator: int = 1
+    use_prefixes: bool = False
 
 
 __SI_REDUNDANT_BASE_UNITS = [

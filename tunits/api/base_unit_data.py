@@ -19,21 +19,22 @@ members of tunits.units (and tunits.api.like_pylabrad_units).
 Base units are defined just by their name, not by other units or quantities.
 """
 
+from attrs import frozen
 
+
+@frozen
 class BaseUnitData:
-    """
-    Describes the properties of a base unit.
+    """Describes the properties of a base unit.
+
+    Attributes:
+        symbol: The short name for the unit (e.g. 'm' for meter).
+        name: The full name of the unit (e.g. 'meter').
+        use_prefixes: Should there be 'kiloUNIT', 'milliUNIT', etc.
     """
 
-    def __init__(self, symbol: str, name: str, use_prefixes: bool = True):
-        """
-        :param str symbol: The short name for the unit (e.g. 'm' for meter).
-        :param str name: The full name of the unit (e.g. 'meter').
-        :param bool use_prefixes: Should there be 'kiloUNIT', 'milliUNIT', etc.
-        """
-        self.symbol = symbol
-        self.name = name
-        self.use_prefixes = use_prefixes
+    symbol: str
+    name: str
+    use_prefixes: bool = True
 
 
 __SI_BASE_UNITS = [

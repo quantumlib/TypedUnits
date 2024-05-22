@@ -27,11 +27,12 @@ from libc.math cimport pow as c_pow
 def isOrAllTrue(x):
     return np.all(x) if isinstance(x, np.ndarray) else x
 
-
 cpdef raw_WithUnit(value,
                    conversion conv,
                    UnitArray base_units,
-                   UnitArray display_units):
+                   UnitArray display_units,
+                   value_class=None,
+                   array_class=None):
     """
     A factory method that directly sets the properties of a WithUnit.
     (__init__ couldn't play this role for backwards-compatibility reasons.)
@@ -44,12 +45,12 @@ cpdef raw_WithUnit(value,
         target_type = Complex
     elif isinstance(value, list) or isinstance(value, np.ndarray):
         val = np.array(value)
-        target_type = ValueArray
+        target_type = array_class or ValueArray
     elif isinstance(value, numbers.Number):
         # numbers.Number includes complex numbers, so this check needs to be
         # after the complex one
         val = float(value)
-        target_type = Value
+        target_type = value_class or Value
     else:
         raise TypeError("Unrecognized value type: {}".format(type(value)))
 
@@ -134,7 +135,9 @@ cdef class WithUnit:
             new_value,
             self.conv,
             self.base_units,
-            self.display_units)
+            self.display_units,
+            self._value_class(),
+            self._array_class())
 
     def __neg__(WithUnit self):
         return self.__with_value(-self.value)
@@ -187,6 +190,15 @@ cdef class WithUnit:
     def __mul__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)
+        if left.isDimensionless() and right.isDimensionless():
+            return raw_WithUnit(left.value * right.value,
+                                conversion_times(left.conv, right.conv),
+                                left.base_units * right.base_units,
+                                left.display_units * right.display_units)
+        if left.isDimensionless():
+            return right.__with_value(left.value * right.value)
+        if right.isDimensionless():
+            return left.__with_value(left.value * right.value)
         return raw_WithUnit(left.value * right.value,
                             conversion_times(left.conv, right.conv),
                             left.base_units * right.base_units,
@@ -200,6 +212,15 @@ cdef class WithUnit:
     def __truediv__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
         cdef WithUnit right = _in_WithUnit(b)
+        if left.isDimensionless() and right.isDimensionless():
+            return raw_WithUnit(left.value / right.value,
+                                conversion_div(left.conv, right.conv),
+                                left.base_units / right.base_units,
+                                left.display_units / right.display_units)
+        if left.isDimensionless():
+            return right.__with_value(left.value / right.value)
+        if right.isDimensionless():
+            return left.__with_value(left.value / right.value)
         return raw_WithUnit(left.value / right.value,
                             conversion_div(left.conv, right.conv),
                             left.base_units / right.base_units,
@@ -208,12 +229,7 @@ cdef class WithUnit:
     def __rtruediv__(self, b):
         if not isinstance(b, (int, float, complex, tuple, list, np.ndarray, np.number)):
             return NotImplemented
-        cdef WithUnit left = _in_WithUnit(b)
-        cdef WithUnit right = _in_WithUnit(self)
-        return raw_WithUnit(left.value / right.value,
-                            conversion_div(left.conv, right.conv),
-                            left.base_units / right.base_units,
-                            left.display_units / right.display_units)
+        return self.__with_value(b / self.value)
 
     def __divmod__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
@@ -259,17 +275,11 @@ cdef class WithUnit:
 
     @property
     def real(WithUnit self):
-        return raw_WithUnit(self.value.real,
-                            self.conv,
-                            self.base_units,
-                            self.display_units)
+        return self.__with_value(self.value.real)
 
     @property
     def imag(WithUnit self):
-        return raw_WithUnit(self.value.imag,
-                            self.conv,
-                            self.base_units,
-                            self.display_units)
+        return self.__with_value(self.value.imag)
 
     def round(WithUnit self, unit):
         return self.inUnitsOf(unit, True)
@@ -404,7 +414,9 @@ cdef class WithUnit:
             self.value * conversion_to_double(self.conv),
             identity_conversion(),
             self.base_units,
-            self.base_units)
+            self.base_units,
+            self._value_class(),
+            self._array_class())
 
     def in_base_units(WithUnit self):
         return self.inBaseUnits()
@@ -506,6 +518,12 @@ cdef class WithUnit:
         return (self.isDimensionless()
                and isinstance(self, Value)
                and (self.value==0))
+
+    def _value_class(self):
+        return Value
+    
+    def _array_class(self):
+        return ValueArray
 
 _try_interpret_as_with_unit = None
 _is_value_consistent_with_default_unit_database = None

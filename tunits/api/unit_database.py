@@ -116,7 +116,7 @@ class UnitDatabase:
         :param str unit_name: Key and unit array entry for the new unit.
         """
         ua = tunits_core.UnitArray(unit_name)
-        unit = tunits_core.raw_WithUnit(
+        unit: tunits_core.Value = tunits_core.raw_WithUnit(
             1, {'factor': 1.0, 'ratio': {'numer': 1, 'denom': 1}, 'exp10': 0}, ua, ua
         )
         self.add_unit(unit_name, unit)
@@ -151,7 +151,7 @@ class UnitDatabase:
         """
         parent = self.parse_unit_formula(formula, auto_create=False)
 
-        unit = tunits_core.raw_WithUnit(
+        unit: tunits_core.Value = tunits_core.raw_WithUnit(
             1,
             {
                 'factor': factor * parent.factor * parent.value,

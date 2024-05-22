@@ -16,6 +16,7 @@ import numpy as np
 import pytest
 
 from tunits import Value, Complex, UnitMismatchError
+from tunits.api import Length, Angle, LogPower, Noise
 
 
 def test_construction() -> None:
