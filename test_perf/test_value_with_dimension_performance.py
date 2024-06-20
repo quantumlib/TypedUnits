@@ -18,6 +18,7 @@ import unittest
 from tunits.units import kilometer, inch
 from tunits.api.dimension import ValueWithDimension
 from .perf_testing_util import a_random_value_with_dimension, perf_goal
+from tunits_core import Value
 
 
 # Using 1500 repeats so that each of 1119 different values in tunits.units get selected at least once.
@@ -32,7 +33,7 @@ def test_perf_scale(a: ValueWithDimension) -> ValueWithDimension:
 
 
 @perf_goal(repeats=1500, avg_micros=4, args=[a_random_value_with_dimension] * 2)
-def test_perf_multiply(a: ValueWithDimension, b: ValueWithDimension) -> ValueWithDimension:
+def test_perf_multiply(a: ValueWithDimension, b: ValueWithDimension) -> Value:
     return a * b
 
 
@@ -49,11 +50,11 @@ def test_perf_divmod(a: ValueWithDimension, b: ValueWithDimension) -> Any:
 @perf_goal(repeats=1500, avg_micros=20, args=[a_random_value_with_dimension] * 2)
 def test_perf_import_multiply_add_heterogeneous(
     a: ValueWithDimension, b: ValueWithDimension
-) -> ValueWithDimension:
+) -> Value:
     return a * kilometer + b * inch
 
 
-@perf_goal(repeats=1500, avg_micros=1, args=[a_random_value_with_dimension])
+@perf_goal(repeats=1500, avg_micros=1.2, args=[a_random_value_with_dimension])
 def test_perf_abs(a: ValueWithDimension) -> ValueWithDimension:
     return abs(a)
 

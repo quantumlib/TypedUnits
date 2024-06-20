@@ -40,10 +40,10 @@ cpdef raw_WithUnit(value,
     (Python-visible for testing and unit database bootstrapping.)
     """
     # Choose derived class type.
-    if isinstance(value, complex):
+    if isinstance(value, (complex, np.complexfloating)):
         val = value
-        target_type = Complex
-    elif isinstance(value, list) or isinstance(value, np.ndarray):
+        target_type = Value
+    elif isinstance(value, (list, tuple, np.ndarray)):
         val = np.array(value)
         target_type = array_class or ValueArray
     elif isinstance(value, numbers.Number):
@@ -69,7 +69,6 @@ def _in_WithUnit(obj):
     if isinstance(obj, WithUnit):
         return obj
     return raw_WithUnit(obj, identity_conversion(), _EmptyUnit, _EmptyUnit)
-
 
 def _is_dimensionless_zero(WithUnit u):
     return (u.isDimensionless() and
@@ -146,7 +145,7 @@ cdef class WithUnit:
         return self
 
     def __abs__(WithUnit self):
-        return self.__with_value(abs(self.value))
+        return self.__with_value(self.value.__abs__())
 
     def __nonzero__(self):
         return bool(self.value)
@@ -175,17 +174,14 @@ cdef class WithUnit:
         return right.__with_value(left.value * c + right.value)
 
     def __radd__(self, b):
-        if isinstance(b, (int, float, complex, np.number, list, tuple, np.ndarray)):
-            return self + b
-        return NotImplemented
+        return self + b
 
     def __sub__(a, b):
-        return a + -b
+        cdef WithUnit right = _in_WithUnit(b)
+        return a + -right
 
     def __rsub__(self, b):
-        if isinstance(b, (int, float, complex, np.number, list, tuple, np.ndarray)):
-            return -(self-b)
-        return NotImplemented
+        return -(self-b)
 
     def __mul__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
@@ -205,9 +201,7 @@ cdef class WithUnit:
                             left.display_units * right.display_units)
 
     def __rmul__(self, b):
-        if isinstance(b, (int, float, complex, tuple, list, np.ndarray, np.number)):
-            return self * b
-        return NotImplemented
+        return self * b
 
     def __truediv__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
@@ -227,9 +221,12 @@ cdef class WithUnit:
                             left.display_units / right.display_units)
 
     def __rtruediv__(self, b):
-        if not isinstance(b, (int, float, complex, tuple, list, np.ndarray, np.number)):
-            return NotImplemented
-        return self.__with_value(b / self.value)
+        cdef WithUnit left = _in_WithUnit(b)
+        cdef WithUnit right = _in_WithUnit(self)
+        return raw_WithUnit(left.value / right.value,
+                            conversion_div(left.conv, right.conv),
+                            left.base_units / right.base_units,
+                            left.display_units / right.display_units)
 
     def __divmod__(a, b):
         cdef WithUnit left = _in_WithUnit(a)
@@ -248,9 +245,8 @@ cdef class WithUnit:
         return divmod(a, b)[0]
 
     def __rfloordiv__(self, b):
-        if isinstance(b, (int, float, complex, np.number)):
-            return divmod(WithUnit(b), self)[0]
-        return NotImplemented
+        cdef WithUnit left = _in_WithUnit(b)
+        return left // self
 
     def __mod__(a, b):
         return divmod(a, b)[1]

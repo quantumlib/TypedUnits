@@ -25,7 +25,6 @@ from tunits.api import (
 )
 import numpy as np
 
-Complex = tunits_core.Complex
 Value = tunits_core.Value
 ValueArray = tunits_core.ValueArray
 WithUnit = tunits_core.WithUnit
@@ -78,15 +77,10 @@ def _try_interpret_as_with_unit(
             raise TypeError("Ambiguous unit key: " + repr(obj))
         return obj
 
-    if isinstance(obj, int) or isinstance(obj, float):
+    if isinstance(obj, (int, float, complex)):
         if avoid_ambiguity_with_indexing:
             raise TypeError("Ambiguous unit key: " + repr(obj))
         return Value(obj)
-
-    if isinstance(obj, complex):
-        if avoid_ambiguity_with_indexing:
-            raise TypeError("Ambiguous unit key: " + repr(obj))
-        return Complex(obj)
 
     if isinstance(obj, list) or isinstance(obj, np.ndarray):
         return ValueArray(obj)

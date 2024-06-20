@@ -23,13 +23,21 @@ class Value(WithUnit):
 
     @classmethod
     def from_proto(cls: type[T], msg: tunits_pb2.Value) -> T:
-        if not msg.HasField('real_value'):
+        if msg.HasField('real_value'):
+            v = msg.real_value
+        elif msg.HasField('complex_value'):
+            v = complex(msg.complex_value.real, msg.complex_value.imaginary)
+        else:
             raise ValueError(f"{msg=} doesn't have a value.")
-        return cls(msg.real_value, _proto_to_units(msg.units))
-
+        return cls(v, _proto_to_units(msg.units))
+        
     def to_proto(self, msg: Optional[tunits_pb2.Value] = None) -> tunits_pb2.Value:
         if msg is None:
             msg = tunits_pb2.Value()
-        msg.real_value = self.value
+        if isinstance(self.value, (complex, np.complexfloating)):
+            msg.complex_value.real = self.value.real
+            msg.complex_value.imaginary = self.value.imag
+        else:
+            msg.real_value = self.value
         msg.units.extend(_units_to_proto(self.display_units))
         return msg

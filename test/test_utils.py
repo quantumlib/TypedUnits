@@ -44,20 +44,11 @@ def conv(factor: float = 1.0, numer: int = 1, denom: int = 1, exp10: int = 0) ->
 
 @overload
 def val(
-    value: int | float,
+    value: int | float | complex,
     conv: dict[str, Any] = conv(),
     units: tunits_core.UnitArray = tunits_core.raw_UnitArray([]),
     display_units: tunits_core.UnitArray | None = None,
 ) -> tunits_core.Value: ...
-
-
-@overload
-def val(
-    value: complex,
-    conv: dict[str, Any] = conv(),
-    units: tunits_core.UnitArray = tunits_core.raw_UnitArray([]),
-    display_units: tunits_core.UnitArray | None = None,
-) -> tunits_core.Complex: ...
 
 
 @overload
@@ -74,7 +65,7 @@ def val(
     conv: dict[str, Any] = conv(),
     units: tunits_core.UnitArray = tunits_core.raw_UnitArray([]),
     display_units: tunits_core.UnitArray | None = None,
-) -> tunits_core.Value | tunits_core.ValueArray | tunits_core.Complex:
+) -> tunits_core.Value | tunits_core.ValueArray:
     """A factory method for creating values with unit."""
     return tunits_core.raw_WithUnit(
         value, conv, units, units if display_units is None else display_units

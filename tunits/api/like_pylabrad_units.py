@@ -17,7 +17,7 @@ A compatibility layer that tries to expose the same API as pylabrad's unit
 library.
 """
 
-from typing import TypeVar, Any, overload
+from typing import TypeVar, Any
 
 import numpy as np
 
@@ -26,7 +26,6 @@ import tunits.api.unit as _unit
 
 
 addNonSI = _unit.add_non_standard_unit
-Complex = tunits_core.Complex
 UnitMismatchError = tunits_core.UnitMismatchError
 Value = tunits_core.Value
 ValueArray = tunits_core.ValueArray
@@ -68,15 +67,6 @@ class Unit(tunits_core.Value):
     def __pow__(self, exponent: Any, modulus: Any = None) -> 'Unit':
         return Unit(Value(self).__pow__(exponent, modulus))
 
-    @overload
-    def __mul__(self: ValueType, other: int | float | np.number[Any]) -> ValueType: ...
-    @overload
-    def __mul__(self, other: complex) -> Complex: ...
-    @overload
-    def __mul__(self, other: list[Any] | tuple[Any] | np._typing.NDArray[Any]) -> ValueArray: ...
-    @overload
-    def __mul__(self, other: _WITH_UNIT) -> _WITH_UNIT: ...
-
     def __mul__(
         self,
         other: (
@@ -91,24 +81,14 @@ class Unit(tunits_core.Value):
         ),
     ) -> Any:
         if not isinstance(
-            other, (WithUnit, int, float, complex, np.number, np.ndarray, tuple, list)
+            other,
+            (Value, ValueArray, Unit, int, float, complex, np.number, np.ndarray, tuple, list),
         ):
-            raise TypeError(f'Unsupported operation * between types {type(self)} and {type(other)}')
+            return NotImplemented
         product = super().__mul__(other)
         if isinstance(other, Unit):
             return Unit(product)
         return product
-
-    @overload
-    def __truediv__(self: ValueType, other: int | float | np.number[Any]) -> ValueType: ...
-    @overload
-    def __truediv__(self, other: complex) -> Complex: ...
-    @overload
-    def __truediv__(
-        self, other: list[Any] | tuple[Any] | np._typing.NDArray[Any]
-    ) -> ValueArray: ...
-    @overload
-    def __truediv__(self, other: _WITH_UNIT) -> _WITH_UNIT: ...
 
     def __truediv__(
         self,
@@ -124,9 +104,10 @@ class Unit(tunits_core.Value):
         ),
     ) -> Any:
         if not isinstance(
-            other, (WithUnit, int, float, complex, np.number, np.ndarray, tuple, list)
+            other,
+            (Value, ValueArray, Unit, int, float, complex, np.number, np.ndarray, tuple, list),
         ):
-            raise TypeError(f'Unsupported operation / between types {type(self)} and {type(other)}')
+            return NotImplemented
         quotient = Value(self) / other
         if isinstance(other, Unit):
             return Unit(quotient)

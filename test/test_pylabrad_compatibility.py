@@ -102,14 +102,14 @@ def test_type_conversions() -> None:
     assert isinstance(0 * x1, u.Value)
 
     # Unit times complex
-    assert isinstance((1 + 1j) * V, u.Complex)
-    assert isinstance(V * (1 + 1j), u.Complex)
+    assert isinstance((1 + 1j) * V, u.Value)
+    assert isinstance(V * (1 + 1j), u.Value)
 
-    # Value times Complex/complex
-    assert isinstance(x1 * 1j, u.Complex)
-    assert isinstance(1j * x1, u.Complex)
-    assert isinstance(x2 * x1, u.Complex)
-    assert isinstance(x1 * x2, u.Complex)
+    # Value times Value/complex
+    assert isinstance(x1 * 1j, u.Value)
+    assert isinstance(1j * x1, u.Value)
+    assert isinstance(x2 * x1, u.Value)
+    assert isinstance(x1 * x2, u.Value)
 
     # Unit/Value/ValueArray times array
     assert isinstance(x1 * a, u.ValueArray)

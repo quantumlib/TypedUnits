@@ -20,7 +20,7 @@ import pytest
 
 from tunits.core import raw_WithUnit, raw_UnitArray, WithUnit
 
-from tunits import UnitMismatchError, ValueArray, Value, Complex
+from tunits import UnitMismatchError, ValueArray, Value
 from test.test_utils import frac, conv, val
 
 dimensionless = raw_UnitArray([])
@@ -69,7 +69,7 @@ def test_raw_versus_properties() -> None:
     assert x.display_units == kph
 
     assert isinstance(val(2), Value)
-    assert isinstance(val(2j), Complex)
+    assert isinstance(val(2j), Value)
     assert isinstance(val([2]), ValueArray)
 
 

@@ -83,7 +83,7 @@ _perf_goal_results: list[str | None] = []
 
 
 def perf_goal(
-    avg_micros: int = 0, avg_nanos: int = 0, repeats: int = 100, args: Any = None
+    avg_micros: int | float = 0, avg_nanos: int = 0, repeats: int = 100, args: Any = None
 ) -> Callable[..., Any]:
     """
     A decorator that turns a function into a perf test.

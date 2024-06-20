@@ -15,7 +15,6 @@
 from tunits.proto import tunits_pb2
 
 from tunits_core import (
-    Complex,
     UnitMismatchError,
     Value,
     ValueArray,

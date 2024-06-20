@@ -23,8 +23,16 @@ setuptools.setup(
     packages=['tunits.proto', 'tunits.core', 'tunits.api', 'tunits'],
     package_data={'tunits_core': ['py.typed', 'tunits_core.pyi']},
     ext_modules=cythonize(
-        [setuptools.Extension('tunits_core', ['tunits/core/_all_cythonized.pyx'])],
-        compiler_directives={'language_level': 3},
+        [
+            setuptools.Extension(
+                'tunits_core',
+                ['tunits/core/_all_cythonized.pyx'],
+                extra_compile_args=["-O3"],
+            )
+        ],
+        compiler_directives={
+            'language_level': 3,
+        },
     ),
     install_requires=requirements,
     setup_requires=requirements,

@@ -15,10 +15,10 @@
 import itertools
 import pytest
 import numpy as np
-from tunits import units, Value, ValueArray, Complex, tunits_pb2
+from tunits import units, Value, ValueArray, tunits_pb2
 from tunits.core import SCALE_PREFIXES
 
-_ONE_UNIT = [
+_ONE_UNIT: list[Value] = [
     units.dBm,
     units.rad,
     units.GHz,
@@ -58,7 +58,7 @@ def test_complex_conversion_trip(unit: Value) -> None:
     rs = np.random.RandomState(0)
     for value in rs.random(10):
         v = 1j * value * unit
-        assert Complex.from_proto(v.to_proto()) == v
+        assert Value.from_proto(v.to_proto()) == v
 
 
 @pytest.mark.parametrize('unit', _ONE_UNIT + _TWO_UNITS)
@@ -117,7 +117,7 @@ def test_empty_value_is_invalid() -> None:
         _ = Value.from_proto(msg)
 
     with pytest.raises(ValueError):
-        _ = Complex.from_proto(msg)
+        _ = Value.from_proto(msg)
 
 
 def test_unit_exponent_with_zero_denominator_raises() -> None:

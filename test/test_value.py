@@ -1,3 +1,5 @@
+import numbers
+
 # Copyright 2024 The TUnits Authors
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -15,7 +17,7 @@
 import numpy as np
 import pytest
 
-from tunits import Value, Complex, UnitMismatchError
+from tunits import Value, UnitMismatchError
 from tunits.api import Length, Angle, LogPower, Noise
 
 
@@ -25,7 +27,7 @@ def test_construction() -> None:
     assert isinstance(x, Value)
     assert isinstance(y, Value)
     assert x.isDimensionless()
-    assert isinstance(3j * x, Complex)
+    assert isinstance(3j * x, Value)
 
 
 def test_dimensionless() -> None:
@@ -54,7 +56,7 @@ def test_addition() -> None:
         _ = x + 3.0
     _ = x + y
     assert x - y == Value(997, 'm')
-    assert isinstance(x * 1j + y, Complex)
+    assert isinstance(x * 1j + y, Value)
     assert n + 1 == 3
 
 
@@ -71,6 +73,10 @@ def test_multiplication() -> None:
 def test_power() -> None:
     from tunits.units import km, m, minute, s, um, mm
 
+    _ = mm * np.complex128(3)
+    _ = mm * np.complex64(3)
+    _ = mm * np.uint64(3)
+    _ = mm * np.int64(3)
     x = 2 * mm
     y = 4 * mm
     z = (x * y) ** 0.5
