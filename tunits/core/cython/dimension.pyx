@@ -24,16 +24,12 @@ To add a new dimension, create 3 classes:
 - `class NewDimension(_NewDimension, ValueWithDimension)` which represents scalar
     values and doesn't need to implement any methods.
 - `class AccelerationArray(_Acceleration, ArrayWithDimension)` which represents
-    an array of values sharing the same dimension and unit.
+    an array of values sharing the same dimension and 
 """
 
 import abc
 
 from functools import cache
-
-import tunits_core
-from tunits.api import unit
-
 
 class Dimension(abc.ABC):
     """Dimension abstraction.
@@ -52,12 +48,11 @@ class Dimension(abc.ABC):
     """
 
     @staticmethod
-    @abc.abstractmethod
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         """Returns a tuple of valid base units (e.g. (dB, dBm) for LogPower)."""
 
     @classmethod
-    def is_valid(cls, v: tunits_core.WithUnit) -> bool:
+    def is_valid(cls, v: WithUnit) -> bool:
         return any(v.base_units == u.base_units for u in cls.valid_base_units())
 
 
@@ -65,23 +60,23 @@ class _Acceleration(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['m']
-            / unit.default_unit_database.known_units['s'] ** 2,
+            default_unit_database.known_units['m']
+            / default_unit_database.known_units['s'] ** 2,
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Acceleration
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return AccelerationArray
 
 
-class ValueWithDimension(Dimension, tunits_core.Value): ...
+class ValueWithDimension(Dimension, Value): ...
 
 
-class ArrayWithDimension(Dimension, tunits_core.ValueArray): ...
+class ArrayWithDimension(Dimension, ValueArray): ...
 
 
 class Acceleration(_Acceleration, ValueWithDimension): ...
@@ -94,16 +89,16 @@ class _Angle(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['rad'],
-            unit.default_unit_database.known_units['sr'],
+            default_unit_database.known_units['rad'],
+            default_unit_database.known_units['sr'],
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Angle
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return AngleArray
 
 
@@ -117,17 +112,17 @@ class _AngularFrequency(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['rad']
-            * unit.default_unit_database.known_units['Hz']
+            default_unit_database.known_units['rad']
+            * default_unit_database.known_units['Hz']
             * 2,
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return AngularFrequency
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return AngularFrequencyArray
 
 
@@ -141,13 +136,13 @@ class _Area(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['m'] ** 2,)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['m'] ** 2,)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Area
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return AreaArray
 
 
@@ -161,13 +156,13 @@ class _Capacitance(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['farad'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['farad'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Capacitance
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return CapacitanceArray
 
 
@@ -181,13 +176,13 @@ class _Charge(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['coulomb'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['coulomb'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Charge
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return ChargeArray
 
 
@@ -201,16 +196,16 @@ class _CurrentDensity(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['ampere']
-            / unit.default_unit_database.known_units['m'] ** 2,
+            default_unit_database.known_units['ampere']
+            / default_unit_database.known_units['m'] ** 2,
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return CurrentDensity
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return CurrentDensityArray
 
 
@@ -224,16 +219,16 @@ class _Density(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['kg']
-            / unit.default_unit_database.known_units['m'] ** 3,
+            default_unit_database.known_units['kg']
+            / default_unit_database.known_units['m'] ** 3,
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Density
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return DensityArray
 
 
@@ -247,13 +242,13 @@ class _ElectricCurrent(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['ampere'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['ampere'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return ElectricCurrent
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return ElectricCurrentArray
 
 
@@ -267,13 +262,13 @@ class _ElectricPotential(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['V'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['V'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return ElectricPotential
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return ElectricPotentialArray
 
 
@@ -287,13 +282,13 @@ class _ElectricalConductance(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['siemens'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['siemens'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return ElectricalConductance
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return ElectricalConductanceArray
 
 
@@ -307,13 +302,13 @@ class _Energy(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['joule'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['joule'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Energy
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return EnergyArray
 
 
@@ -327,13 +322,13 @@ class _Force(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['newton'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['newton'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Force
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return ForceArray
 
 
@@ -347,13 +342,13 @@ class _Frequency(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['Hz'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['Hz'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Frequency
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return FrequencyArray
 
 
@@ -367,13 +362,13 @@ class _Illuminance(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['lux'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['lux'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Illuminance
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return IlluminanceArray
 
 
@@ -387,13 +382,13 @@ class _Inductance(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['henry'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['henry'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Inductance
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return InductanceArray
 
 
@@ -407,13 +402,13 @@ class _Length(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['m'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['m'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Length
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return LengthArray
 
 
@@ -427,16 +422,16 @@ class _LogPower(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['dBm'],
-            unit.default_unit_database.known_units['dB'],
+            default_unit_database.known_units['dBm'],
+            default_unit_database.known_units['dB'],
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return LogPower
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return LogPowerArray
 
 
@@ -450,13 +445,13 @@ class _LuminousFlux(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['lumen'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['lumen'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return LuminousFlux
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return LuminousFluxArray
 
 
@@ -470,13 +465,13 @@ class _LuminousIntensity(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['candela'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['candela'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return LuminousIntensity
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return LuminousIntensityArray
 
 
@@ -490,13 +485,13 @@ class _MagneticFlux(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['weber'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['weber'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return MagneticFlux
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return MagneticFluxArray
 
 
@@ -510,13 +505,13 @@ class _MagneticFluxDensity(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['tesla'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['tesla'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return MagneticFluxDensity
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return MagneticFluxDensityArray
 
 
@@ -530,13 +525,13 @@ class _Mass(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['kg'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['kg'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Mass
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return MassArray
 
 
@@ -550,18 +545,18 @@ class _Noise(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['V']
-            / unit.default_unit_database.known_units['Hz'] ** 0.5,
-            unit.default_unit_database.known_units['watt']
-            / unit.default_unit_database.known_units['Hz'],
+            default_unit_database.known_units['V']
+            / default_unit_database.known_units['Hz'] ** 0.5,
+            default_unit_database.known_units['watt']
+            / default_unit_database.known_units['Hz'],
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Noise
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return NoiseArray
 
 
@@ -575,13 +570,13 @@ class _Power(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['watt'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['watt'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Power
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return PowerArray
 
 
@@ -595,13 +590,13 @@ class _Pressure(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['pascal'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['pascal'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Pressure
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return PressureArray
 
 
@@ -615,13 +610,13 @@ class _Quantity(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['mole'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['mole'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Quantity
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return QuantityArray
 
 
@@ -635,13 +630,13 @@ class _Resistance(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['ohm'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['ohm'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Resistance
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return ResistanceArray
 
 
@@ -655,16 +650,16 @@ class _Speed(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['m']
-            / unit.default_unit_database.known_units['s'],
+            default_unit_database.known_units['m']
+            / default_unit_database.known_units['s'],
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Speed
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return SpeedArray
 
 
@@ -678,16 +673,16 @@ class _SurfaceDensity(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['kg']
-            / unit.default_unit_database.known_units['m'] ** 2,
+            default_unit_database.known_units['kg']
+            / default_unit_database.known_units['m'] ** 2,
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return SurfaceDensity
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return SurfaceDensityArray
 
 
@@ -701,13 +696,13 @@ class _Temperature(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['kelvin'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['kelvin'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Temperature
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return TemperatureArray
 
 
@@ -721,13 +716,13 @@ class _Time(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['s'],)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['s'],)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Time
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return TimeArray
 
 
@@ -741,16 +736,16 @@ class _Torque(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
+    def valid_base_units() -> tuple[Value, ...]:
         return (
-            unit.default_unit_database.known_units['newton']
-            * unit.default_unit_database.known_units['m'],
+            default_unit_database.known_units['newton']
+            * default_unit_database.known_units['m'],
         )
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Torque
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return TorqueArray
 
 
@@ -764,13 +759,13 @@ class _Volume(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['m'] ** 3,)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['m'] ** 3,)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return Volume
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return VolumeArray
 
 
@@ -784,13 +779,13 @@ class _WaveNumber(Dimension):
 
     @staticmethod
     @cache
-    def valid_base_units() -> tuple[tunits_core.Value, ...]:
-        return (unit.default_unit_database.known_units['m'] ** -1,)
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['m'] ** -1,)
 
-    def _value_class(self) -> type[tunits_core.Value]:
+    def _value_class(self) -> type[Value]:
         return WaveNumber
 
-    def _array_class(self) -> type[tunits_core.ValueArray]:
+    def _array_class(self) -> type[ValueArray]:
         return WaveNumberArray
 
 

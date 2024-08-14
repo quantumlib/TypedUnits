@@ -206,7 +206,7 @@ def test_array_ordering() -> None:
 
 
 def test_int() -> None:
-    with pytest.raises(TypeError):
+    with pytest.raises(UnitMismatchError):
         int(val(1, units=mps))
     with pytest.raises(TypeError):
         int(val(1j))
@@ -231,7 +231,7 @@ def test_int() -> None:
 
 
 def test_float() -> None:
-    with pytest.raises(TypeError):
+    with pytest.raises(UnitMismatchError):
         float(val(1, units=mps))
     with pytest.raises(TypeError):
         float(val(1j))
@@ -252,7 +252,7 @@ def test_float() -> None:
 
 
 def test_complex() -> None:
-    with pytest.raises(TypeError):
+    with pytest.raises(UnitMismatchError):
         complex(val(1j, units=m))
     with pytest.raises(TypeError):
         complex(val([1, 2]))
@@ -496,11 +496,11 @@ def test_get_item() -> None:
         _ = u[1:2]
 
     # Safety against dimensionless unit ambiguity.
+    _ = u[u]
     with pytest.raises(TypeError):
         _ = u[1.0]
     with pytest.raises(TypeError):
         _ = u[1.0]
-        _ = u[u]
     with pytest.raises(TypeError):
         _ = u[1]
     with pytest.raises(TypeError):
@@ -541,7 +541,7 @@ def test_hash() -> None:
 
 
 def test_str() -> None:
-    assert str(val(2, conv(3, 4, 5, 6), s, m)) == '2.0 m'
+    assert str(val(2, conv(3, 4, 5, 6), s, m)) == '2 m'
     assert str(val(2j, conv(3, 4, 5, 6), s)) == '2j s'
     assert str(val(1, units=m, display_units=s)) == 's'
     assert str(val(1, units=m)) == 'm'
@@ -561,27 +561,23 @@ def test_is_compatible() -> None:
         for g2 in equivalence_groups:
             for e1 in g1:
                 for e2 in g2:
-                    assert e1.isCompatible(e2) == (g1 is g2)
+                    assert e1.is_compatible(e2) == (g1 is g2)
 
 
 def test_is_angle() -> None:
-    assert not val(1).isAngle()
     assert not val(1).is_angle
-    assert not val(1, units=m).isAngle()
     assert not val(1, units=m).is_angle
-    assert val(1, units=rad).isAngle()
     assert val(1, units=rad).is_angle
-    assert not val(1, units=rad**2).isAngle()
     assert not val(1, units=rad**2).is_angle
 
 
 def test_in_units_of() -> None:
     with pytest.raises(UnitMismatchError):
-        val(1, units=m).inUnitsOf(val(2, units=s))
+        val(1, units=m).in_units_of(val(2, units=s))
 
-    assert val(5).inUnitsOf(8) == 0.625
+    assert val(5).in_units_of(8) == 0.625
     assert deep_equal(
-        val(5, conv(3), units=m, display_units=s).inUnitsOf(
+        val(5, conv(3), units=m, display_units=s).in_units_of(
             val(8, conv(denom=7), units=m, display_units=kg)
         ),
         val(13.125, conv(denom=7), units=m, display_units=kg),
@@ -590,3 +586,13 @@ def test_in_units_of() -> None:
 
 def test_unit() -> None:
     assert deep_equal(val(7, conv(2, 3, 4, 5), m, s).unit, val(1, conv(2, 3, 4, 5), m, s))
+
+
+def test_rounding() -> None:
+    assert val(3).floor(val(2)) == val(1)
+    assert val(3).round(val(2)) == val(2)
+    assert val(3).ceil(val(2)) == val(2)
+
+    assert val(100, units=m).floor(val(3, units=m)) == val(33, units=m)
+    assert val(100, units=m).round(val(3, units=m)) == val(33, units=m)
+    assert val(100, units=m).ceil(val(3, units=m)) == val(34, units=m)

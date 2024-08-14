@@ -18,7 +18,6 @@ import numpy as np
 import pytest
 
 from tunits import Value, UnitMismatchError
-from tunits.api import Length, Angle, LogPower, Noise
 
 
 def test_construction() -> None:
@@ -26,7 +25,7 @@ def test_construction() -> None:
     y = Value(5, 'ns')
     assert isinstance(x, Value)
     assert isinstance(y, Value)
-    assert x.isDimensionless()
+    assert x.is_dimensionless
     assert isinstance(3j * x, Value)
 
 
@@ -67,7 +66,7 @@ def test_multiplication() -> None:
     y = Value(3, mm)
     a = Value(20, second)
     assert a * x == x * a
-    assert (x / y).isDimensionless()
+    assert (x / y).is_dimensionless
 
 
 def test_power() -> None:
@@ -91,8 +90,8 @@ def test_power() -> None:
 def test_repr() -> None:
     from tunits.units import km, kg, mm
 
-    assert repr(Value(1, mm)) == "Value(1.0, 'mm')"
-    assert repr(Value(4, mm)) == "Value(4.0, 'mm')"
+    assert repr(Value(1, mm)) == "Value(1, 'mm')"
+    assert repr(Value(4, mm)) == "Value(4, 'mm')"
     assert repr(Value(1j + 5, km * kg)) == "Value((5+1j), 'kg*km')"
 
 
@@ -100,8 +99,8 @@ def test_str() -> None:
     from tunits.units import mm, meter, kilometer, rad, cyc
 
     assert str(Value(1, mm)) == 'mm'
-    assert str(Value(4, mm)) == '4.0 mm'
-    assert str(2 * meter * kilometer) == '2.0 km*m'
+    assert str(Value(4, mm)) == '4 mm'
+    assert str(2 * meter * kilometer) == '2 km*m'
     assert str(cyc) == 'cyc'
     assert str(3.25 * cyc**2) == '3.25 cyc^2'
     assert str(3.25 * cyc * rad) == '3.25 cyc*rad'
@@ -128,8 +127,8 @@ def test_conversion() -> None:
     with pytest.raises(UnitMismatchError):
         _ = x['s']
     y = Value(1000, 'Mg')
-    assert y.inBaseUnits().value == 1000000.0
-    assert x.inUnitsOf('mm') == 3000 * mm
+    assert y.in_base_units().value == 1000000.0
+    assert x.in_units_of('mm') == 3000 * mm
 
 
 def test_parsing_by_comparison() -> None:
@@ -194,7 +193,7 @@ def test_decibels_vs_decibel_milliwatts() -> None:
     from tunits.units import dBm, dB, W
 
     assert dBm != dB * W
-    assert not dBm.isCompatible(dB * W)
+    assert not dBm.is_compatible(dB * W)
 
 
 def test_hash() -> None:
@@ -216,5 +215,5 @@ def test_numpy_sqrt() -> None:
     u = np.sqrt(8 * km / m)
     assert np.isclose(u, 89.4427191)
 
-    u = np.sqrt((8 * km / m).inBaseUnits())
+    u = np.sqrt((8 * km / m).in_base_units())
     assert np.isclose(u, 89.4427191)

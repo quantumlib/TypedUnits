@@ -20,8 +20,8 @@ requirements = open('requirements.txt', 'r').readlines()
 setuptools.setup(
     name="tunits",
     version="0.0.1",
-    packages=['tunits.proto', 'tunits.core', 'tunits.api', 'tunits'],
-    package_data={'tunits_core': ['py.typed', 'tunits_core.pyi']},
+    packages=['tunits.proto', 'tunits.core', 'tunits'],
+    include_package_data=True,
     ext_modules=cythonize(
         [
             setuptools.Extension(
@@ -32,6 +32,7 @@ setuptools.setup(
         ],
         compiler_directives={
             'language_level': 3,
+            'embedsignature': True,
         },
     ),
     install_requires=requirements,

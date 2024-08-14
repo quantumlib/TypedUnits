@@ -74,7 +74,7 @@ class ValueArray(WithUnit):
         return len(self.value)
 
     def __array__(WithUnit self, dtype=None):
-        if self.isDimensionless():
+        if self.is_dimensionless:
             return np.asarray(conversion_to_double(self.conv) * self.value,
                               dtype=dtype)
 
@@ -82,8 +82,8 @@ class ValueArray(WithUnit):
         result = self.value * unit_array
         return np.asarray(result)
 
-    def __array_wrap__(WithUnit self, out_arr, context=None):
-        return np.ndarray.__array_wrap__(self.value, out_arr)
+    def __array_wrap__(WithUnit self, out_arr, context=None, return_scalar: bool=False):
+        return np.ndarray.__array_wrap__(self.value, out_arr, return_scalar)
 
     @property
     def dtype(WithUnit self) -> np.dtype:
@@ -101,10 +101,10 @@ class ValueArray(WithUnit):
         return np.allclose(self.value, other[self.unit], *args, **kw)
 
     @classmethod
-    def from_proto(cls: type[T], msg: tunits_pb2.ValueArray) -> T:
+    def from_proto(cls: type[T], msg: 'tunits_pb2.ValueArray') -> T:
         return cls(_ndarray_from_proto(msg), _proto_to_units(msg.units))
 
-    def to_proto(self, msg: Optional[tunits_pb2.ValueArray] = None) -> tunits_pb2.ValueArray:
+    def to_proto(self, msg: Optional['tunits_pb2.ValueArray'] = None) -> 'tunits_pb2.ValueArray':
         ret = _ndarray_to_proto(self.value, msg)
         ret.units.extend(_units_to_proto(self.display_units))
         return ret

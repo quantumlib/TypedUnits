@@ -16,10 +16,10 @@ import pytest
 from tunits.core import raw_WithUnit, raw_UnitArray
 from pyparsing import ParseException
 
-from tunits.api.base_unit_data import BaseUnitData
-from tunits.api.derived_unit_data import DerivedUnitData
-from tunits.api.prefix_data import PrefixData, SI_PREFIXES
-from tunits.api.unit_database import UnitDatabase
+from tunits.core import BaseUnitData
+from tunits.core import DerivedUnitData
+from tunits.core import PrefixData, SI_PREFIXES
+from tunits.core import UnitDatabase
 
 from test.test_utils import val, unit, conv
 

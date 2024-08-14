@@ -22,7 +22,7 @@ from .perf_testing_util import (
     perf_goal,
 )
 
-from tunits_core import ValueArray, Value
+from tunits import ValueArray, Value
 
 
 @perf_goal(avg_micros=15, args=[a_random_compatible_unit_array] * 2)
@@ -50,12 +50,12 @@ def test_perf_array_divide(a: ValueArray, b: ValueArray) -> ValueArray:
     return a / b
 
 
-@perf_goal(avg_micros=750, args=[a_random_unit_array])
+@perf_goal(avg_micros=150, args=[a_random_unit_array])
 def test_perf_array_str(a: ValueArray) -> str:
     return str(a)
 
 
-@perf_goal(avg_micros=900, args=[a_random_unit_array])
+@perf_goal(avg_micros=200, args=[a_random_unit_array])
 def test_perf_array_repr(a: ValueArray) -> str:
     return repr(a)
 

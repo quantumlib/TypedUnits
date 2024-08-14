@@ -20,15 +20,15 @@ import pytest
 import numpy as np
 
 import tunits
-from tunits.api import dimension
+import tunits.core as core
 
 
-def _all_dimensions() -> Iterator[type[dimension.ValueWithDimension]]:
-    for name in dir(dimension):
+def _all_dimensions() -> Iterator[type[core.ValueWithDimension]]:
+    for name in dir(core):
         if name == 'ValueWithDimension':
             continue
-        obj = getattr(dimension, name)
-        if inspect.isclass(obj) and issubclass(obj, dimension.ValueWithDimension):
+        obj = getattr(core, name)
+        if inspect.isclass(obj) and issubclass(obj, core.ValueWithDimension):
             yield obj
 
 
@@ -36,7 +36,7 @@ _ALL_DIMENSIONS = [*_all_dimensions()]
 
 
 @pytest.mark.parametrize('dimension', _ALL_DIMENSIONS)
-def test_arithmetic_ops_preserve_type(dimension: type[dimension.ValueWithDimension]) -> None:
+def test_arithmetic_ops_preserve_type(dimension: type[core.ValueWithDimension]) -> None:
     u = dimension(dimension.valid_base_units()[0])
     a = u * 2
     b = u * 3
@@ -58,7 +58,9 @@ def test_arithmetic_ops_preserve_type(dimension: type[dimension.ValueWithDimensi
 
 
 @pytest.mark.parametrize('dimension', _ALL_DIMENSIONS)
-def test_arithmetic_ops_preserve_type_array(dimension: type[dimension.ValueWithDimension]) -> None:
+def test_arithmetic_ops_preserve_type_array(
+    dimension: type[core.ValueWithDimension],
+) -> None:
     u = dimension(dimension.valid_base_units()[0])
     a = u * [2, 3]
     b = u * [5, 7]

@@ -15,7 +15,11 @@
 import numpy as np
 
 
-class UnitMismatchError(TypeError):
+class UnitMismatchError(Exception):
     """Incompatible units."""
 
     pass
+
+
+class NotTUnitsLikeError(Exception):
+    """The value is not a tunits object and can't be converted to one."""

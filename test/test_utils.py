@@ -16,7 +16,7 @@ from typing import Any, overload
 
 from numpy._typing import NDArray
 
-import tunits_core
+import tunits.core as core
 
 
 def frac(numer: int = 1, denom: int = 1) -> dict[str, int]:
@@ -28,9 +28,9 @@ def frac(numer: int = 1, denom: int = 1) -> dict[str, int]:
     return {'numer': numer, 'denom': denom}
 
 
-def unit(key: str) -> tunits_core.UnitArray:
+def unit(key: str) -> core.UnitArray:
     """Returns a UnitArray containing the given unit."""
-    return tunits_core.raw_UnitArray([(key, 1, 1)])
+    return core.raw_UnitArray([(key, 1, 1)])
 
 
 def conv(factor: float = 1.0, numer: int = 1, denom: int = 1, exp10: int = 0) -> dict[str, Any]:
@@ -46,27 +46,32 @@ def conv(factor: float = 1.0, numer: int = 1, denom: int = 1, exp10: int = 0) ->
 def val(
     value: int | float | complex,
     conv: dict[str, Any] = conv(),
-    units: tunits_core.UnitArray = tunits_core.raw_UnitArray([]),
-    display_units: tunits_core.UnitArray | None = None,
-) -> tunits_core.Value: ...
+    units: core.UnitArray = core.raw_UnitArray([]),
+    display_units: core.UnitArray | None = None,
+) -> core.Value: ...
 
 
 @overload
 def val(
     value: list[Any] | tuple[Any] | NDArray[Any],
     conv: dict[str, Any] = conv(),
-    units: tunits_core.UnitArray = tunits_core.raw_UnitArray([]),
-    display_units: tunits_core.UnitArray | None = None,
-) -> tunits_core.ValueArray: ...
+    units: core.UnitArray = core.raw_UnitArray([]),
+    display_units: core.UnitArray | None = None,
+) -> core.ValueArray: ...
 
 
 def val(
     value: int | float | complex | list[Any] | tuple[Any] | NDArray[Any],
     conv: dict[str, Any] = conv(),
-    units: tunits_core.UnitArray = tunits_core.raw_UnitArray([]),
-    display_units: tunits_core.UnitArray | None = None,
-) -> tunits_core.Value | tunits_core.ValueArray:
+    units: core.UnitArray = core.raw_UnitArray([]),
+    display_units: core.UnitArray | None = None,
+) -> core.Value | core.ValueArray:
     """A factory method for creating values with unit."""
-    return tunits_core.raw_WithUnit(
-        value, conv, units, units if display_units is None else display_units
+    return core.raw_WithUnit(
+        value,
+        conv,
+        units,
+        units if display_units is None else display_units,
+        core.Value,
+        core.ValueArray,
     )

@@ -22,7 +22,7 @@ class Value(WithUnit):
     """A floating-point value with associated units."""
 
     @classmethod
-    def from_proto(cls: type[T], msg: tunits_pb2.Value) -> T:
+    def from_proto(cls: type[T], msg: 'tunits_pb2.Value') -> T:
         if msg.HasField('real_value'):
             v = msg.real_value
         elif msg.HasField('complex_value'):
@@ -31,7 +31,8 @@ class Value(WithUnit):
             raise ValueError(f"{msg=} doesn't have a value.")
         return cls(v, _proto_to_units(msg.units))
         
-    def to_proto(self, msg: Optional[tunits_pb2.Value] = None) -> tunits_pb2.Value:
+    def to_proto(self, msg: Optional['tunits_pb2.Value'] = None) -> 'tunits_pb2.Value':
+        from tunits.proto import tunits_pb2
         if msg is None:
             msg = tunits_pb2.Value()
         if isinstance(self.value, (complex, np.complexfloating)):

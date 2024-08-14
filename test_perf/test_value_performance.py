@@ -19,79 +19,79 @@ from tunits import Value
 from .perf_testing_util import a_random_compatible_unit_val, a_random_unit_val, perf_goal
 
 
-@perf_goal(avg_micros=2, args=[a_random_compatible_unit_val] * 2)
+@perf_goal(avg_nanos=1800, args=[a_random_compatible_unit_val] * 2)
 def test_perf_add(a: Value, b: Value) -> Value:
     return a + b
 
 
-@perf_goal(avg_micros=3, args=[a_random_unit_val])
+@perf_goal(avg_nanos=1100, args=[a_random_unit_val])
 def test_perf_scale(a: Value) -> Value:
     return a * 3.14
 
 
-@perf_goal(avg_micros=4, args=[a_random_unit_val] * 2)
+@perf_goal(avg_micros=3, args=[a_random_unit_val] * 2)
 def test_perf_multiply(a: Value, b: Value) -> Value:
     return a * b
 
 
-@perf_goal(avg_micros=2, args=[a_random_compatible_unit_val] * 2)
+@perf_goal(avg_nanos=600, args=[a_random_compatible_unit_val] * 2)
 def test_perf_get_item(a: Value, b: Value) -> Value:
     return a[b]
 
 
-@perf_goal(avg_micros=3, args=[a_random_compatible_unit_val] * 2)
+@perf_goal(avg_nanos=1500, args=[a_random_compatible_unit_val] * 2)
 def test_perf_divmod(a: Value, b: Value) -> Any:
     return divmod(a, b)
 
 
-@perf_goal(avg_micros=20, args=[a_random_compatible_unit_val] * 2)
+@perf_goal(avg_micros=8.5, args=[a_random_compatible_unit_val] * 2)
 def test_perf_import_multiply_add_heterogeneous(a: Value, b: Value) -> Value:
     from tunits.units import kilometer, inch
 
     return a * kilometer + b * inch
 
 
-@perf_goal(avg_micros=1, args=[a_random_unit_val])
+@perf_goal(avg_nanos=1000, args=[a_random_unit_val])
 def test_perf_abs(a: Value) -> Value:
     return abs(a)
 
 
-@perf_goal(avg_micros=5, args=[a_random_unit_val])
+@perf_goal(avg_micros=3.5, args=[a_random_unit_val])
 def test_perf_pow(a: Value) -> Value:
     return abs(a) ** (2 / 3.0)
 
 
-@perf_goal(avg_micros=10, args=[a_random_unit_val])
+@perf_goal(avg_micros=3.9, args=[a_random_unit_val])
 def test_perf_str(a: Value) -> str:
     return str(a)
 
 
-@perf_goal(avg_micros=80, args=[a_random_unit_val])
+@perf_goal(avg_micros=40, args=[a_random_unit_val])
 def test_perf_repr(a: Value) -> str:
     return repr(a)
 
 
-@perf_goal(avg_micros=5)
+@perf_goal(avg_nanos=600)
 def test_perf_parse_atom() -> Value:
     return Value(1, 'kilogram')
 
 
-@perf_goal(avg_micros=750)
+@perf_goal(avg_micros=500)
 def test_perf_parse_formula() -> Value:
     return Value(1, 'm*s/kg^4')
 
 
-@perf_goal(avg_micros=1, args=[a_random_unit_val] * 2)
+@perf_goal(avg_nanos=400, args=[a_random_unit_val] * 2)
 def test_perf_is_compatible(a: Value, b: Value) -> bool:
-    return a.isCompatible(b)
+    return a.is_compatible(b)
 
 
-@perf_goal(avg_nanos=750, args=[a_random_unit_val] * 2)
+@perf_goal(avg_nanos=800, args=[a_random_unit_val] * 2)
 def test_perf_equate(a: Value, b: Value) -> bool:
     return a == b
 
 
-@perf_goal(avg_micros=2, args=[a_random_compatible_unit_val] * 2)
+@perf_goal(avg_nanos=800, args=[a_random_compatible_unit_val] * 2)
 def test_perf_compare(a: Value, b: Value) -> bool:
     return a < b
 

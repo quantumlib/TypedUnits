@@ -54,7 +54,7 @@ head = Group(single_unit).setResultsName('posexp', True)
 times_unit = Group('*' + single_unit).setResultsName('posexp', True)
 over_unit = Group('/' + single_unit).setResultsName('negexp', True)
 
-unit = (
+unit_regex = (
     stringStart
     + Optional(scalar)
     + Optional(head)

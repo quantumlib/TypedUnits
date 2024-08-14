@@ -21,8 +21,9 @@ import time
 import numpy as np
 
 import tunits
-from tunits.api.dimension import ValueWithDimension, ArrayWithDimension
+from tunits import ValueWithDimension, ArrayWithDimension
 from tunits import units
+import tunits.core as core
 
 _ALL_VALUES_WITH_DIMENSION = [
     obj for name in dir(units) if isinstance(obj := getattr(units, name), ValueWithDimension)
@@ -180,7 +181,7 @@ def _sampled_generation(sampler_args: Iterable[Any], backing_size: int) -> Calla
     return args_sample
 
 
-unit_list = [v for k, v in tunits.api.unit.default_unit_database.known_units.items()]
+unit_list = [v for k, v in core.default_unit_database.known_units.items()]
 
 
 def _sample_random_unit_combo() -> tunits.Value:
@@ -190,7 +191,7 @@ def _sample_random_unit_combo() -> tunits.Value:
     r /= random.choice(unit_list)
     if random.random() > 0.5:
         r *= random.choice(unit_list)
-    while r.isDimensionless():
+    while r.is_dimensionless:
         r *= random.choice(unit_list)
     return r
 

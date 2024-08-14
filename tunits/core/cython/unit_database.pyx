@@ -16,14 +16,6 @@ from typing import Any, Dict, Optional, Iterable, TYPE_CHECKING
 
 import numpy as np
 
-import tunits_core
-from tunits.api import unit_grammar
-from tunits.api.base_unit_data import BaseUnitData
-from tunits.api.derived_unit_data import DerivedUnitData
-from tunits.api.prefix_data import PrefixData
-from tunits.api.physical_constant_data import PhysicalConstantData
-
-
 if TYPE_CHECKING:
     import pyparsing
 
@@ -41,10 +33,10 @@ class UnitDatabase:
         :param auto_create_units: Determines if unrecognized strings are
         interpreted as new units or not by default.
         """
-        self.known_units: Dict[str, tunits_core.Value] = {}
+        self.known_units: Dict[str, Value] = {}
         self.auto_create_units = auto_create_units
 
-    def get_unit(self, unit_name: str, auto_create: Optional[bool] = None) -> tunits_core.Value:
+    def get_unit(self, unit_name: str, auto_create: Optional[bool] = None) -> Value:
         """
         :param str unit_name:
         :param None|bool auto_create: If this is set, a missing unit will be
@@ -61,7 +53,7 @@ class UnitDatabase:
 
     def parse_unit_formula(
         self, formula: str, auto_create: Optional[bool] = None
-    ) -> tunits_core.Value:
+    ) -> Value:
         """
         :param str formula: Describes a combination of units.
         :param None|bool auto_create: If this is set, missing unit strings will
@@ -72,8 +64,8 @@ class UnitDatabase:
         """
         if formula in self.known_units:
             return self.known_units[formula]
-        parsed = unit_grammar.unit.parseString(formula)
-        result = tunits_core.Value(parsed.factor or 1)
+        parsed = unit_regex.parseString(formula)
+        result = Value(parsed.factor or 1)
         for item in parsed.posexp:
             result *= self._parse_unit_item(item, +1, auto_create)
         for item in parsed.negexp:
@@ -82,9 +74,9 @@ class UnitDatabase:
 
     def _parse_unit_item(
         self, item: 'pyparsing.results.ParseResults', neg: int, auto_create: bool | None = None
-    ) -> tunits_core.Value:
+    ) -> Value:
         """
-        :param item: A unit+exponent group parsed by unit_grammar.
+        :param item: A unit+exponent group parsed by .
         :param neg: Are we multiplying (+1) or dividing (-1)?
         :param None|bool auto_create: see parse_unit_formula
         """
@@ -95,18 +87,18 @@ class UnitDatabase:
         unit_val = self.get_unit(unit_name, auto_create)
         return unit_val ** (sign * float(numer) / denom)
 
-    def add_unit(self, unit_name: str, unit_base_value: tunits_core.Value) -> None:
+    def add_unit(self, unit_name: str, unit_base_value: Value) -> None:
         """
         Adds a unit to the database, pointing it at the given value.
         :param str unit_name: Key for the new unit.
         :param Value unit_base_value: The unit's value.
         """
-        if not isinstance(unit_base_value, tunits_core.Value):
+        if not isinstance(unit_base_value, Value):
             raise TypeError('unit_base_value must be a Value')
         if unit_name in self.known_units:
             raise RuntimeError(
                 "Unit name '%s' already taken by '%s'."
-                % (unit_name, self.known_units[unit_name].inBaseUnits())
+                % (unit_name, self.known_units[unit_name].in_base_units())
             )
         self.known_units[unit_name] = unit_base_value
 
@@ -115,9 +107,9 @@ class UnitDatabase:
         Adds a plain unit, not defined in terms of anything else, to the database.
         :param str unit_name: Key and unit array entry for the new unit.
         """
-        ua = tunits_core.UnitArray(unit_name)
-        unit: tunits_core.Value = tunits_core.raw_WithUnit(
-            1, {'factor': 1.0, 'ratio': {'numer': 1, 'denom': 1}, 'exp10': 0}, ua, ua
+        ua = UnitArray(unit_name)
+        unit: Value = raw_WithUnit(
+            1, {'factor': 1.0, 'ratio': {'numer': 1, 'denom': 1}, 'exp10': 0}, ua, ua, Value, ValueArray
         )
         self.add_unit(unit_name, unit)
 
@@ -151,7 +143,7 @@ class UnitDatabase:
         """
         parent = self.parse_unit_formula(formula, auto_create=False)
 
-        unit: tunits_core.Value = tunits_core.raw_WithUnit(
+        unit: Value = raw_WithUnit(
             1,
             {
                 'factor': factor * parent.factor * parent.value,
@@ -159,7 +151,8 @@ class UnitDatabase:
                 'exp10': exp10 + parent.exp10,
             },
             parent.base_units,
-            tunits_core.UnitArray(unit_name),
+            UnitArray(unit_name),
+            Value, ValueArray
         )
 
         self.add_unit(unit_name, unit)
@@ -229,7 +222,7 @@ class UnitDatabase:
 
     def _expected_value_for_unit_array(
         self, unit_array: Iterable[tuple[str, int, int]]
-    ) -> tunits_core.Value | None:
+    ) -> Value | None:
         """
         Determines the expected conversion factor for the given UnitArray by
         looking up its unit names in the database and multiplying up each of
@@ -238,14 +231,14 @@ class UnitDatabase:
         :param (str, int, int) unit_array: An array of unit names and exponents.
         :return Value: A value containing the net conversion factor.
         """
-        result = tunits_core.Value(1)
+        result = Value(1)
         for name, exp_numer, exp_denom in unit_array:
             if name not in self.known_units:
                 return None
             result *= self.known_units[name] ** (float(exp_numer) / exp_denom)
         return result
 
-    def is_value_consistent_with_database(self, value: tunits_core.Value) -> bool:
+    def is_value_consistent_with_database(self, value: Value) -> bool:
         """
         Determines if the value's base and display units are known and that
         the conversion factor between them is consistent with the known unit

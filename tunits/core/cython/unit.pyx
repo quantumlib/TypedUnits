@@ -14,44 +14,31 @@
 
 from typing import Any
 
-import tunits_core
-
-from tunits.api import (
-    base_unit_data,
-    derived_unit_data,
-    physical_constant_data,
-    prefix_data,
-    unit_database,
-)
 import numpy as np
 
-Value = tunits_core.Value
-ValueArray = tunits_core.ValueArray
-WithUnit = tunits_core.WithUnit
 
-
-def _make_unit_database_from_unit_data() -> unit_database.UnitDatabase:
-    db = unit_database.UnitDatabase()
+def _make_unit_database_from_unit_data() -> UnitDatabase:
+    db = UnitDatabase()
     db.add_unit('', Value(1))
 
-    for base in base_unit_data.ALL_BASE_UNITS:
-        db.add_base_unit_data(base, prefix_data.SI_PREFIXES)
+    for base in ALL_BASE_UNITS:
+        db.add_base_unit_data(base, SI_PREFIXES)
 
-    for derived_data in derived_unit_data.ALL_DERIVED_UNITS:
-        db.add_derived_unit_data(derived_data, prefix_data.SI_PREFIXES)
+    for derived_data in ALL_DERIVED_UNITS:
+        db.add_derived_unit_data(derived_data, SI_PREFIXES)
 
-    for phys_const_data in physical_constant_data.ALL_PHYSICAL_CONSTANT_DATA:
+    for phys_const_data in ALL_PHYSICAL_CONSTANT_DATA:
         db.add_physical_constant_data(phys_const_data)
 
     return db
 
 
-default_unit_database: unit_database.UnitDatabase = _make_unit_database_from_unit_data()
+default_unit_database: UnitDatabase = _make_unit_database_from_unit_data()
 
 
 def _try_interpret_as_with_unit(
     obj: Any, avoid_ambiguity_with_indexing: bool = False
-) -> tunits_core.WithUnit | None:
+) -> WithUnit | None:
     """
     This method is given to WithUnit so that it can do a convenient conversion
     from a user-given object (such as a string formula or a float or a WithUnit)
@@ -68,10 +55,10 @@ def _try_interpret_as_with_unit(
     :raises TypeError: When avoid_ambiguity_with_indexing is set and the object
     is ambiguously similar to an index.
     """
-    if isinstance(obj, tunits_core.WithUnit):
+    if isinstance(obj, WithUnit):
         if (
             avoid_ambiguity_with_indexing
-            and obj.isDimensionless()
+            and obj.is_dimensionless
             and (not isinstance(obj, Value) or obj.value != 1)
         ):  # Not a unit?
             raise TypeError("Ambiguous unit key: " + repr(obj))
@@ -91,7 +78,7 @@ def _try_interpret_as_with_unit(
     return None
 
 
-tunits_core.init_base_unit_functions(
+init_base_unit_functions(
     _try_interpret_as_with_unit, default_unit_database.is_value_consistent_with_database
 )
 
@@ -103,6 +90,6 @@ def add_non_standard_unit(name: str, use_prefixes: bool = False) -> None:
     """
     default_unit_database.add_root_unit(name)
     if use_prefixes:
-        for data in prefix_data.SI_PREFIXES:
+        for data in SI_PREFIXES:
             for prefix in [data.name, data.symbol]:
                 default_unit_database.add_scaled_unit(prefix + name, name, exp10=data.exp10)

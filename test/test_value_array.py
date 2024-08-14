@@ -16,7 +16,7 @@ import numpy as np
 import pytest
 from tunits.core import raw_WithUnit, raw_UnitArray
 
-from tunits import ValueArray, UnitMismatchError
+from tunits import ValueArray, UnitMismatchError, Value
 
 
 def test_construction() -> None:
@@ -36,7 +36,7 @@ def test_slicing() -> None:
 def test_set_item() -> None:
     from tunits.units import km, m, s
 
-    v = km * [1, 2, 3]
+    v = m * [1, 2, 3]
 
     with pytest.raises(UnitMismatchError):
         v[0] = 2 * s
@@ -44,7 +44,7 @@ def test_set_item() -> None:
     v[0] = 2 * km
     v[1] = 16 * m
 
-    assert np.array_equal(v, m * [2000, 16, 3000])
+    assert np.array_equal(v, m * [2000, 16, 3])
 
 
 def test_addition() -> None:
@@ -86,16 +86,14 @@ def test_repr() -> None:
     from tunits.units import km, kg, s
 
     assert repr(s * []) == "TimeArray(array([], dtype=float64), 's')"
-    assert repr(km * [2, 3]) == "LengthArray(array([2., 3.]), 'km')"
+    assert repr(km * [2, 3]) == "LengthArray(array([2, 3]), 'km')"
     assert repr(km * kg * [3j]) == "ValueArray(array([0.+3.j]), 'kg*km')"
     assert repr(km**2 * [-1] / kg**3 * s) == "ValueArray(array([-1.]), 'km^2*s/kg^3')"
     assert repr(km ** (2 / 3.0) * [-1] / kg**3 * s) == "ValueArray(array([-1.]), 'km^(2/3)*s/kg^3')"
 
     # Numpy abbreviation is allowed.
-    assert (
-        repr(list(range(50000)) * km) == "LengthArray(array([0.0000e+00, 1.0000e+00,"
-        " 2.0000e+00, ..., 4.9997e+04,"
-        " 4.9998e+04,\n       4.9999e+04]), 'km')"
+    assert repr(list(range(50000)) * km) == (
+        "LengthArray(array([    0,     1,     " "2, ..., 49997, 49998, 49999]), 'km')"
     )
 
     # Fallback case.
@@ -111,6 +109,8 @@ def test_repr() -> None:
         },
         raw_UnitArray([('muffin', 1, 1)]),
         raw_UnitArray([('cookie', 1, 1)]),
+        Value,
+        ValueArray,
     )
     assert (
         repr(v) == "raw_WithUnit(array([1, 2, 3]), "
@@ -118,7 +118,7 @@ def test_repr() -> None:
         "'ratio': {'numer': 2, 'denom': 5}, "
         "'exp10': 10}, "
         "raw_UnitArray([('muffin', 1, 1)]), "
-        "raw_UnitArray([('cookie', 1, 1)]))"
+        "raw_UnitArray([('cookie', 1, 1)]), Value, ValueArray)"
     )
 
 
@@ -126,7 +126,7 @@ def test_str() -> None:
     from tunits.units import mm
 
     assert str(mm**3 * []) == '[] mm^3'
-    assert str(mm * [2, 3, 5]) == '[2. 3. 5.] mm'
+    assert str(mm * [2, 3, 5]) == '[2 3 5] mm'
 
 
 def test_array_dtype() -> None:

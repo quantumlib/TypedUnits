@@ -19,7 +19,7 @@ from io import BytesIO
 import functools
 
 import numpy as np
-from tunits.proto import tunits_pb2
+
 
 _PROTO_TO_UNIT_STRING = {
     'DECIBEL_MILLIWATTS': 'dBm',
@@ -65,12 +65,13 @@ _SERIALIZATION_ERROR_MESSAGE = (
 
 @functools.cache
 def _construct_unit(unit_enum: int, scale_enum: Optional[int] = None) -> 'Value':
+    from tunits.proto import tunits_pb2
     unit_name = _PROTO_TO_UNIT_STRING.get(tunits_pb2.UnitEnum.Name(unit_enum), None)
     scale = '' if scale_enum is None else _ENUM_TO_SCALE_SYMBOL[scale_enum]
     return _try_interpret_as_with_unit(scale + unit_name)
 
 
-def _proto_to_unit(unit: tunits_pb2.Unit) -> 'Value':
+def _proto_to_unit(unit: 'tunits_pb2.Unit') -> 'Value':
     """
     Returns the equivalent string representation of a given tunits_pb2.Unit.
     """
@@ -82,7 +83,7 @@ def _proto_to_unit(unit: tunits_pb2.Unit) -> 'Value':
     return u
 
 
-def _proto_to_units(units_protos: Sequence[tunits_pb2.Unit]) -> 'Value':
+def _proto_to_units(units_protos: Sequence['tunits_pb2.Unit']) -> 'Value':
     ret = None
     for u in units_protos:
         if ret is None:
@@ -92,7 +93,9 @@ def _proto_to_units(units_protos: Sequence[tunits_pb2.Unit]) -> 'Value':
     return ret
 
 
-def _unit_name_to_proto(unit_name: str) -> Optional[tunits_pb2.Unit]:
+def _unit_name_to_proto(unit_name: str) -> Optional['tunits_pb2.Unit']:
+    from tunits.proto import tunits_pb2
+
     if unit_name in _UNIT_STRING_TO_PROTO:
         return tunits_pb2.Unit(
             unit=_UNIT_STRING_TO_PROTO[unit_name],
@@ -107,7 +110,7 @@ def _unit_name_to_proto(unit_name: str) -> Optional[tunits_pb2.Unit]:
     return None
 
 
-def _unit_to_proto(unit: Tuple[str, int, int]) -> tunits_pb2.Unit:
+def _unit_to_proto(unit: Tuple[str, int, int]) -> 'tunits_pb2.Unit':
     ret = _unit_name_to_proto(unit[0])
     if ret is None:
         raise ValueError(_SERIALIZATION_ERROR_MESSAGE.format(unit))
@@ -117,13 +120,15 @@ def _unit_to_proto(unit: Tuple[str, int, int]) -> tunits_pb2.Unit:
     return ret
 
 
-def _units_to_proto(units: 'raw_UnitArray') -> Sequence[tunits_pb2.Unit]:
+def _units_to_proto(units: 'raw_UnitArray') -> Sequence['tunits_pb2.Unit']:
     return [_unit_to_proto(u) for u in units]
 
 
 def _ndarray_to_proto(
-    arr: np.ndarray, msg: Optional[tunits_pb2.ValueArray] = None
-) -> tunits_pb2.ValueArray:
+    arr: np.ndarray, msg: Optional['tunits_pb2.ValueArray'] = None
+) -> 'tunits_pb2.ValueArray':
+    from tunits.proto import tunits_pb2
+
     if msg is None:
         msg = tunits_pb2.ValueArray()
     msg.shape.extend(arr.shape)
@@ -136,7 +141,7 @@ def _ndarray_to_proto(
     return msg
 
 
-def _ndarray_from_proto(msg: tunits_pb2.ValueArray) -> np.ndarray:
+def _ndarray_from_proto(msg: 'tunits_pb2.ValueArray') -> np.ndarray:
     if msg.WhichOneof('values') == 'reals':
         arr = np.array(msg.reals.values, dtype=np.float64)
     else:

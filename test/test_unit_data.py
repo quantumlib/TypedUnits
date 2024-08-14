@@ -17,14 +17,12 @@ import pytest
 
 import numpy as np
 
-import tunits_core
-from tunits.api import unit
 from tunits import units
+import tunits.core as core
 
 
 def test_all_default_units_and_simple_variations_thereof_are_parseable() -> None:
-
-    db = unit.default_unit_database
+    db = core.default_unit_database
     for k, u in db.known_units.items():
         assert db.parse_unit_formula(k) == u
         for v in [u, 1 / u, 5 * u, 1.1 * u, u**2]:
@@ -40,7 +38,7 @@ def test_unit_relationship_energy_stored_in_capacity() -> None:
 
 def test_durations() -> None:
     a = units.week + units.year + units.day + units.hour + units.minute
-    assert a.isCompatible(units.second)
+    assert a.is_compatible(units.second)
     assert round(units.year / units.week) == 52
     assert np.isclose(units.year / units.second, 31557600)
 
@@ -54,15 +52,15 @@ def test_lengths() -> None:
         + units.angstrom
         + units.light_year
     )
-    assert a.isCompatible(units.meter)
+    assert a.is_compatible(units.meter)
     assert (units.foot + units.inch + units.yard) * 5000 == 6223 * units.meter
     assert np.isclose(units.nautical_mile / units.angstrom, 1.852e13)
 
-    assert units.light_year == tunits_core.Value(1, 'c*yr')
+    assert units.light_year == core.Value(1, 'c*yr')
 
 
 def test_areas() -> None:
-    assert (units.hectare + units.barn).isCompatible(units.meter**2)
+    assert (units.hectare + units.barn).is_compatible(units.meter**2)
 
     # *Obviously* a hectare of land can hold a couple barns.
     assert units.hectare > units.barn * 2
@@ -71,7 +69,7 @@ def test_areas() -> None:
 
 
 def test_angles() -> None:
-    assert (units.deg + units.cyc).isCompatible(units.rad)
+    assert (units.deg + units.cyc).is_compatible(units.rad)
     assert np.isclose((math.pi * units.rad)[units.deg], 180)
     assert np.isclose((math.pi * units.rad)[units.cyc], 0.5)
 
@@ -87,7 +85,7 @@ def test_volumes() -> None:
         + units.us_gallon
         + units.british_gallon
     )
-    assert a.isCompatible(units.liter)
+    assert a.is_compatible(units.liter)
     assert np.isclose(units.british_gallon / units.us_gallon, 1.20095, atol=1e-6)
     assert units.quart - units.pint - units.cup - units.tablespoon == 45 * units.teaspoon
     assert np.isclose(33.814 * units.fluid_ounce / units.liter, 1, atol=1e-5)
@@ -98,7 +96,7 @@ def test_masses() -> None:
 
 
 def test_pressures() -> None:
-    assert units.psi.isCompatible(units.Pa)
+    assert units.psi.is_compatible(units.Pa)
 
 
 def test_basic_constants() -> None:
@@ -128,6 +126,6 @@ def test_basic_constants() -> None:
         ],
     ],
 )
-def test_other_constants(lhs: tunits_core.Value, rhs: tunits_core.Value, ratio: float) -> None:
+def test_other_constants(lhs: core.Value, rhs: core.Value, ratio: float) -> None:
     r = lhs / rhs
     assert np.isclose(r, ratio, atol=1e-3)
