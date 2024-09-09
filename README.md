@@ -32,14 +32,14 @@ print(2*km / tunits.Value(3, 's'))
 1. To install the latest version from the main branch
 
     ```bash
-    pip install git+https://github.com/qh-lab/pyfu
+    pip install git+https://github.com/quantumlib/TypedUnits
     ```
 
 1. For a local editable copy
 
     ```bash
-    git clone https://github.com/qh-lab/pyfu.git    
-    cd pyfu
+    git clone https://github.com/quantumlib/TypedUnits
+    cd TypedUnits
     pip install .
     ```
 
@@ -48,9 +48,9 @@ print(2*km / tunits.Value(3, 's'))
 1. Clone the repository.
 
     ```bash
-    git clone https://github.com/qh-lab/pyfu.git
+    git clone https://github.com/quantumlib/TypedUnits
 
-    cd pyfu
+    cd TypedUnits
     ```
 
     *All future steps assume you are in the repository's directory.*
