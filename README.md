@@ -80,3 +80,7 @@ print(2*km / tunits.Value(3, 's'))
 dev_tools/format.sh  # to format
 dev_tools/format.sh --check  # to verify format
 ```
+
+---
+
+**Note:** This is not an officially supported Google product
