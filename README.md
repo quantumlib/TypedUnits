@@ -2,7 +2,7 @@
 
 | GCB CI status: |
 | ---------- |
-| [![GCB Build Status](https://storage.googleapis.com/qh-build-badges/builds/pyfu/branches/master.svg)](https://pantheon.corp.google.com/cloud-build/builds?project=qh-build&query=trigger_id%3D%22736396b1-c130-4936-adf5-cd9c7be2b492%22) |
+| [![GCB Build Status](https://storage.googleapis.com/qh-build-badges/builds/TypedUnits/branches/main.svg)](https://pantheon.corp.google.com/cloud-build/builds;region=global?query=trigger_id%3D%222d9475b8-d9c9-4dc3-98b6-67b46ecf2101%22&inv=1&invt=AbbrTg&project=qh-build) |
 
 Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
@@ -32,14 +32,14 @@ print(2*km / tunits.Value(3, 's'))
 1. To install the latest version from the main branch
 
     ```bash
-    pip install git+https://github.com/qh-lab/pyfu
+    pip install git+https://github.com/quantumlib/TypedUnits
     ```
 
 1. For a local editable copy
 
     ```bash
-    git clone https://github.com/qh-lab/pyfu.git    
-    cd pyfu
+    git clone https://github.com/quantumlib/TypedUnits
+    cd TypedUnits
     pip install .
     ```
 
@@ -48,9 +48,9 @@ print(2*km / tunits.Value(3, 's'))
 1. Clone the repository.
 
     ```bash
-    git clone https://github.com/qh-lab/pyfu.git
+    git clone https://github.com/quantumlib/TypedUnits
 
-    cd pyfu
+    cd TypedUnits
     ```
 
     *All future steps assume you are in the repository's directory.*
