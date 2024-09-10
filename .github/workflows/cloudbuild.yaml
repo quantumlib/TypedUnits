@@ -23,7 +23,7 @@ steps:
     args: [
               'build',
               '-t', 'gcr.io/$PROJECT_ID/pyfu-builder:latest',
-              '--file', 'ci/Dockerfile.builder',
+              '--file', '../../ci/Dockerfile.builder',
               '.'
           ]
     waitFor: ['-']
@@ -34,13 +34,13 @@ steps:
 
   - id: mypy
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['./ci/mypy.sh']
+    args: [../../ci/mypy.sh']
     waitFor:
       - build-builder
 
   - id: shellcheck
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['./ci/shellcheck.sh']
+    args: [../../ci/shellcheck.sh']
     waitFor:
       - build-builder
 
@@ -52,13 +52,13 @@ steps:
 
   - id: lint
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['./ci/pylint_all.sh']
+    args: [../../ci/pylint_all.sh']
     waitFor:
       - build-builder
 
   - id: 'Check modified protos'
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['./ci/build_changed_protos.sh origin/main']
+    args: [../../ci/build_changed_protos.sh origin/main']
     waitFor:
       - build-builder
 
@@ -78,13 +78,13 @@ steps:
 
   - id: pytest
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['./ci/pytest_unit.sh']
+    args: [../../ci/pytest_unit.sh']
     waitFor:
       - install
 
   - id: perf
     name: gcr.io/$PROJECT_ID/pyfu-builder
-    args: ['./ci/pytest_perf.sh']
+    args: [../../ci/pytest_perf.sh']
     # no waitFor causes it to wait for all tests before it,
     # which makes this test run by itself, which is what we
     # want if we want to isolate performance tests
