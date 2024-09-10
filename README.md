@@ -2,7 +2,7 @@
 
 | GCB CI status: |
 | ---------- |
-| [![GCB Build Status](https://storage.googleapis.com/qh-build-badges/builds/TypedUnits/branches/main.svg)](https://pantheon.corp.google.com/cloud-build/builds;region=global?query=trigger_id%3D%222d9475b8-d9c9-4dc3-98b6-67b46ecf2101%22&inv=1&invt=AbbrTg&project=qh-build) |
+| [![GCB Build Status](https://storage.googleapis.com/qh-build-badges/builds/TypedUnits/branches/main.svg)](https://pantheon.corp.google.com/cloud-build/builds;region=global?query=trigger_id%3D%2266ef9407-7c28-4883-8a2a-9f106dafa2a9%22&inv=1&invt=Abbvhg&project=qh-build) |
 
 Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
