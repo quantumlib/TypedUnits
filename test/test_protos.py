@@ -47,6 +47,11 @@ _TWO_UNITS = [
 
 @pytest.mark.parametrize('unit', _ONE_UNIT + _TWO_UNITS)
 def test_value_conversion_trip(unit: Value) -> None:
+    """
+    when making a unitful value
+    we can convert it back and forth to the proto of that unit
+    and get the same value
+    """
     rs = np.random.RandomState(0)
     for value in rs.random(10):
         v = value * unit
@@ -55,6 +60,10 @@ def test_value_conversion_trip(unit: Value) -> None:
 
 @pytest.mark.parametrize('unit', _ONE_UNIT + _TWO_UNITS)
 def test_complex_conversion_trip(unit: Value) -> None:
+    """
+    the roundtrip of conversion back and forth
+    still works the same way even if the value is complex valued
+    """
     rs = np.random.RandomState(0)
     for value in rs.random(10):
         v = 1j * value * unit
@@ -63,6 +72,10 @@ def test_complex_conversion_trip(unit: Value) -> None:
 
 @pytest.mark.parametrize('unit', _ONE_UNIT + _TWO_UNITS)
 def test_valuearray_conversion_trip(unit: Value) -> None:
+    """
+    the roundtrip of conversion back and forth
+    still works the same way even if the value is array
+    """
     rs = np.random.RandomState(0)
     for value in rs.random((4, 2, 4, 3)):
         v = value * unit
@@ -73,6 +86,10 @@ def test_valuearray_conversion_trip(unit: Value) -> None:
 
 @pytest.mark.parametrize('unit', _ONE_UNIT + _TWO_UNITS)
 def test_complex_valuearray_conversion_trip(unit: Value) -> None:
+    """
+    the roundtrip of conversion back and forth
+    still works the same way even if the value is complex and array
+    """
     rs = np.random.RandomState(0)
     for real, imag in zip(rs.random((4, 2, 4, 3)), rs.random((4, 2, 4, 3))):
         v = (real + 1j * imag) * unit
@@ -128,9 +145,12 @@ def test_unit_exponent_with_zero_denominator_raises() -> None:
 
 
 def test_scale_values_are_correct() -> None:
-    assert len(SCALE_PREFIXES) == len(
-        tunits_pb2.Scale.items()
-    ), f'differing number of scales in proto and SCALE_PREFIXES. If you are adding new scales please update the SCALE_PREFIXES map'
+    assert len(SCALE_PREFIXES) == len(tunits_pb2.Scale.items()), " ".join(
+        [
+            "differing number of scales in proto and SCALE_PREFIXES.",
+            "If you are adding new scales please update the SCALE_PREFIXES map",
+        ]
+    )
 
     scale_to_prefix = {
         'YOTTA': 'Y',

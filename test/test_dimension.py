@@ -97,24 +97,24 @@ def test_arithmetic_ops_preserve_type_multi_array(
     even when it is a multidimensional array of multiple such elements
     """
     u = dimension(dimension.valid_base_units()[0])
-    a = u * [[2, 3],[4,9]]
-    b = u * [[5, 7],[8,5]]
+    a = u * [[2, 3], [4, 9]]
+    b = u * [[5, 7], [8, 5]]
 
     # Declare with correct type so that mypy knows the type to compare to.
-    c = u * [[1.0, 1.0],[1.0,1.0]]
+    c = u * [[1.0, 1.0], [1.0, 1.0]]
 
     c = a + b
-    should_all_true = c == u * [[7.0, 10.0],[12.0,14.0]]
+    should_all_true = c == u * [[7.0, 10.0], [12.0, 14.0]]
     assert should_all_true.all().all()
 
     c = a - b
-    should_all_true = c == u * [[-3.0, -4.0],[-4.0,4.0]]
+    should_all_true = c == u * [[-3.0, -4.0], [-4.0, 4.0]]
     assert should_all_true.all().all()
 
     c = a * 7
-    should_all_true = c == u * [[14.0, 21.0],[28.0,63.0]]
+    should_all_true = c == u * [[14.0, 21.0], [28.0, 63.0]]
     assert should_all_true.all().all()
 
     c = a / 11
-    should_all_true = c == u * [[2/11, 3/11],[4/11,9/11]]
+    should_all_true = c == u * [[2 / 11, 3 / 11], [4 / 11, 9 / 11]]
     assert should_all_true.all().all()
