@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: |
-        echo "$(python _version.py).dev$(date '+%Y%m%d%H%M%S')" > version.txt
+          echo "$(python _version.py).dev$(date '+%Y%m%d%H%M%S')" > version.txt
       - uses: actions/upload-artifact@master
         with:
           name: version-file
