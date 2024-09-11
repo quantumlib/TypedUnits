@@ -2,3 +2,4 @@ attrs
 cython>=3.0.0
 numpy>=1.23.0
 pyparsing
+grpcio-tools>=1.59.0
