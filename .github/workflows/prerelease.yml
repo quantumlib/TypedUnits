@@ -1,9 +1,6 @@
 name: Pre-release TypedUnits
 
 on:
-  pull_request:
-    branches:
-      - main
   push:
     branches:
     - main
@@ -54,9 +51,7 @@ jobs:
 
     - name: Build package
       run: |
-        cat version/version.txt
         export TypedUnits_RELEASE_VERSION="$(cat version/version.txt)"
-        echo $TypedUnits_RELEASE_VERSION
         python -m build
 
     - name: Repair Wheel
