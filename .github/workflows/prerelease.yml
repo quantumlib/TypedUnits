@@ -13,13 +13,14 @@ permissions:
 
 jobs:
   create_version:
-  - uses: actions/checkout@v1
-  - run: |
-     echo "$(python _version.py).dev$(date '+%Y%m%d%H%M%S')" > version.txt
-  - uses: actions/upload-artifact@master
-    with:
-      name: version-file
-      path: version.txt
+    steps:
+      - uses: actions/checkout@v4
+      - run: |
+        echo "$(python _version.py).dev$(date '+%Y%m%d%H%M%S')" > version.txt
+      - uses: actions/upload-artifact@master
+        with:
+          name: version-file
+          path: version.txt
 
   deploy:
 
