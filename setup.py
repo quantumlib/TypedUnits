@@ -12,14 +12,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 import setuptools
 from Cython.Build import cythonize
 
 requirements = open('requirements.txt', 'r').readlines()
 
+
+_VERSION_KEY = 'TypedUnits_RELEASE_VERSION'
+__version__ = os.environ.get(_VERSION_KEY, '')
+if not __version__:
+    # Local build
+    import _version
+
+    __version__ = _version.__version__ + '.dev'
+
+
 setuptools.setup(
-    name="tunits",
-    version="0.0.1",
+    name="typedunits",
+    version=__version__,
     packages=['tunits.proto', 'tunits.core', 'tunits'],
     include_package_data=True,
     ext_modules=cythonize(
@@ -38,4 +49,6 @@ setuptools.setup(
     install_requires=requirements,
     setup_requires=requirements,
     python_requires=">=3.10.0",
+    long_description=open("README.md", encoding="utf-8").read(),
+    long_description_content_type='text/markdown',
 )
