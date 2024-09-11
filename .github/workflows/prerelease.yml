@@ -12,6 +12,15 @@ permissions:
   contents: read
 
 jobs:
+  create_version:
+  - uses: actions/checkout@v1
+  - run: |
+     echo "$(python _version.py).dev$(date '+%Y%m%d%H%M%S')" > version.txt
+  - uses: actions/upload-artifact@master
+    with:
+      name: version-file
+      path: version.txt
+
   deploy:
 
     runs-on: ubuntu-latest
@@ -30,9 +39,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install build auditwheel patchelf
 
+    - uses: actions/download-artifact@master
+      with:
+        name: version-file
+        path: version.txt
+
     - name: Build package
       run: |
-        export TypedUnits_RELEASE_VERSION="$(python _version.py).dev$(date '+%Y%m%d%H%M%S')"
+        export TypedUnits_RELEASE_VERSION="$(cat version.txt)"
         python -m build
 
     - name: Repair Wheel
