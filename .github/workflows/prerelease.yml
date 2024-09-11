@@ -28,9 +28,9 @@ jobs:
         pip install build auditwheel patchelf
 
     - name: Build package
-      run: python -m build
       env:
-        TypedUnits_RELEASE_VERSION: "$(python _version.py).dev$(date "+%Y%m%d%H%M%S")"
+        TypedUnits_RELEASE_VERSION: "$(python _version.py).dev$(date '+%Y%m%d%H%M%S')"
+      run: python -m build
 
     - name: Repair Wheel
       run: |
