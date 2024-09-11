@@ -49,4 +49,5 @@ setuptools.setup(
     install_requires=requirements,
     setup_requires=requirements,
     python_requires=">=3.10.0",
+    long_description='A cython based units library with protobuffers support and a notion of dimensions.',
 )
