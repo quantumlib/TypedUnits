@@ -1,6 +1,8 @@
 name: Pre-release TypedUnits
 
 on:
+  pull_request:
+    branches: [ "ci_workflows" ]
   push:
     branches:
     - main
