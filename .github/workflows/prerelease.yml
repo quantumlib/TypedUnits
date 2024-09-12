@@ -53,8 +53,9 @@ jobs:
         path: version
 
     - name: Build package
+      env:
+        CIBW_BUILD: "cp310*"
       run: |
-        export TypedUnits_RELEASE_VERSION="$(cat version/version.txt)"
         python -m cibuildwheel --output-dir wheelhouse
 
     - name: Remove Tar file

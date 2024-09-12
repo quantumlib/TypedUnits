@@ -19,8 +19,11 @@ from Cython.Build import cythonize
 requirements = open('requirements.txt', 'r').readlines()
 
 
-_VERSION_KEY = 'TypedUnits_RELEASE_VERSION'
-__version__ = os.environ.get(_VERSION_KEY, '')
+
+__version__ = ''
+if os.path.exists('version/version.txt'):
+    __version__ = open('version/version.txt').read().strip()
+
 if not __version__:
     # Local build
     import _version
