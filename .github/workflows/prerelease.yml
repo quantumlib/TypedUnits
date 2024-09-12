@@ -29,8 +29,9 @@ jobs:
           name: version-file
           path: version
 
-  deploy:
+  build_wheels:
     runs-on: ${{ matrix.os }}
+    needs: [create_version]
     strategy:
       fail-fast: false
       matrix:
@@ -57,7 +58,24 @@ jobs:
         CIBW_BUILD: "cp310*"
       run: |
         python -m cibuildwheel --output-dir wheelhouse
-    
+
+    - uses: actions/upload-artifact@v2
+      with:
+        name: python-wheels
+        path: ./wheelhouse/*.whl
+
+  release-wheels:
+    name: Publish all wheels
+    needs: [build_wheels]
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v2
+      with:
+        name: python-wheels
+        path: wheelhouse/
+
     - name: Publish package to testpypi
       uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
       with:
