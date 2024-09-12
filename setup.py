@@ -19,7 +19,6 @@ from Cython.Build import cythonize
 requirements = open('requirements.txt', 'r').readlines()
 
 
-
 __version__ = ''
 if os.path.exists('version/version.txt'):
     __version__ = open('version/version.txt').read().strip()
