@@ -6,30 +6,83 @@
 
 Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
-Defines SI units, SI prefixes, and some derived units.
+The library is written in Cython for speed. The library provides the ability to statically check dimensionality type (see below) and a limited protobuffer serialization support for select units (see below). Contributions to extend support for more units are welcome.
+
+A precompiled wheel can be installed using `pip install typedunits [--pre]`.
 
 ## Example
 
 ```python
-import tunits
-from tunits.units import meter, km, N
+>> import tunits
+>> from tunits.units import meter, km, N, MHz
 
-print(5*meter + km)
-# 1005.0 meter
+>> print(3*MHz)
+Frequency(3, 'MHz')
 
-print(N/meter)
-# N/meter
+>> print(5*meter + km)
+Length(1005.0, 'm')
 
-print((N/meter).inBaseUnits())
-# kg/s^2
+>> print(N/meter)
+N/m
 
-print(2*km / tunits.Value(3, 's'))
-# 0.666666666667 km/s
+>> print((N/meter).in_base_units())
+kg/s^2
+
+>> print(2*km / tunits.Value(3, 's'))
+0.666666666667 km/s
+```
+
+## Static Type Check
+
+TypedUnits provides the ability to statically check the dimensionality of variables and parameters. For example mypy would complain about incompatible types for the following code.
+
+```py3
+from tunits import Frequency
+from tunits.units import meter
+
+def frequency_fn(f: Frequency) -> Frequency:
+    print(f)
+    return 3*f
+
+ v = 3 * meter
+ frequency_fn(v)
+```
+
+```
+mypy my_code.py
+_test.py:7: error: Argument 1 to "frequency_fn" has incompatible type "Length"; expected "Frequency"  [arg-type]
+```
+
+
+## Serialization support
+TypedUnits provides protobuffer serialization support for [selected units](https://github.com/quantumlib/TypedUnits/blob/main/tunits/proto/tunits.proto#L22). Contributions are welcome to increase serialization coverage.
+
+```py3
+>> from tunits import Frequency
+>> from tunits.units import MHz
+>>
+>> v = 3*MHz
+>> msg = v.to_proto()
+>> print(msg)
+units {
+  unit: HERTZ
+  scale: MEGA
+}
+real_value: 3
+
+>> Frequency.from_proto(msg)
+Frequency(3.0, 'MHz')
 ```
 
 # Installation
 
-1. To install the latest version from the main branch
+1. To install a precompiled wheel (add `--pre` for prelease version)
+
+    ```
+    pip install typedunits # [--pre] 
+    ```
+
+1. To locally build the latest version from the main branch
 
     ```bash
     pip install git+https://github.com/quantumlib/TypedUnits
