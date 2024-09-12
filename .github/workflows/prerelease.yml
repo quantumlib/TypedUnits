@@ -61,7 +61,7 @@ jobs:
 
     - uses: actions/upload-artifact@v4
       with:
-        name: python-wheels
+        name: python-wheels-${{ matrix.os }}
         path: ./wheelhouse/*.whl
 
   release-wheels:
@@ -73,7 +73,8 @@ jobs:
     - name: Download build artifacts
       uses: actions/download-artifact@v4
       with:
-        name: python-wheels
+        pattern: python-wheels-*
+        merge-multiple: true
         path: wheelhouse/
 
     - name: Publish package to testpypi
@@ -83,6 +84,7 @@ jobs:
         user: __token__
         password: ${{ secrets.TEST_PYPI_API_TOKEN }}
         packages_dir: wheelhouse/
+        verbose: true
 
     # - name: Publish package to pypi
     #   uses: pypa/gh-action-pypi-publish@27b31702a0e7fc50959f5ad993c78deac1bdfc29
@@ -90,3 +92,4 @@ jobs:
     #     user: __token__
     #     password: ${{ secrets.PYPI_API_TOKEN }}
     #     packages_dir: wheelhouse/
+    #     verbose: true
