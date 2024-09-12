@@ -25,15 +25,26 @@ from test.test_utils import val, unit, conv
 
 
 def test_auto_create() -> None:
+    """
+    will automatically create a unit depending on auto_create_units parameter of __init__
+    """
     with pytest.raises(KeyError):
         UnitDatabase(auto_create_units=False).parse_unit_formula('tests')
 
     db = UnitDatabase(auto_create_units=True)
     u = db.parse_unit_formula('tests')
+    assert str(u) == 'tests'
+    u_again = db.get_unit('tests')
+    assert str(u_again) == 'tests'
     assert 5 == 5 * u / u
 
 
 def test_auto_create_disabled_when_purposefully_adding_units() -> None:
+    """
+    even when auto_create_units is True
+    the auto creation does not happen
+    with these methods
+    """
     db = UnitDatabase(auto_create_units=True)
 
     with pytest.raises(KeyError):
@@ -47,6 +58,10 @@ def test_auto_create_disabled_when_purposefully_adding_units() -> None:
 
 
 def test_get_unit_with_auto_create_override() -> None:
+    """
+    can override the instance level auto_create_units
+    with auto_create in method call
+    """
     db_auto = UnitDatabase(auto_create_units=True)
     db_manual = UnitDatabase(auto_create_units=False)
 
@@ -67,6 +82,9 @@ def test_get_unit_with_auto_create_override() -> None:
 
 
 def test_add_root_unit() -> None:
+    """
+    adding a root unit not derived from anything else
+    """
     db = UnitDatabase(auto_create_units=False)
     db.add_root_unit('cats')
 
@@ -85,6 +103,10 @@ def test_add_root_unit() -> None:
 
 
 def test_add_base_unit_with_prefixes() -> None:
+    """
+    adding a root unit not derived from anything else
+    and prefixes for orders of magnitude
+    """
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(
         BaseUnitData('b', 'base', True),
@@ -120,6 +142,9 @@ def test_add_base_unit_with_prefixes() -> None:
 
 
 def test_add_base_unit_without_prefixes() -> None:
+    """
+    can disallow prefixes with False in use_prefixes argument to BaseUnitData
+    """
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(
         BaseUnitData('b', 'base', False),
@@ -157,6 +182,9 @@ def test_add_base_unit_without_prefixes() -> None:
 
 
 def test_add_derived_unit_with_prefixes() -> None:
+    """
+    can add a derived unit that can be prefixed
+    """
     db = UnitDatabase(auto_create_units=False)
     with pytest.raises(KeyError):
         db.add_derived_unit_data(DerivedUnitData('tails', 't', 'shirts'), [])
@@ -188,12 +216,23 @@ def test_add_derived_unit_with_prefixes() -> None:
     assert db.get_unit('d_t') == v * 100
     assert db.get_unit('duper_tails') == v * 100
     with pytest.raises(KeyError):
+        db.get_unit('super_shirts')
+    with pytest.raises(KeyError):
+        db.get_unit('s_shirts')
+    with pytest.raises(KeyError):
+        db.get_unit('d_shirts')
+    with pytest.raises(KeyError):
+        db.get_unit('duper_shirts')
+    with pytest.raises(KeyError):
         db.get_unit('s_tails')
     with pytest.raises(KeyError):
         db.get_unit('super_t')
 
 
 def test_add_derived_unit_without_prefixes() -> None:
+    """
+    can add a derived unit that cannot be prefixed
+    """
     db = UnitDatabase(auto_create_units=False)
 
     db.add_root_unit('shirts')
@@ -226,6 +265,10 @@ def test_add_derived_unit_without_prefixes() -> None:
 
 
 def test_kilogram_special_case() -> None:
+    """
+    kilogram example
+    unusual in that the base unit has a prefix
+    """
     db = UnitDatabase(auto_create_units=False)
     db.add_base_unit_data(BaseUnitData('kg', 'kilogram'), SI_PREFIXES)
     assert db.get_unit('g').base_units == raw_UnitArray([('kg', 1, 1)])
@@ -234,6 +277,11 @@ def test_kilogram_special_case() -> None:
 
 
 def test_parse_unit_formula() -> None:
+    """
+    with custom root units
+    usual dimensional arithmetic with those units holds
+    when not using any float numerical factors
+    """
     db = UnitDatabase(auto_create_units=False)
     db.add_root_unit('cats')
     db.add_root_unit('dogs')
@@ -256,6 +304,10 @@ def test_parse_unit_formula() -> None:
 
 
 def test_parse_float_formula() -> None:
+    """
+    with custom root units
+    usual dimensional arithmetic with those units and floats holds
+    """
     db = UnitDatabase(auto_create_units=False)
     db.add_root_unit('J')
     db.add_root_unit('s')
@@ -268,6 +320,9 @@ def test_parse_float_formula() -> None:
 
 
 def test_is_consistent_with_database() -> None:
+    """
+    are conversions consistent with what is known in db
+    """
     db = UnitDatabase(auto_create_units=True)
 
     # Empty.
@@ -282,6 +337,7 @@ def test_is_consistent_with_database() -> None:
 
     # Self-contradictory conversion.
     assert not db.is_value_consistent_with_database(val(6, conv=conv(3), units=unit('theorems')))
+    assert db.is_value_consistent_with_database(val(6, conv=conv(1), units=unit('theorems')))
 
     # Inconsistent conversion.
     db.add_scaled_unit('kilo_theorems', 'theorems', exp10=3)

@@ -20,6 +20,9 @@ from tunits import ValueArray, UnitMismatchError, Value
 
 
 def test_construction() -> None:
+    """
+    ValueArray construction from unit and numerical array
+    """
     from tunits.units import ns, ps
 
     assert isinstance(ns * [1, 2, 3], ValueArray)
@@ -27,6 +30,9 @@ def test_construction() -> None:
 
 
 def test_slicing() -> None:
+    """
+    ValueArray can be sliced
+    """
     from tunits.units import ms, ns
 
     assert np.array_equal((ms * [0, 1, 2, 3, 4])[3:], ms * [3, 4])
@@ -34,6 +40,10 @@ def test_slicing() -> None:
 
 
 def test_set_item() -> None:
+    """
+    ValueArray makes sure all the entries match dimensions
+    but can set with different units that have the correct dimensional analysis
+    """
     from tunits.units import km, m, s
 
     v = m * [1, 2, 3]
@@ -48,6 +58,10 @@ def test_set_item() -> None:
 
 
 def test_addition() -> None:
+    """
+    entrywise addition
+    addition requiring matching
+    """
     from tunits.units import km, m
 
     assert np.array_equal(km * [1, 2, 3] + m * [2, 3, 5], m * [1002, 2003, 3005])
@@ -59,6 +73,10 @@ def test_addition() -> None:
 
 
 def test_multiplication() -> None:
+    """
+    entrywise addition
+    units multiply with dimensional arithmetic
+    """
     from tunits.units import km, m
 
     assert np.array_equal((km * [1, 2, 3]) * (m * [2, 3, 5]), (km * m) * [2, 6, 15])
@@ -77,12 +95,20 @@ def test_multiplication() -> None:
 
 
 def test_power() -> None:
+    """
+    entrywise power
+    units go to appropriate powers thereof
+    """
     from tunits.units import s
 
     assert np.array_equal((s * [1, 2, 3]) ** 2, s * s * [1, 4, 9])
 
 
 def test_repr() -> None:
+    """
+    repr of ValueArray has the underlying numeric array
+    and the string for the common unit for all the entries
+    """
     from tunits.units import km, kg, s
 
     assert repr(s * []) == "TimeArray(array([], dtype=float64), 's')"
@@ -123,6 +149,9 @@ def test_repr() -> None:
 
 
 def test_str() -> None:
+    """
+    contrast repr above with displayed str
+    """
     from tunits.units import mm
 
     assert str(mm**3 * []) == '[] mm^3'
@@ -130,6 +159,9 @@ def test_str() -> None:
 
 
 def test_array_dtype() -> None:
+    """
+    depending on dtype, complex arithmetic may or may not be allowed
+    """
     from tunits.units import dekahertz, s
 
     a = np.array(s * [1, 2, 3] * dekahertz, dtype=complex)
@@ -146,6 +178,10 @@ def test_array_dtype() -> None:
 
 
 def test_multi_index() -> None:
+    """
+    multidimensional arrays
+    indexing and slicing
+    """
     from tunits.units import m
 
     assert (m * [[2, 3], [4, 5], [6, 7]])[0, 0] == m * 2
@@ -157,6 +193,10 @@ def test_multi_index() -> None:
 
 
 def test_predicate_index() -> None:
+    """
+    when using a predicate index
+    the relevant entries are selected and flattened
+    """
     from tunits.units import m
 
     v = m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]]
@@ -164,6 +204,9 @@ def test_predicate_index() -> None:
 
 
 def test_extract_unit() -> None:
+    """
+    can pull the common unit out as a common factor
+    """
     from tunits.units import m
 
     # Singleton.
@@ -183,6 +226,10 @@ def test_extract_unit() -> None:
 
 
 def test_numpy_kron() -> None:
+    """
+    kronecker product on the arrays multiplies all the values
+    as well as having the product unit as the common unit for all entries
+    """
     from tunits.units import km, ns
 
     u = km * [2, 3, 5]
