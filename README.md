@@ -37,20 +37,44 @@ kg/s^2
 TypedUnits provides the ability to statically check the dimensionality of variables and parameters. For example mypy would complain about incompatible types for the following code.
 
 ```py3
-from tunits import Frequency
-from tunits.units import meter
+from tunits import Frequency, LengthArray
+from tunits.units import meter, km, MHz
 
 def frequency_fn(f: Frequency) -> Frequency:
-    print(f)
     return 3*f
 
- v = 3 * meter
- frequency_fn(v)
+x = 2 * meter
+x_arr = LengthArray([1, 2], km)
+y = 3 * km
+f = 7 * MHz
+
+# okay
+print(frequency_fn(f))
+print(x + y)
+print(x_arr - y)
+
+# not okay
+print(frequency_fn(x))
+print(f + x)
+print(x - f)
+frequency_fn(x_arr)
 ```
 
-```
-mypy my_code.py
-_test.py:7: error: Argument 1 to "frequency_fn" has incompatible type "Length"; expected "Frequency"  [arg-type]
+```sh
+$ mypy my_code.py
+my_code.py:18: error: Argument 1 to "frequency_fn" has incompatible type "Length"; expected "Frequency"  [arg-type]
+my_code.py:19: error: No overload variant of "__add__" of "Value" matches argument type "Length"  [operator]
+my_code.py:19: note: Possible overload variants:
+my_code.py:19: note:     def __add__(self, int | float | complex | number[Any], /) -> Frequency
+my_code.py:19: note:     def __add__(self, ValueArray | list[Any] | tuple[Any] | ndarray[Any, dtype[Any]], /) -> ValueArray
+my_code.py:19: note:     def __add__(self, Frequency, /) -> Frequency
+my_code.py:20: error: No overload variant of "__sub__" of "Value" matches argument type "Frequency"  [operator]
+my_code.py:20: note: Possible overload variants:
+my_code.py:20: note:     def __sub__(self, int | float | complex | number[Any], /) -> Length
+my_code.py:20: note:     def __sub__(self, list[Any] | tuple[Any] | ndarray[Any, dtype[Any]], /) -> ValueArray
+my_code.py:20: note:     def __sub__(self, Length, /) -> Length
+my_code.py:21: error: Argument 1 to "frequency_fn" has incompatible type "LengthArray"; expected "Frequency"  [arg-type]
+Found 4 errors in 1 file (checked 1 source file)
 ```
 
 
