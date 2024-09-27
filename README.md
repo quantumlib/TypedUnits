@@ -117,7 +117,7 @@ Frequency(3.0, 'MHz')
     ```bash
     git clone https://github.com/quantumlib/TypedUnits
     cd TypedUnits
-    pip install .
+    pip install -e .
     ```
 
 # Development and Testing
@@ -141,7 +141,7 @@ Frequency(3.0, 'MHz')
 1. Install TUnits
 
     ```bash
-    pip install .
+    pip install -e .
     ```
 
 1. Test.
