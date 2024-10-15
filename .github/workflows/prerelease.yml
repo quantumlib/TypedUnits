@@ -39,6 +39,8 @@ jobs:
             arch: auto
           - os: macos-latest
             arch: auto
+          - os: macos-13
+            arch: auto
 
     steps:
     - uses: actions/checkout@v4
