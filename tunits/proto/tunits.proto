@@ -20,37 +20,37 @@ option java_multiple_files = true;
 
 // Units supported for serialization.
 enum UnitEnum {
-  DECIBEL = 1;             // Power unit (dB).
-  DECIBEL_MILLIWATTS = 2;  // Decibel-milliwatts (dBm).
-  RADIANS = 3;             // Radians (rad).
-  HERTZ = 4;               // Frequency unit (Hz).
-  VOLT = 5;                // Electric potential Unit (V).
-  SECOND = 6;              // Time unit (s).
+  DECIBEL = 1; // Power unit (dB).
+  DECIBEL_MILLIWATTS = 2; // Decibel-milliwatts (dBm).
+  RADIANS = 3; // Radians (rad).
+  HERTZ = 4; // Frequency unit (Hz).
+  VOLT = 5; // Electric potential Unit (V).
+  SECOND = 6; // Time unit (s).
 }
 
 enum Scale {
   // Enum value should be the associated exponent.
-  YOTTA = 24;   // 10^24
-  ZETTA = 21;   // 10^21
-  EXA = 18;     // 10^18
-  PETA = 15;    // 10^15
-  TERA = 12;    // 10^12
-  GIGA = 9;     // 10^9
-  MEGA = 6;     // 10^6
-  KILO = 3;     // 10^3
-  HECTO = 2;    // 10^2
-  DECAD = 1;    // 10^1
-  UNITY = 0;    // 1
-  DECI = -1;    // 10^-1
-  CENTI = -2;   // 10^-2
-  MILLI = -3;   // 10^-3
-  MICRO = -6;   // 10^-6
-  NANO = -9;    // 10^-9
-  PICO = -12;   // 10^-12
-  FEMTO = -15;  // 10^-15
-  ATTO = -18;   // 10^-18
-  ZEPTO = -21;  // 10^-21
-  YOCTO = -24;  // 10^-24
+  YOTTA = 24; // 10^24
+  ZETTA = 21; // 10^21
+  EXA = 18; // 10^18
+  PETA = 15; // 10^15
+  TERA = 12; // 10^12
+  GIGA = 9; // 10^9
+  MEGA = 6; // 10^6
+  KILO = 3; // 10^3
+  HECTO = 2; // 10^2
+  DECAD = 1; // 10^1
+  UNITY = 0; // 1
+  DECI = -1; // 10^-1
+  CENTI = -2; // 10^-2
+  MILLI = -3; // 10^-3
+  MICRO = -6; // 10^-6
+  NANO = -9; // 10^-9
+  PICO = -12; // 10^-12
+  FEMTO = -15; // 10^-15
+  ATTO = -18; // 10^-18
+  ZEPTO = -21; // 10^-21
+  YOCTO = -24; // 10^-24
 }
 
 // The exponent of a unit e.g.
@@ -79,6 +79,7 @@ message Value {
   // Units are repeated to represent combinations of units (e.g. V*s and mV/us).
   // Units are combined through multiplication.
   repeated Unit units = 1;
+
   oneof value {
     double real_value = 2;
     Complex complex_value = 3;
@@ -86,7 +87,9 @@ message Value {
 }
 
 message DoubleArray {
-  repeated double values = 1;
+  repeated double values = 1 [
+    packed = true
+  ];
 }
 
 message ComplexArray {
@@ -99,10 +102,14 @@ message ValueArray {
   // Units are repeated to represent combinations of units (e.g. V*s and mV/us).
   // Units are combined through multiplication.
   repeated Unit units = 1;
+
   oneof values {
     // The flattened array.
     DoubleArray reals = 2;
     ComplexArray complexes = 3;
   }
-  repeated uint32 shape = 4;  // The shape of the array.
+
+  repeated uint32 shape = 4 [
+    packed = true
+  ]; // The shape of the array.
 }

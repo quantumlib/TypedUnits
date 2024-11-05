@@ -73,10 +73,10 @@ class ValueArray(WithUnit):
     def __len__(WithUnit self):
         return len(self.value)
 
-    def __array__(WithUnit self, dtype=None):
+    def __array__(WithUnit self, dtype=None, copy: bool=False):
         if self.is_dimensionless:
             return np.asarray(conversion_to_double(self.conv) * self.value,
-                              dtype=dtype)
+                              dtype=dtype, copy=copy)
 
         unit_array = np.full_like(self.value, self.unit, dtype=object)
         result = self.value * unit_array
