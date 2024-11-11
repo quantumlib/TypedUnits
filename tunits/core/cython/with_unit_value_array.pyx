@@ -75,8 +75,9 @@ class ValueArray(WithUnit):
 
     def __array__(WithUnit self, dtype=None, copy: bool=False):
         if self.is_dimensionless:
+            # TODO: pass copy to np.asarray.
             return np.asarray(conversion_to_double(self.conv) * self.value,
-                              dtype=dtype, copy=copy)
+                              dtype=dtype)
 
         unit_array = np.full_like(self.value, self.unit, dtype=object)
         result = self.value * unit_array
