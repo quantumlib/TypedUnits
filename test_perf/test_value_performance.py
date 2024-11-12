@@ -12,11 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any
+from typing import Any, TYPE_CHECKING, Union
 import unittest
 
 from tunits import Value
 from .perf_testing_util import a_random_compatible_unit_val, a_random_unit_val, perf_goal
+
+if TYPE_CHECKING:
+    import numpy
 
 
 @perf_goal(avg_nanos=1800, args=[a_random_compatible_unit_val] * 2)
@@ -35,7 +38,7 @@ def test_perf_multiply(a: Value, b: Value) -> Value:
 
 
 @perf_goal(avg_nanos=600, args=[a_random_compatible_unit_val] * 2)
-def test_perf_get_item(a: Value, b: Value) -> Value:
+def test_perf_get_item(a: Value, b: Value) -> Union[float, 'numpy.typing.NDArray[Any]']:
     return a[b]
 
 
