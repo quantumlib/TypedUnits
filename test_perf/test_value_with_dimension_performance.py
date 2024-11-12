@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, TYPE_CHECKING
+from typing import Any, TYPE_CHECKING, Union
 import unittest
 
 from tunits.units import kilometer, inch
@@ -43,7 +43,7 @@ def test_perf_multiply(a: ValueWithDimension, b: ValueWithDimension) -> Value:
 @perf_goal(repeats=1500, avg_nanos=600, args=[a_random_value_with_dimension] * 2)
 def test_perf_get_item(
     a: ValueWithDimension, b: ValueWithDimension
-) -> float | 'numpy.typing.NDArray[Any]':
+) -> Union[float, 'numpy.typing.NDArray[Any]']:
     return a[b]
 
 
