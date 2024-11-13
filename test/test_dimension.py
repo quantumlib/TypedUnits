@@ -79,3 +79,12 @@ def test_arithmetic_ops_preserve_type_array(
 
     c = a / 11
     assert all(c == u * [2 / 11, 3 / 11])
+
+
+def test_division_type() -> None:
+    t: tunits.Time = 3 * tunits.ns
+
+    t = t / 2
+    assert t == 1.5 * tunits.ns
+
+    assert isinstance(1 / t, tunits.Value)
