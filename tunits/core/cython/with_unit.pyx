@@ -274,8 +274,6 @@ cdef class WithUnit:
                                     conversion_div(left.conv, right.conv),
                                     left.base_units / right.base_units,
                                     left.display_units / right.display_units, Value, ValueArray)
-            if left._is_dimensionless():
-                return right.__with_value(left.value / right.value)
             if right._is_dimensionless():
                 return left.__with_value(left.value / right.value)
             return raw_WithUnit(left.value / right.value,
