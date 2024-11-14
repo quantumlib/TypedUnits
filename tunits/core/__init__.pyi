@@ -401,6 +401,7 @@ class Acceleration(_Acceleration, ValueWithDimension):
 
 class AccelerationArray(_Acceleration, ArrayWithDimension):
     def __getitem__(self, unit: Acceleration | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Acceleration]: ...
 
 class _Angle(Dimension):
     @staticmethod
@@ -411,6 +412,7 @@ class Angle(_Angle, ValueWithDimension):
 
 class AngleArray(_Angle, ArrayWithDimension):
     def __getitem__(self, unit: Angle | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Angle]: ...
 
 class _AngularFrequency(Dimension):
     @staticmethod
@@ -421,6 +423,7 @@ class AngularFrequency(_AngularFrequency, ValueWithDimension):
 
 class AngularFrequencyArray(_AngularFrequency, ArrayWithDimension):
     def __getitem__(self, unit: AngularFrequency | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[AngularFrequency]: ...
 
 class _Area(Dimension):
     @staticmethod
@@ -431,6 +434,7 @@ class Area(_Area, ValueWithDimension):
 
 class AreaArray(_Area, ArrayWithDimension):
     def __getitem__(self, unit: Area | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Area]: ...
 
 class _Capacitance(Dimension):
     @staticmethod
@@ -441,6 +445,7 @@ class Capacitance(_Capacitance, ValueWithDimension):
 
 class CapacitanceArray(_Capacitance, ArrayWithDimension):
     def __getitem__(self, unit: Capacitance | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Capacitance]: ...
 
 class _Charge(Dimension):
     @staticmethod
@@ -451,6 +456,7 @@ class Charge(_Charge, ValueWithDimension):
 
 class ChargeArray(_Charge, ArrayWithDimension):
     def __getitem__(self, unit: Charge | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Charge]: ...
 
 class _CurrentDensity(Dimension):
     @staticmethod
@@ -461,6 +467,7 @@ class CurrentDensity(_CurrentDensity, ValueWithDimension):
 
 class CurrentDensityArray(_CurrentDensity, ArrayWithDimension):
     def __getitem__(self, unit: CurrentDensity | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[CurrentDensity]: ...
 
 class _Density(Dimension):
     @staticmethod
@@ -471,6 +478,7 @@ class Density(_Density, ValueWithDimension):
 
 class DensityArray(_Density, ArrayWithDimension):
     def __getitem__(self, unit: Density | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Density]: ...
 
 class _ElectricCurrent(Dimension):
     @staticmethod
@@ -481,6 +489,7 @@ class ElectricCurrent(_ElectricCurrent, ValueWithDimension):
 
 class ElectricCurrentArray(_ElectricCurrent, ArrayWithDimension):
     def __getitem__(self, unit: ElectricCurrent | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[ElectricCurrent]: ...
 
 class _ElectricPotential(Dimension):
     @staticmethod
@@ -491,6 +500,7 @@ class ElectricPotential(_ElectricPotential, ValueWithDimension):
 
 class ElectricPotentialArray(_ElectricPotential, ArrayWithDimension):
     def __getitem__(self, unit: ElectricPotential | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[ElectricPotential]: ...
 
 class _ElectricalConductance(Dimension):
     @staticmethod
@@ -501,6 +511,7 @@ class ElectricalConductance(_ElectricalConductance, ValueWithDimension):
 
 class ElectricalConductanceArray(_ElectricalConductance, ArrayWithDimension):
     def __getitem__(self, unit: ElectricalConductance | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[ElectricalConductance]: ...
 
 class _Energy(Dimension):
     @staticmethod
@@ -511,6 +522,7 @@ class Energy(_Energy, ValueWithDimension):
 
 class EnergyArray(_Energy, ArrayWithDimension):
     def __getitem__(self, unit: Energy | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Energy]: ...
 
 class _Force(Dimension):
     @staticmethod
@@ -521,6 +533,7 @@ class Force(_Force, ValueWithDimension):
 
 class ForceArray(_Force, ArrayWithDimension):
     def __getitem__(self, unit: Force | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Force]: ...
 
 class _Frequency(Dimension):
     @staticmethod
@@ -531,6 +544,7 @@ class Frequency(_Frequency, ValueWithDimension):
 
 class FrequencyArray(_Frequency, ArrayWithDimension):
     def __getitem__(self, unit: Frequency | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Frequency]: ...
 
 class _Illuminance(Dimension):
     @staticmethod
@@ -541,6 +555,7 @@ class Illuminance(_Illuminance, ValueWithDimension):
 
 class IlluminanceArray(_Illuminance, ArrayWithDimension):
     def __getitem__(self, unit: Illuminance | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Illuminance]: ...
 
 class _Inductance(Dimension):
     @staticmethod
@@ -551,6 +566,7 @@ class Inductance(_Inductance, ValueWithDimension):
 
 class InductanceArray(_Inductance, ArrayWithDimension):
     def __getitem__(self, unit: Inductance | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Inductance]: ...
 
 class _Length(Dimension):
     @staticmethod
@@ -561,6 +577,7 @@ class Length(_Length, ValueWithDimension):
 
 class LengthArray(_Length, ArrayWithDimension):
     def __getitem__(self, unit: Length | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Length]: ...
 
 class _LogPower(Dimension):
     @staticmethod
@@ -571,6 +588,7 @@ class LogPower(_LogPower, ValueWithDimension):
 
 class LogPowerArray(_LogPower, ArrayWithDimension):
     def __getitem__(self, unit: LogPower | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[LogPower]: ...
 
 class _LuminousFlux(Dimension):
     @staticmethod
@@ -581,6 +599,7 @@ class LuminousFlux(_LuminousFlux, ValueWithDimension):
 
 class LuminousFluxArray(_LuminousFlux, ArrayWithDimension):
     def __getitem__(self, unit: LuminousFlux | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[LuminousFlux]: ...
 
 class _LuminousIntensity(Dimension):
     @staticmethod
@@ -591,6 +610,7 @@ class LuminousIntensity(_LuminousIntensity, ValueWithDimension):
 
 class LuminousIntensityArray(_LuminousIntensity, ArrayWithDimension):
     def __getitem__(self, unit: LuminousIntensity | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[LuminousIntensity]: ...
 
 class _MagneticFlux(Dimension):
     @staticmethod
@@ -601,6 +621,7 @@ class MagneticFlux(_MagneticFlux, ValueWithDimension):
 
 class MagneticFluxArray(_MagneticFlux, ArrayWithDimension):
     def __getitem__(self, unit: MagneticFlux | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[MagneticFlux]: ...
 
 class _MagneticFluxDensity(Dimension):
     @staticmethod
@@ -611,6 +632,7 @@ class MagneticFluxDensity(_MagneticFluxDensity, ValueWithDimension):
 
 class MagneticFluxDensityArray(_MagneticFluxDensity, ArrayWithDimension):
     def __getitem__(self, unit: MagneticFluxDensity | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[MagneticFluxDensity]: ...
 
 class _Mass(Dimension):
     @staticmethod
@@ -621,6 +643,7 @@ class Mass(_Mass, ValueWithDimension):
 
 class MassArray(_Mass, ArrayWithDimension):
     def __getitem__(self, unit: Mass | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Mass]: ...
 
 class _Noise(Dimension):
     @staticmethod
@@ -631,6 +654,7 @@ class Noise(_Noise, ValueWithDimension):
 
 class NoiseArray(_Noise, ArrayWithDimension):
     def __getitem__(self, unit: Noise | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Noise]: ...
 
 class _Power(Dimension):
     @staticmethod
@@ -641,6 +665,7 @@ class Power(_Power, ValueWithDimension):
 
 class PowerArray(_Power, ArrayWithDimension):
     def __getitem__(self, unit: Power | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Power]: ...
 
 class _Pressure(Dimension):
     @staticmethod
@@ -651,6 +676,7 @@ class Pressure(_Pressure, ValueWithDimension):
 
 class PressureArray(_Pressure, ArrayWithDimension):
     def __getitem__(self, unit: Pressure | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Pressure]: ...
 
 class _Quantity(Dimension):
     @staticmethod
@@ -661,6 +687,7 @@ class Quantity(_Quantity, ValueWithDimension):
 
 class QuantityArray(_Quantity, ArrayWithDimension):
     def __getitem__(self, unit: Quantity | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Quantity]: ...
 
 class _Resistance(Dimension):
     @staticmethod
@@ -671,6 +698,7 @@ class Resistance(_Resistance, ValueWithDimension):
 
 class ResistanceArray(_Resistance, ArrayWithDimension):
     def __getitem__(self, unit: Resistance | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Resistance]: ...
 
 class _Speed(Dimension):
     @staticmethod
@@ -681,6 +709,7 @@ class Speed(_Speed, ValueWithDimension):
 
 class SpeedArray(_Speed, ArrayWithDimension):
     def __getitem__(self, unit: Speed | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Speed]: ...
 
 class _SurfaceDensity(Dimension):
     @staticmethod
@@ -691,6 +720,7 @@ class SurfaceDensity(_SurfaceDensity, ValueWithDimension):
 
 class SurfaceDensityArray(_SurfaceDensity, ArrayWithDimension):
     def __getitem__(self, unit: SurfaceDensity | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[SurfaceDensity]: ...
 
 class _Temperature(Dimension):
     @staticmethod
@@ -701,6 +731,7 @@ class Temperature(_Temperature, ValueWithDimension):
 
 class TemperatureArray(_Temperature, ArrayWithDimension):
     def __getitem__(self, unit: Temperature | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Temperature]: ...
 
 class _Time(Dimension):
     @staticmethod
@@ -711,6 +742,7 @@ class Time(_Time, ValueWithDimension):
 
 class TimeArray(_Time, ArrayWithDimension):
     def __getitem__(self, unit: Time | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Time]: ...
 
 class _Torque(Dimension):
     @staticmethod
@@ -721,6 +753,7 @@ class Torque(_Torque, ValueWithDimension):
 
 class TorqueArray(_Torque, ArrayWithDimension):
     def __getitem__(self, unit: Torque | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Torque]: ...
 
 class _Volume(Dimension):
     @staticmethod
@@ -731,6 +764,7 @@ class Volume(_Volume, ValueWithDimension):
 
 class VolumeArray(_Volume, ArrayWithDimension):
     def __getitem__(self, unit: Volume | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[Volume]: ...
 
 class _WaveNumber(Dimension):
     @staticmethod
@@ -741,6 +775,7 @@ class WaveNumber(_WaveNumber, ValueWithDimension):
 
 class WaveNumberArray(_WaveNumber, ArrayWithDimension):
     def __getitem__(self, unit: WaveNumber | str) -> NDArray[Any]: ...
+    def __iter__(self) -> Iterator[WaveNumber]: ...
 
 @frozen
 class BaseUnitData:
