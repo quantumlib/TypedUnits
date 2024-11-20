@@ -42,12 +42,18 @@ cpdef raw_WithUnit(value,
         val = value
         target_type = value_class
     elif isinstance(value, (list, tuple, np.ndarray)):
-        val = np.array(value)
+        val = np.asarray(value)
         target_type = array_class
+        val, unit = _canonize_data_and_unit(val, None)
+        if unit is not None:
+            conv = conversion_times(conv, unit.conv)
+            display_units *= unit.display_units
+            base_units *= unit.base_units        
     else:
         raise NotTUnitsLikeError("Unrecognized value type: {}".format(type(value)))
 
-    cdef WithUnit result = target_type(val)
+    cdef WithUnit result = target_type.__new__(target_type)
+    result.value = val
     result.conv = conv
     result.base_units = base_units
     result.display_units = display_units

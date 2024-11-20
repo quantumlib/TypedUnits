@@ -73,10 +73,17 @@ class _Acceleration(Dimension):
         return AccelerationArray
 
 
-class ValueWithDimension(Dimension, Value): ...
+class ValueWithDimension(Dimension, Value):
+    def __init__(self, val, unit=None, validate:bool=True):
+        super().__init__(val, unit=unit)
+        if validate and not type(self).is_valid(self):
+            raise ValueError(f'{self.unit} is not a valid unit for dimension {type(self)}')
 
-
-class ArrayWithDimension(Dimension, ValueArray): ...
+class ArrayWithDimension(Dimension, ValueArray):
+    def __init__(self, val, unit=None, validate:bool=True):
+        super().__init__(val, unit=unit)
+        if validate and not type(self).is_valid(self):
+            raise ValueError(f'{self.unit} is not a valid unit for dimension {type(self)}')
 
 
 class Acceleration(_Acceleration, ValueWithDimension): ...
