@@ -274,8 +274,8 @@ def test_array() -> None:
 
     u = np.array(val([val(2, units=m), val(3, units=m)]))
     assert isinstance(u, np.ndarray)
-    assert isinstance(u[0], float)
-    assert np.array_equal([2, 3], u)
+    assert isinstance(u[0], Value)
+    assert np.array_equal([2, 3] * val(1, units=m), u)
 
     u = np.array(val([2, 3]))
     assert isinstance(u, np.ndarray)
