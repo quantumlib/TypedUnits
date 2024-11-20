@@ -88,3 +88,18 @@ def test_division_type() -> None:
     assert t == 1.5 * tunits.ns
 
     assert isinstance(1 / t, tunits.Value)
+
+
+def test_dimension_with_wrong_unit_raises():
+
+    with pytest.raises(ValueError, match='not a valid unit for dimension'):
+        _ = tunits.Time(1)
+
+    with pytest.raises(ValueError, match='not a valid unit for dimension'):
+        _ = tunits.TimeArray([1])
+
+    with pytest.raises(ValueError, match='not a valid unit for dimension'):
+        _ = tunits.Time(1, 'm')
+
+    with pytest.raises(ValueError, match='not a valid unit for dimension'):
+        _ = tunits.TimeArray([1], 'm')
