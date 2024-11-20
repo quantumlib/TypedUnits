@@ -90,7 +90,7 @@ def test_division_type() -> None:
     assert isinstance(1 / t, tunits.Value)
 
 
-def test_dimension_with_wrong_unit_raises():
+def test_dimension_with_wrong_unit_raises() -> None:
 
     with pytest.raises(ValueError, match='not a valid unit for dimension'):
         _ = tunits.Time(1)
