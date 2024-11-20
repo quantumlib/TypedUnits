@@ -53,7 +53,7 @@ class Dimension(abc.ABC):
 
     @classmethod
     def is_valid(cls, v: WithUnit) -> bool:
-        return any(v.base_units == u.base_units for u in cls.valid_base_units())        
+        return any(v.base_units == u.base_units for u in cls.valid_base_units())
 
 
 class _Acceleration(Dimension):
