@@ -24,4 +24,4 @@ echo "${shell_files[@]}" | tr ' ' '\n' | sed 's/^/    /'
 
 echo
 
-/usr/local/bin/shellcheck --external-sources "${shell_files[@]}"
+shellcheck --external-sources "${shell_files[@]}"

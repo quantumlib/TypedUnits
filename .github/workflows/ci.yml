@@ -1,0 +1,68 @@
+# Copyright 2024 The TUnits Authors
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+
+name: Build and Test
+
+on: [push]
+
+jobs:
+  buid-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r dev_tools/dev.env.txt
+
+      - name: Typecheck
+        run: ci/mypy.sh
+
+      - name: shellcheck
+        run: ci/shellcheck.sh
+
+      - name: format
+        run: |
+          black --exclude tunits/proto/.* --check .
+
+      - name: lint
+        run: ci/pylint_all.sh
+
+      - name: Check modified protos
+        run: ci/build_changed_protos.sh origin/main
+
+        #
+        # Install
+        #
+
+      - name: install
+        run: |
+          pip install . --user
+
+
+      - name: pytest
+        run: ci/pytest_unit.sh
+
+      - name: perf
+        run: ci/pytest_perf.sh
