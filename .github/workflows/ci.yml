@@ -18,10 +18,18 @@ name: Build and Test
 on: [push]
 
 jobs:
-  buid_and_test:
+  buid-and-test:
     runs-on: ubuntu-latest
-    steps:
 
+    strategy:
+      fail-fast: false
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
       - name: Install Dependencies
       run: |
         pip install -r dev_tools/dev.env.txt
@@ -34,15 +42,15 @@ jobs:
         run: |
           . ./ci/shellcheck.sh
    
-      - id: format
+      - name: format
         run: |
           black --exclude tunits/proto/.* --check .
         
-      - id: lint
+      - name: lint
         run:
           . ./ci/pylint_all.sh
 
-      - id: Check modified protos
+      - name: Check modified protos
         run: |
           ./ci/build_changed_protos.sh origin/main
 
@@ -50,15 +58,15 @@ jobs:
       # Install
       #
 
-      - id: install
+      - name: install
         run: |
           pip install . --user
 
 
-      - id: pytest
+      - name: pytest
         run: |
           . ./ci/pytest_unit.sh
 
-      - id: perf
+      - name: perf
         run: |
           . ./ci/pytest_perf.sh
