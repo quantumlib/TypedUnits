@@ -15,13 +15,7 @@
 
 name: Build and Test
 
-on:
-  push:
-    branches:
-    - main
-
-permissions:
-  contents: read
+on: [push]
 
 jobs:
   buid_and_test:
