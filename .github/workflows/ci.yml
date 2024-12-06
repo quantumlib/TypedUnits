@@ -37,24 +37,20 @@ jobs:
         pip install -r dev_tools/dev.env.txt
 
     - name: Typecheck
-      run: |
-      . ./ci/mypy.sh
+      run: ci/mypy.sh
 
     - name: shellcheck
-      run: |
-        . ./ci/shellcheck.sh
+      run: ci/shellcheck.sh
    
     - name: format
       run: |
         black --exclude tunits/proto/.* --check .
         
     - name: lint
-      run:
-        . ./ci/pylint_all.sh
+      run: ci/pylint_all.sh
 
     - name: Check modified protos
-      run: |
-        ./ci/build_changed_protos.sh origin/main
+      run: ci/build_changed_protos.sh origin/main
 
       #
       # Install
@@ -66,9 +62,7 @@ jobs:
 
 
     - name: pytest
-      run: |
-        . ./ci/pytest_unit.sh
+      run: ci/pytest_unit.sh
 
     - name: perf
-      run: |
-        . ./ci/pytest_perf.sh
+      run: ci/pytest_perf.sh
