@@ -40,7 +40,6 @@ jobs:
         run: ci/mypy.sh
 
       - name: shellcheck
-        uses: actions/checkout@v4
         run: ci/shellcheck.sh
 
       - name: format
