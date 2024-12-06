@@ -1,9 +1,6 @@
 ## TUnits - Fast Python Units
 
-.. image:: https://github.com/quantumlib/TypedUnits/actions/workflows/ci.yml/badge.svg?branch=main
-  :target: https://github.com/quantumlib/TypedUnits
-  :alt: Build & Test
-
+![Continuous Integration](https://github.com/quantumlib/TypedUnits/actions/workflows/ci.yml/badge.svg?branch=main)
 
 Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
