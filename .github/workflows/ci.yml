@@ -21,48 +21,48 @@ jobs:
   buid-and-test:
     runs-on: ubuntu-latest
 
-  strategy:
-    fail-fast: false
+    strategy:
+      fail-fast: false
 
-  steps:
-    - uses: actions/checkout@v4
+    steps:
+      - uses: actions/checkout@v4
 
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v3
-      with:
-        python-version: '3.10'
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.10'
 
-    - name: Install Dependencies
-      run: |
-        pip install -r dev_tools/dev.env.txt
+      - name: Install Dependencies
+        run: |
+          pip install -r dev_tools/dev.env.txt
 
-    - name: Typecheck
-      run: ci/mypy.sh
+      - name: Typecheck
+        run: ci/mypy.sh
 
-    - name: shellcheck
-      run: ci/shellcheck.sh
-   
-    - name: format
-      run: |
-        black --exclude tunits/proto/.* --check .
-        
-    - name: lint
-      run: ci/pylint_all.sh
+      - name: shellcheck
+        run: ci/shellcheck.sh
 
-    - name: Check modified protos
-      run: ci/build_changed_protos.sh origin/main
+      - name: format
+        run: |
+          black --exclude tunits/proto/.* --check .
 
-      #
-      # Install
-      #
+      - name: lint
+        run: ci/pylint_all.sh
 
-    - name: install
-      run: |
-        pip install . --user
+      - name: Check modified protos
+        run: ci/build_changed_protos.sh origin/main
+
+        #
+        # Install
+        #
+
+      - name: install
+        run: |
+          pip install . --user
 
 
-    - name: pytest
-      run: ci/pytest_unit.sh
+      - name: pytest
+        run: ci/pytest_unit.sh
 
-    - name: perf
-      run: ci/pytest_perf.sh
+      - name: perf
+        run: ci/pytest_perf.sh
