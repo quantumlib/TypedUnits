@@ -2,7 +2,7 @@
 
 | GCB CI status: |
 | ---------- |
-| (https://github.com/github/quantumlib/TypedUnits/workflows/ci.yml/badge.svg) |
+| (https://github.com/github/quantumlib/TypedUnits/workflows/ci.yml/badge.svg?branch=main) |
 
 Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
