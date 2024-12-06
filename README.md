@@ -1,8 +1,6 @@
 ## TUnits - Fast Python Units
 
-| GCB CI status: |
-| ---------- |
-| [![GCB Build Status](https://storage.googleapis.com/qh-build-badges/builds/TypedUnits/branches/main.svg)](https://pantheon.corp.google.com/cloud-build/builds;region=global?query=trigger_id%3D%2266ef9407-7c28-4883-8a2a-9f106dafa2a9%22&inv=1&invt=Abbvhg&project=qh-build) |
+![Continuous Integration](https://github.com/quantumlib/TypedUnits/actions/workflows/ci.yml/badge.svg?branch=main)
 
 Implements unit of measurement arithmetic, where a number is associated with a product of powers of base units and values with compatible units can be added.
 
