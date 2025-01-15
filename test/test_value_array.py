@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from packaging.version import Version
 import numpy as np
 import pytest
 from tunits.core import raw_WithUnit, raw_UnitArray
@@ -92,9 +93,16 @@ def test_repr() -> None:
     assert repr(km ** (2 / 3.0) * [-1] / kg**3 * s) == "ValueArray(array([-1.]), 'km^(2/3)*s/kg^3')"
 
     # Numpy abbreviation is allowed.
-    assert repr(list(range(50000)) * km) == (
-        "LengthArray(array([    0,     1,     " "2, ..., 49997, 49998, 49999]), 'km')"
-    )
+    if Version(np.__version__) >= Version('2.2'):
+        expected_repr = (
+            "LengthArray(array([    0,     1,     "
+            "2, ..., 49997, 49998, 49999], shape=(50000,)), 'km')"
+        )
+    else:
+        expected_repr = (
+            "LengthArray(array([    0,     1,     " "2, ..., 49997, 49998, 49999]), 'km')"
+        )
+    assert repr(list(range(50000)) * km) == expected_repr
 
     # Fallback case.
     v: ValueArray = raw_WithUnit(
