@@ -31,6 +31,7 @@ import abc
 
 from functools import cache
 
+
 class Dimension(abc.ABC):
     """Dimension abstraction.
 
@@ -62,8 +63,7 @@ class _Acceleration(Dimension):
     @cache
     def valid_base_units() -> tuple[Value, ...]:
         return (
-            default_unit_database.known_units['m']
-            / default_unit_database.known_units['s'] ** 2,
+            default_unit_database.known_units['m'] / default_unit_database.known_units['s'] ** 2,
         )
 
     def _value_class(self) -> type[Value]:
@@ -74,13 +74,14 @@ class _Acceleration(Dimension):
 
 
 class ValueWithDimension(Dimension, Value):
-    def __init__(self, val, unit=None, validate:bool=True):
+    def __init__(self, val, unit=None, validate: bool = True):
         super().__init__(val, unit=unit)
         if validate and not type(self).is_valid(self):
             raise ValueError(f'{self.unit} is not a valid unit for dimension {type(self)}')
 
+
 class ArrayWithDimension(Dimension, ValueArray):
-    def __init__(self, val, unit=None, validate:bool=True):
+    def __init__(self, val, unit=None, validate: bool = True):
         super().__init__(val, unit=unit)
         if validate and not type(self).is_valid(self):
             raise ValueError(f'{self.unit} is not a valid unit for dimension {type(self)}')
@@ -121,9 +122,7 @@ class _AngularFrequency(Dimension):
     @cache
     def valid_base_units() -> tuple[Value, ...]:
         return (
-            default_unit_database.known_units['rad']
-            * default_unit_database.known_units['Hz']
-            * 2,
+            default_unit_database.known_units['rad'] * default_unit_database.known_units['Hz'] * 2,
         )
 
     def _value_class(self) -> type[Value]:
@@ -228,8 +227,7 @@ class _Density(Dimension):
     @cache
     def valid_base_units() -> tuple[Value, ...]:
         return (
-            default_unit_database.known_units['kg']
-            / default_unit_database.known_units['m'] ** 3,
+            default_unit_database.known_units['kg'] / default_unit_database.known_units['m'] ** 3,
         )
 
     def _value_class(self) -> type[Value]:
@@ -554,10 +552,8 @@ class _Noise(Dimension):
     @cache
     def valid_base_units() -> tuple[Value, ...]:
         return (
-            default_unit_database.known_units['V']
-            / default_unit_database.known_units['Hz'] ** 0.5,
-            default_unit_database.known_units['watt']
-            / default_unit_database.known_units['Hz'],
+            default_unit_database.known_units['V'] / default_unit_database.known_units['Hz'] ** 0.5,
+            default_unit_database.known_units['watt'] / default_unit_database.known_units['Hz'],
         )
 
     def _value_class(self) -> type[Value]:
@@ -658,10 +654,7 @@ class _Speed(Dimension):
     @staticmethod
     @cache
     def valid_base_units() -> tuple[Value, ...]:
-        return (
-            default_unit_database.known_units['m']
-            / default_unit_database.known_units['s'],
-        )
+        return (default_unit_database.known_units['m'] / default_unit_database.known_units['s'],)
 
     def _value_class(self) -> type[Value]:
         return Speed
@@ -682,8 +675,7 @@ class _SurfaceDensity(Dimension):
     @cache
     def valid_base_units() -> tuple[Value, ...]:
         return (
-            default_unit_database.known_units['kg']
-            / default_unit_database.known_units['m'] ** 2,
+            default_unit_database.known_units['kg'] / default_unit_database.known_units['m'] ** 2,
         )
 
     def _value_class(self) -> type[Value]:
@@ -745,8 +737,7 @@ class _Torque(Dimension):
     @cache
     def valid_base_units() -> tuple[Value, ...]:
         return (
-            default_unit_database.known_units['newton']
-            * default_unit_database.known_units['m'],
+            default_unit_database.known_units['newton'] * default_unit_database.known_units['m'],
         )
 
     def _value_class(self) -> type[Value]:

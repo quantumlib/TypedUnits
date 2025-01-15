@@ -51,9 +51,7 @@ class UnitDatabase:
             self.add_root_unit(unit_name)
         return self.known_units[unit_name]
 
-    def parse_unit_formula(
-        self, formula: str, auto_create: Optional[bool] = None
-    ) -> Value:
+    def parse_unit_formula(self, formula: str, auto_create: Optional[bool] = None) -> Value:
         """
         :param str formula: Describes a combination of units.
         :param None|bool auto_create: If this is set, missing unit strings will
@@ -109,7 +107,12 @@ class UnitDatabase:
         """
         ua = UnitArray(unit_name)
         unit: Value = raw_WithUnit(
-            1, {'factor': 1.0, 'ratio': {'numer': 1, 'denom': 1}, 'exp10': 0}, ua, ua, Value, ValueArray
+            1,
+            {'factor': 1.0, 'ratio': {'numer': 1, 'denom': 1}, 'exp10': 0},
+            ua,
+            ua,
+            Value,
+            ValueArray,
         )
         self.add_unit(unit_name, unit)
 
@@ -152,7 +155,8 @@ class UnitDatabase:
             },
             parent.base_units,
             UnitArray(unit_name),
-            Value, ValueArray
+            Value,
+            ValueArray,
         )
 
         self.add_unit(unit_name, unit)

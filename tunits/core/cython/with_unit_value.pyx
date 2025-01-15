@@ -30,9 +30,10 @@ class Value(WithUnit):
         else:
             raise ValueError(f"{msg=} doesn't have a value.")
         return cls(v, _proto_to_units(msg.units))
-        
+
     def to_proto(self, msg: Optional['tunits_pb2.Value'] = None) -> 'tunits_pb2.Value':
         from tunits.proto import tunits_pb2
+
         if msg is None:
             msg = tunits_pb2.Value()
         if isinstance(self.value, (complex, np.complexfloating)):
