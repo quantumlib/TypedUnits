@@ -66,6 +66,7 @@ _SERIALIZATION_ERROR_MESSAGE = (
 @functools.cache
 def _construct_unit(unit_enum: int, scale_enum: Optional[int] = None) -> 'Value':
     from tunits.proto import tunits_pb2
+
     unit_name = _PROTO_TO_UNIT_STRING.get(tunits_pb2.UnitEnum.Name(unit_enum), None)
     scale = '' if scale_enum is None else _ENUM_TO_SCALE_SYMBOL[scale_enum]
     return _try_interpret_as_with_unit(scale + unit_name)

@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import cast
 import itertools
 import pytest
 import numpy as np
@@ -75,7 +76,9 @@ def test_valuearray_conversion_trip(unit: Value) -> None:
 def test_complex_valuearray_conversion_trip(unit: Value) -> None:
     rs = np.random.RandomState(0)
     for real, imag in zip(rs.random((4, 2, 4, 3)), rs.random((4, 2, 4, 3))):
-        v = (real + 1j * imag) * unit
+        real_ = cast(np.typing.NDArray[np.float64], real)
+        value = real_ + 1j * imag
+        v = unit * value
         got = ValueArray.from_proto(v.to_proto())
         assert got.unit == unit
         np.testing.assert_allclose(got.value, real + 1j * imag)

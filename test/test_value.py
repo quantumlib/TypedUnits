@@ -208,12 +208,12 @@ def test_hash() -> None:
 def test_numpy_sqrt() -> None:
     from tunits.units import m, km, cm
 
-    u = np.sqrt(8 * km * m) - cm
+    u: Value = np.sqrt(8 * km * m) - cm
     v = 8943.27191 * cm
     assert np.isclose(u / v, 1)
 
-    u = np.sqrt(8 * km / m)
+    u = np.sqrt(8 * km / m)  # type: ignore[assignment]
     assert np.isclose(u, 89.4427191)
 
-    u = np.sqrt((8 * km / m).in_base_units())
+    u = np.sqrt((8 * km / m).in_base_units())  # type: ignore[assignment]
     assert np.isclose(u, 89.4427191)
