@@ -208,7 +208,7 @@ def test_hash() -> None:
 def test_numpy_sqrt() -> None:
     from tunits.units import m, km, cm
 
-    u: Value = np.sqrt(8 * km * m) - cm
+    u: Value = np.sqrt(8 * km * m) - cm  # type: ignore[assignment]
     v = 8943.27191 * cm
     assert np.isclose(u / v, 1)
 
