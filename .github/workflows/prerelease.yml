@@ -4,6 +4,9 @@ on:
   push:
     branches:
     - main
+  pull_request:
+    branches:
+      - main
 
 permissions:
   contents: read
@@ -60,7 +63,7 @@ jobs:
 
     - name: Build package
       env:
-        CIBW_BUILD: "cp310* cp311* cp312*"
+        CIBW_BUILD: "cp310* cp311* cp312* cp313*"
         CIBW_ARCHS: ${{ matrix.arch }}
         CIBW_SKIP: "*musllinux*"
       run: |
