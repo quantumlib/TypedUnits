@@ -191,6 +191,6 @@ def test_numpy_kron() -> None:
     assert np.array_equal(w, [14 * c, 22 * c, 21 * c, 33 * c, 35 * c, 55 * c])
 
 
-def test_multiplication_with_dimensionless_preserves_ratios():
+def test_multiplication_with_dimensionless_preserves_ratios() -> None:
     A, B = ValueArray([1], 'GHz^2'), ValueArray([1200], 'MHz/GHz')
     assert A * B == ValueArray([1.2], 'GHz^2')

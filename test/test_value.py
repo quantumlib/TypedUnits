@@ -219,6 +219,6 @@ def test_numpy_sqrt() -> None:
     assert np.isclose(u, 89.4427191)
 
 
-def test_multiplication_with_dimensionless_preserves_ratios():
+def test_multiplication_with_dimensionless_preserves_ratios() -> None:
     A, B = Value(1, 'GHz^2'), Value(1200, 'MHz/GHz')
     assert A * B == Value(1.2, 'GHz^2')
