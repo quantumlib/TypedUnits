@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from packaging.version import Version
 import numpy as np
 import pytest
 from tunits.core import raw_WithUnit, raw_UnitArray
@@ -87,21 +86,12 @@ def test_repr() -> None:
     from tunits.units import km, kg, s
 
     assert repr(s * []) == "TimeArray(array([], dtype=float64), 's')"
-    assert repr(km * [2, 3]) == "LengthArray(array([2, 3]), 'km')"
+    assert repr(km * [2, 3]) == "LengthArray(array([2., 3.]), 'km')"
     assert repr(km * kg * [3j]) == "ValueArray(array([0.+3.j]), 'kg*km')"
     assert repr(km**2 * [-1] / kg**3 * s) == "ValueArray(array([-1.]), 'km^2*s/kg^3')"
     assert repr(km ** (2 / 3.0) * [-1] / kg**3 * s) == "ValueArray(array([-1.]), 'km^(2/3)*s/kg^3')"
 
-    # Numpy abbreviation is allowed.
-    if Version(np.__version__) >= Version('2.2'):
-        expected_repr = (
-            "LengthArray(array([    0,     1,     "
-            "2, ..., 49997, 49998, 49999], shape=(50000,)), 'km')"
-        )
-    else:
-        expected_repr = (
-            "LengthArray(array([    0,     1,     " "2, ..., 49997, 49998, 49999]), 'km')"
-        )
+    expected_repr = f"LengthArray({repr(np.array(range(50000), dtype=float))}, 'km')"
     assert repr(list(range(50000)) * km) == expected_repr
 
     # Fallback case.
@@ -134,7 +124,7 @@ def test_str() -> None:
     from tunits.units import mm
 
     assert str(mm**3 * []) == '[] mm^3'
-    assert str(mm * [2, 3, 5]) == '[2 3 5] mm'
+    assert str(mm * [2, 3, 5]) == '[2. 3. 5.] mm'
 
 
 def test_array_dtype() -> None:
@@ -198,3 +188,8 @@ def test_numpy_kron() -> None:
     w = np.kron(u, v)
     c = km * ns
     assert np.array_equal(w, [14 * c, 22 * c, 21 * c, 33 * c, 35 * c, 55 * c])
+
+
+def test_multiplication_with_dimensionless_preserves_ratios() -> None:
+    A, B = ValueArray([1], 'GHz^2'), ValueArray([1200], 'MHz/GHz')
+    assert A * B == ValueArray([1.2], 'GHz^2')
