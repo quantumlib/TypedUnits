@@ -12,7 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from packaging.version import Version
 import numpy as np
 import pytest
 from tunits.core import raw_WithUnit, raw_UnitArray
