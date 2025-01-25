@@ -221,4 +221,11 @@ def test_numpy_sqrt() -> None:
 
 def test_multiplication_with_dimensionless_preserves_ratios() -> None:
     A, B = Value(1, 'GHz^2'), Value(1200, 'MHz/GHz')
-    assert A * B == Value(1.2, 'GHz^2')
+    assert A * B == B * A == Value(1.2, 'GHz^2')
+
+
+def test_divison_with_dimensionless_preserves_ratios() -> None:
+    A, B = Value(1, 'GHz^2'), Value(1200, 'MHz/GHz')
+    assert B / A == Value(1.2, 'GHz^-2')
+
+    assert A / B == Value(10 / 12, 'GHz^2')

@@ -192,4 +192,11 @@ def test_numpy_kron() -> None:
 
 def test_multiplication_with_dimensionless_preserves_ratios() -> None:
     A, B = ValueArray([1], 'GHz^2'), ValueArray([1200], 'MHz/GHz')
-    assert A * B == ValueArray([1.2], 'GHz^2')
+    assert A * B == B * A == ValueArray([1.2], 'GHz^2')
+
+
+def test_divison_with_dimensionless_preserves_ratios() -> None:
+    A, B = ValueArray([1], 'GHz^2'), ValueArray([1200], 'MHz/GHz')
+    assert B / A == ValueArray([1.2], 'GHz^-2')
+
+    assert A / B == ValueArray([10 / 12], 'GHz^2')
