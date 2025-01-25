@@ -251,9 +251,9 @@ cdef class WithUnit:
                                     left.base_units * right.base_units,
                                     left.display_units * right.display_units, Value, ValueArray)
             if left._is_dimensionless():
-                return right.__with_value(left.value * right.value)
+                return right.__with_value(left.value_in_base_units() * right.value)
             if right._is_dimensionless():
-                return left.__with_value(left.value * right.value)
+                return left.__with_value(left.value * right.value_in_base_units())
             return raw_WithUnit(left.value * right.value,
                                 conversion_times(left.conv, right.conv),
                                 left.base_units * right.base_units,
@@ -281,7 +281,7 @@ cdef class WithUnit:
                                     left.base_units / right.base_units,
                                     left.display_units / right.display_units, Value, ValueArray)
             if right._is_dimensionless():
-                return left.__with_value(left.value / right.value)
+                return left.__with_value(left.value / right.value_in_base_units())
             return raw_WithUnit(left.value / right.value,
                                 conversion_div(left.conv, right.conv),
                                 left.base_units / right.base_units,
@@ -507,6 +507,8 @@ cdef class WithUnit:
     def __deepcopy__(self, memo):
         return self
 
+    def value_in_base_units(WithUnit self):
+        return self.value * conversion_to_double(self.conv)
 
     def in_base_units(WithUnit self):
         return raw_WithUnit(
