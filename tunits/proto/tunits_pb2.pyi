@@ -15,6 +15,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import builtins
 import collections.abc
 import google.protobuf.descriptor
@@ -166,7 +167,7 @@ YOCTO: Scale.ValueType  # -24
 """10^-24"""
 global___Scale = Scale
 
-@typing_extensions.final
+@typing.final
 class Fraction(google.protobuf.message.Message):
     """The exponent of a unit e.g.
     m^3 gives numerator=3, denominator=1.
@@ -185,12 +186,12 @@ class Fraction(google.protobuf.message.Message):
         numerator: builtins.int | None = ...,
         denominator: builtins.int | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["denominator", b"denominator", "numerator", b"numerator"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["denominator", b"denominator", "numerator", b"numerator"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["denominator", b"denominator", "numerator", b"numerator"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["denominator", b"denominator", "numerator", b"numerator"]) -> None: ...
 
 global___Fraction = Fraction
 
-@typing_extensions.final
+@typing.final
 class Unit(google.protobuf.message.Message):
     """Unit message has a base unit, a scale and an exponent, e.g. 1/sqrt(ns)
     becomes unit=SECOND, scale=NANO, exponent.numerator=-1,
@@ -213,12 +214,12 @@ class Unit(google.protobuf.message.Message):
         scale: global___Scale.ValueType | None = ...,
         exponent: global___Fraction | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["exponent", b"exponent", "scale", b"scale", "unit", b"unit"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["exponent", b"exponent", "scale", b"scale", "unit", b"unit"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["exponent", b"exponent", "scale", b"scale", "unit", b"unit"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["exponent", b"exponent", "scale", b"scale", "unit", b"unit"]) -> None: ...
 
 global___Unit = Unit
 
-@typing_extensions.final
+@typing.final
 class Complex(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -232,24 +233,25 @@ class Complex(google.protobuf.message.Message):
         real: builtins.float | None = ...,
         imaginary: builtins.float | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["imaginary", b"imaginary", "real", b"real"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["imaginary", b"imaginary", "real", b"real"]) -> None: ...
+    def HasField(self, field_name: typing.Literal["imaginary", b"imaginary", "real", b"real"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["imaginary", b"imaginary", "real", b"real"]) -> None: ...
 
 global___Complex = Complex
 
-@typing_extensions.final
+@typing.final
 class Value(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
     UNITS_FIELD_NUMBER: builtins.int
     REAL_VALUE_FIELD_NUMBER: builtins.int
     COMPLEX_VALUE_FIELD_NUMBER: builtins.int
+    real_value: builtins.float
     @property
     def units(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Unit]:
         """Units are repeated to represent combinations of units (e.g. V*s and mV/us).
         Units are combined through multiplication.
         """
-    real_value: builtins.float
+
     @property
     def complex_value(self) -> global___Complex: ...
     def __init__(
@@ -259,13 +261,13 @@ class Value(google.protobuf.message.Message):
         real_value: builtins.float | None = ...,
         complex_value: global___Complex | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["complex_value", b"complex_value", "real_value", b"real_value", "value", b"value"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["complex_value", b"complex_value", "real_value", b"real_value", "units", b"units", "value", b"value"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["value", b"value"]) -> typing_extensions.Literal["real_value", "complex_value"] | None: ...
+    def HasField(self, field_name: typing.Literal["complex_value", b"complex_value", "real_value", b"real_value", "value", b"value"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["complex_value", b"complex_value", "real_value", b"real_value", "units", b"units", "value", b"value"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["value", b"value"]) -> typing.Literal["real_value", "complex_value"] | None: ...
 
 global___Value = Value
 
-@typing_extensions.final
+@typing.final
 class DoubleArray(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -277,11 +279,11 @@ class DoubleArray(google.protobuf.message.Message):
         *,
         values: collections.abc.Iterable[builtins.float] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["values", b"values"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["values", b"values"]) -> None: ...
 
 global___DoubleArray = DoubleArray
 
-@typing_extensions.final
+@typing.final
 class ComplexArray(google.protobuf.message.Message):
     DESCRIPTOR: google.protobuf.descriptor.Descriptor
 
@@ -293,11 +295,11 @@ class ComplexArray(google.protobuf.message.Message):
         *,
         values: collections.abc.Iterable[global___Complex] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing_extensions.Literal["values", b"values"]) -> None: ...
+    def ClearField(self, field_name: typing.Literal["values", b"values"]) -> None: ...
 
 global___ComplexArray = ComplexArray
 
-@typing_extensions.final
+@typing.final
 class ValueArray(google.protobuf.message.Message):
     """Represents an array with associated units (a collection of values that share
     the same units).
@@ -314,14 +316,17 @@ class ValueArray(google.protobuf.message.Message):
         """Units are repeated to represent combinations of units (e.g. V*s and mV/us).
         Units are combined through multiplication.
         """
+
     @property
     def reals(self) -> global___DoubleArray:
         """The flattened array."""
+
     @property
     def complexes(self) -> global___ComplexArray: ...
     @property
     def shape(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
         """The shape of the array."""
+
     def __init__(
         self,
         *,
@@ -330,8 +335,8 @@ class ValueArray(google.protobuf.message.Message):
         complexes: global___ComplexArray | None = ...,
         shape: collections.abc.Iterable[builtins.int] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing_extensions.Literal["complexes", b"complexes", "reals", b"reals", "values", b"values"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing_extensions.Literal["complexes", b"complexes", "reals", b"reals", "shape", b"shape", "units", b"units", "values", b"values"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing_extensions.Literal["values", b"values"]) -> typing_extensions.Literal["reals", "complexes"] | None: ...
+    def HasField(self, field_name: typing.Literal["complexes", b"complexes", "reals", b"reals", "values", b"values"]) -> builtins.bool: ...
+    def ClearField(self, field_name: typing.Literal["complexes", b"complexes", "reals", b"reals", "shape", b"shape", "units", b"units", "values", b"values"]) -> None: ...
+    def WhichOneof(self, oneof_group: typing.Literal["values", b"values"]) -> typing.Literal["reals", "complexes"] | None: ...
 
 global___ValueArray = ValueArray
