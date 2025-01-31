@@ -39,9 +39,7 @@ def test_perf_array_shift(a: ArrayWithDimension, b: ValueWithDimension) -> Value
 
 
 @perf_goal(repeats=1500, avg_micros=12, args=[a_random_array_with_dimension] * 2)
-def test_perf_array_multiply(
-    a: ArrayWithDimension, b: ArrayWithDimension
-) -> ValueArray:
+def test_perf_array_multiply(a: ArrayWithDimension, b: ArrayWithDimension) -> ValueArray:
     return a * b
 
 
@@ -55,9 +53,7 @@ def test_perf_array_scale(a: ArrayWithDimension, b: ValueWithDimension) -> Value
 
 
 @perf_goal(repeats=1500, avg_micros=12, args=[a_random_array_with_dimension] * 2)
-def test_perf_array_divide(
-    a: ArrayWithDimension, b: ArrayWithDimension
-) -> ValueArray:
+def test_perf_array_divide(a: ArrayWithDimension, b: ArrayWithDimension) -> ValueArray:
     return a / b
 
 
