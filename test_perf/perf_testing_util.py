@@ -231,7 +231,7 @@ def _sample_value_with_dimension(ctx: dict[str, ValueWithDimension]) -> ValueWit
     return ctx[key] * random.random()
 
 
-def _sample_array_with_dimension(ctx: dict[str, ValueWithDimension]) -> ArrayWithDimension[Any]:
+def _sample_array_with_dimension(ctx: dict[str, ValueWithDimension]) -> ArrayWithDimension:
     key = 'dimension'
     if key not in ctx:
         ctx[key] = next(_dimensions_itr)
