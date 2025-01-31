@@ -90,6 +90,62 @@ class ValueArray(WithUnit):
     def __array_wrap__(WithUnit self, out_arr, context=None, return_scalar: bool=False):
         return np.ndarray.__array_wrap__(self.value, out_arr, return_scalar)
 
+    def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
+        if method == "__call__":
+            if ufunc == np.add:
+                return inputs[0] + inputs[1]
+            if ufunc == np.subtract:
+                return inputs[0] - inputs[1]
+            if ufunc == np.multiply:
+                if not isinstance(inputs[0], np.ndarray) and not isinstance(inputs[1], np.ndarray):
+                    return inputs[0] * inputs[1]
+                elif isinstance(inputs[0], np.ndarray):
+                    return inputs[1] * inputs[0]
+                elif isinstance(inputs[1], np.ndarray):
+                    return inputs[0] * inputs[1]
+                else:
+                    raise NotImplementedError(
+                        f"multiply not implemented for types {type(inputs[0])}, {type(inputs[1])}"
+                    )
+            if ufunc == np.divide:
+                if not isinstance(inputs[0], np.ndarray) and not isinstance(inputs[1], np.ndarray):
+                    return inputs[0] / inputs[1]
+                elif isinstance(inputs[0], np.ndarray):
+                    return inputs[1].__rtruediv__(inputs[0])
+                elif isinstance(inputs[1], np.ndarray):
+                    return inputs[0] / inputs[1]
+                else:
+                    raise NotImplementedError(
+                        f"divide not implemented for types {type(inputs[0])}, {type(inputs[1])}"
+                    )
+            if ufunc == np.power:
+                return inputs[0] ** inputs[1]
+            if ufunc in [np.positive, np.negative, np.abs, np.fabs, np.conj]:
+                return ufunc(self.value) * self.unit
+            if ufunc in [np.sign, np.isfinite, np.isinf, np.isnan]:
+                return ufunc(self.value)
+            if ufunc == np.sqrt:
+                return self.sqrt()
+            if ufunc == np.square:
+                return self ** 2
+            if ufunc == np.reciprocal:
+                return self.__rtruediv__(1)
+
+        if ufunc in [
+            np.greater,
+            np.greater_equal,
+            np.less,
+            np.less_equal,
+            np.not_equal,
+            np.equal,
+            np.maximum,
+            np.minimum,
+            np.fmax,
+        ]:
+            return getattr(ufunc, method)(*(np.asarray(x) for x in inputs), **kwargs)
+
+        raise NotImplemented
+
     @property
     def dtype(WithUnit self) -> np.dtype:
         return self.value.dtype

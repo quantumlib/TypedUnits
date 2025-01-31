@@ -20,12 +20,12 @@ from .perf_testing_util import (
     perf_goal,
 )
 
-from tunits import ValueArray, ValueWithDimension, ArrayWithDimension
+from tunits import ValueArray, ValueWithDimension, ArrayWithDimension, Value
 
 
 # Using 1500 repeats so that each of 1119 different values in tunits.units get selected at least once.
 @perf_goal(repeats=1500, avg_micros=15, args=[a_random_array_with_dimension] * 2)
-def test_perf_array_add(a: ArrayWithDimension, b: ArrayWithDimension) -> ValueArray:
+def test_perf_array_add(a: ArrayWithDimension[Value], b: ArrayWithDimension[Value]) -> ValueArray:
     return a + b
 
 
@@ -34,12 +34,14 @@ def test_perf_array_add(a: ArrayWithDimension, b: ArrayWithDimension) -> ValueAr
     avg_micros=15,
     args=[a_random_array_with_dimension, a_random_value_with_dimension],
 )
-def test_perf_array_shift(a: ArrayWithDimension, b: ValueWithDimension) -> ValueArray:
+def test_perf_array_shift(a: ArrayWithDimension[Value], b: ValueWithDimension) -> ValueArray:
     return a + b
 
 
 @perf_goal(repeats=1500, avg_micros=12, args=[a_random_array_with_dimension] * 2)
-def test_perf_array_multiply(a: ArrayWithDimension, b: ArrayWithDimension) -> ValueArray:
+def test_perf_array_multiply(
+    a: ArrayWithDimension[Value], b: ArrayWithDimension[Value]
+) -> ValueArray:
     return a * b
 
 
@@ -48,22 +50,24 @@ def test_perf_array_multiply(a: ArrayWithDimension, b: ArrayWithDimension) -> Va
     avg_micros=15,
     args=[a_random_array_with_dimension, a_random_value_with_dimension],
 )
-def test_perf_array_scale(a: ArrayWithDimension, b: ValueWithDimension) -> ValueArray:
+def test_perf_array_scale(a: ArrayWithDimension[Value], b: ValueWithDimension) -> ValueArray:
     return a * b
 
 
 @perf_goal(repeats=1500, avg_micros=12, args=[a_random_array_with_dimension] * 2)
-def test_perf_array_divide(a: ArrayWithDimension, b: ArrayWithDimension) -> ValueArray:
+def test_perf_array_divide(
+    a: ArrayWithDimension[Value], b: ArrayWithDimension[Value]
+) -> ValueArray:
     return a / b
 
 
 @perf_goal(repeats=1500, avg_micros=135, args=[a_random_array_with_dimension])
-def test_perf_array_str(a: ArrayWithDimension) -> str:
+def test_perf_array_str(a: ArrayWithDimension[Value]) -> str:
     return str(a)
 
 
 @perf_goal(repeats=1500, avg_micros=180, args=[a_random_array_with_dimension])
-def test_perf_array_repr(a: ArrayWithDimension) -> str:
+def test_perf_array_repr(a: ArrayWithDimension[Value]) -> str:
     return repr(a)
 
 

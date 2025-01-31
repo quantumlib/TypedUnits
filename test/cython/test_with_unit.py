@@ -44,7 +44,7 @@ def deep_equal(a: WithUnit, b: WithUnit) -> bool:
        bool, whether a and b have exactly the same properties.
     """
     if isinstance(a, ValueArray):
-        if not np.array_equal(a, b):
+        if not np.array_equal(a, b):  # type: ignore[arg-type]
             return False
     else:
         if a != b:
@@ -473,10 +473,8 @@ def test_non_zero() -> None:
 
 
 def test_numpy_method_is_finite() -> None:
-    with pytest.raises(TypeError):
-        np.isfinite(val([], units=m))
-    with pytest.raises(TypeError):
-        np.isfinite(val([1], units=m))
+    assert np.all(np.isfinite(val([], units=m)))
+    assert np.all(np.isfinite(val([1], units=m)))
 
     v = val([2, 3, -2, float('nan'), float('inf')], conv(1, 2, 3, 4))
     assert np.array_equal(np.isfinite(v), [True, True, True, False, False])
