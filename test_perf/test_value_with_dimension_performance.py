@@ -65,7 +65,7 @@ def test_perf_abs(a: ValueWithDimension) -> ValueWithDimension:
 
 
 @perf_goal(repeats=1500, avg_micros=3.5, args=[a_random_value_with_dimension])
-def test_perf_pow(a: ValueWithDimension) -> ValueWithDimension:
+def test_perf_pow(a: ValueWithDimension) -> Value:
     return abs(a) ** (2 / 3.0)
 
 
