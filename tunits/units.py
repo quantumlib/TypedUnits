@@ -949,6 +949,7 @@ petavolt = core.ElectricPotential(core.default_unit_database.known_units['petavo
 petawatt = core.Power(core.default_unit_database.known_units['petawatt'])
 petaweber = core.MagneticFlux(core.default_unit_database.known_units['petaweber'])
 pg = core.Mass(core.default_unit_database.known_units['pg'])
+phi0 = core.MagneticFlux(hplanck / (2 * e))
 picoampere = core.ElectricCurrent(core.default_unit_database.known_units['picoampere'])
 picobecquerel = core.Frequency(core.default_unit_database.known_units['picobecquerel'])
 picocandela = core.LuminousIntensity(core.default_unit_database.known_units['picocandela'])
@@ -2458,4 +2459,5 @@ __all__ = [
     'zrad',
     'zs',
     'zsr',
+    'phi0',
 ]
