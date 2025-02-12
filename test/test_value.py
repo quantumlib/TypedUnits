@@ -98,10 +98,10 @@ def test_repr() -> None:
 def test_str() -> None:
     from tunits.units import mm, meter, kilometer, rad, cyc
 
-    assert str(Value(1, mm)) == 'mm'
+    assert str(Value(1, mm)) == '1 mm'
     assert str(Value(4, mm)) == '4 mm'
     assert str(2 * meter * kilometer) == '2 km*m'
-    assert str(cyc) == 'cyc'
+    assert str(cyc) == '1 cyc'
     assert str(3.25 * cyc**2) == '3.25 cyc^2'
     assert str(3.25 * cyc * rad) == '3.25 cyc*rad'
     assert str((4 * kilometer) ** 0.5) == '2.0 km^(1/2)'

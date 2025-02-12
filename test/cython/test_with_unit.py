@@ -541,9 +541,9 @@ def test_hash() -> None:
 def test_str() -> None:
     assert str(val(2, conv(3, 4, 5, 6), s, m)) == '2 m'
     assert str(val(2j, conv(3, 4, 5, 6), s)) == '2j s'
-    assert str(val(1, units=m, display_units=s)) == 's'
-    assert str(val(1, units=m)) == 'm'
-    assert str(val(1, units=h)) == 's^3600'
+    assert str(val(1, units=m, display_units=s)) == '1 s'
+    assert str(val(1, units=m)) == '1 m'
+    assert str(val(1, units=h)) == '1 s^3600'
     assert str(val([2, 3, 5], units=h, display_units=m)) == '[2 3 5] m'
     assert str(val([2, 3], units=h, display_units=mps)) == '[2 3] m/s'
 
