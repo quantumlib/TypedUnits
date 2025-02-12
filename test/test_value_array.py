@@ -153,6 +153,9 @@ def test_multi_index() -> None:
     with pytest.raises(IndexError):
         _ = (m * [[2, 3, 4], [5, 6, 7], [8, 9, 10]])[1:3, 25483]
 
+    idx = np.argmax([1, 4, -1])
+    assert (m * [1, 2, 4])[idx] == m * 2
+
 
 def test_predicate_index() -> None:
     from tunits.units import m
