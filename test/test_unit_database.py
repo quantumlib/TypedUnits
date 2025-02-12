@@ -51,7 +51,7 @@ def test_get_unit_with_auto_create_override() -> None:
     db_manual = UnitDatabase(auto_create_units=False)
 
     u = db_auto.get_unit('missing')
-    assert str(u) == 'missing'
+    assert str(u) == '1 missing'
     with pytest.raises(KeyError):
         db_manual.get_unit('missing')
 
@@ -61,9 +61,9 @@ def test_get_unit_with_auto_create_override() -> None:
         db_manual.get_unit('gone', auto_create=False)
 
     u = db_auto.get_unit('empty', auto_create=True)
-    assert str(u) == 'empty'
+    assert str(u) == '1 empty'
     u = db_manual.get_unit('empty', auto_create=True)
-    assert str(u) == 'empty'
+    assert str(u) == '1 empty'
 
 
 def test_add_root_unit() -> None:
