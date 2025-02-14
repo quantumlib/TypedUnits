@@ -18,13 +18,13 @@ This module creates the dimension abstraction which allows the creation of value
 that belong to a dimension (e.g. t: Time, x: Length, ...etc). This allows us to
 use static types to check code correctness (e.g. time_method(t: Time)).
 
-To add a new dimension, create 3 classes: 
+To add a new dimension, create 3 classes:
 - `class _NewDimension(Dimension):` which implements the abstract methods from
     the abstract `Dimension` class.
 - `class NewDimension(_NewDimension, ValueWithDimension)` which represents scalar
     values and doesn't need to implement any methods.
 - `class AccelerationArray(_Acceleration, ArrayWithDimension)` which represents
-    an array of values sharing the same dimension and 
+    an array of values sharing the same dimension and
 """
 
 import abc
@@ -696,7 +696,11 @@ class _Temperature(Dimension):
     @staticmethod
     @cache
     def valid_base_units() -> tuple[Value, ...]:
-        return (default_unit_database.known_units['kelvin'],)
+        return (
+            default_unit_database.known_units['kelvin'],
+            default_unit_database.known_units['celsius'],
+            default_unit_database.known_units['fahrenheit'],
+        )
 
     def _value_class(self) -> type[Value]:
         return Temperature
