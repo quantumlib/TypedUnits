@@ -69,6 +69,7 @@ _DERIVED_CONSTANTS = [
     # degrees Rankine
     PhysicalConstantData('degR', None, 5.0 / 9.0, 'K'),
     PhysicalConstantData('bohr_magneton', None, 9.2740096820e-24, 'J/T'),
+    PhysicalConstantData('R_k', 'resistance_quantum', 25812.78277321444, 'ohm'),  # h/e^2
 ]
 
 ALL_PHYSICAL_CONSTANT_DATA = _PHYSICAL_CONSTANTS + _DERIVED_CONSTANTS

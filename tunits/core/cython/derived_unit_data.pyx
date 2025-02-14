@@ -113,6 +113,7 @@ __OTHER_UNITS = [
     DerivedUnitData('ton', None, 'lb', 2000),
     # Pressure.
     DerivedUnitData('psi', 'pounds_per_square_inch', 'Pa', 6894.75729317),
+    DerivedUnitData('bar', 'barometric_pressure', 'Pa', 1e5),
 ]
 
 # Units that aren't technically exact, but close enough for our purposes.
