@@ -9,7 +9,7 @@ permissions:
 
 jobs:
   create_version:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -32,11 +32,11 @@ jobs:
       fail-fast: true
       matrix:
         include:
-          - os: ubuntu-latest
+          - os: ubuntu-24.04
             arch: x86_64
-          - os: windows-latest
+          - os: windows-2022
             arch: auto
-          - os: macos-latest
+          - os: macos-14
             arch: auto
           - os: macos-13
             arch: auto
@@ -73,7 +73,7 @@ jobs:
   release-wheels:
     name: Publish all wheels
     needs: [build_wheels]
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
     - name: Download build artifacts
