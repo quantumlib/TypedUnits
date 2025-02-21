@@ -144,6 +144,9 @@ class ValueArray(WithUnit):
         ]:
             return getattr(ufunc, method)(*(np.asarray(x) for x in inputs), **kwargs)
 
+        if self._is_dimensionless():
+            return getattr(ufunc, method)(*(np.asarray(x) for x in inputs), **kwargs)
+
         raise NotImplemented
 
     @property

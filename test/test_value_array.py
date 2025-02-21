@@ -87,7 +87,7 @@ def test_dimensionless_act_like_arrays() -> None:
     y = ValueArray(1.5 * np.arange(5), 'us/ns')
 
     np.testing.assert_allclose(np.sqrt(x), np.sqrt(1.5 * np.arange(5)))
-    np.testing.assert_allclose(np.sin(y), np.sin(1.5 * np.arange(5)))
+    np.testing.assert_allclose(np.sin(y), np.sin(1.5 * np.arange(5) * 1000))
 
 
 def test_repr() -> None:
