@@ -13,7 +13,6 @@
 # limitations under the License.
 
 from typing import TypeVar
-imag numbers
 import numpy as np
 
 T = TypeVar('Value', bound='Value')
@@ -21,10 +20,6 @@ T = TypeVar('Value', bound='Value')
 
 class Value(WithUnit):
     """A floating-point value with associated units."""
-
-    def __init__(self, value, unit):
-        assert isinstance(value, numbers.Number)
-        super().__init__(value, unit)
 
     @classmethod
     def from_proto(cls: type[T], msg: 'tunits_pb2.Value') -> T:
