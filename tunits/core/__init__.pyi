@@ -183,6 +183,9 @@ class WithUnit:
     real: 'Value' | 'ValueArray'
     imag: 'Value' | 'ValueArray'
     is_dimensionless: bool
+    units: str
+    base_unit: 'Value'
+    name: str
 
     def __init__(
         self, value: Any, unit: 'WithUnit' | UnitTerm | UnitArray | str | None = None
@@ -313,6 +316,7 @@ class Value(Generic[NumericalT], WithUnit, np.generic, SupportsIndex):
     def value_in_base_units(self) -> NumericalT: ...
     def __index__(self) -> int: ...
     def __pow__(self, other: Any, modulus: Any = None) -> Value: ...
+    def sign(self) -> int: ...
 
 class ValueArray(Generic[ValueType2], WithUnit):
     value: NDArray[Any]
@@ -373,6 +377,7 @@ class ValueArray(Generic[ValueType2], WithUnit):
         self, ufunc: Callable[..., Any], method: str, *inputs: Any, **kwargs: Any
     ) -> ValueArray: ...
     def __pow__(self, other: Any, modulus: Any = None) -> ValueArray: ...
+    def sign(self) -> NDArray[np.integer]: ...
 
 def init_base_unit_functions(
     try_interpret_as_with_unit: Callable[[Any, bool], WithUnit | None],
