@@ -149,6 +149,17 @@ cdef class WithUnit:
     property exp10:
         def __get__(self):
             return self.conv.exp10
+    property units:
+        def __get__(self):
+            return str(self.display_units)
+    property base_unit:
+        def __get__(self):
+            return Value(1, str(self.base_units))
+
+    property name:
+        def __get__(self):
+            assert self.value == 1
+            return str(self.display_units)
 
     def __init__(WithUnit self, value, unit=None):
         """
@@ -654,6 +665,9 @@ cdef class WithUnit:
             return converted.__with_value(ceil(converted.value))
         except NotTUnitsLikeError:
             return NotImplemented
+
+    def sign(self) -> int | np.ndarray:
+        return np.sign(self.value_in_base_units())
 
 _try_interpret_as_with_unit = None
 _is_value_consistent_with_default_unit_database = None

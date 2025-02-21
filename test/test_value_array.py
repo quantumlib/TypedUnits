@@ -203,3 +203,21 @@ def test_divison_with_dimensionless_preserves_ratios() -> None:
     assert B / A == ValueArray([1.2], 'GHz^-2')
 
     assert A / B == ValueArray([10 / 12], 'GHz^2')
+
+
+def test_units() -> None:
+    A, B = Value(np.random.random(10), 'GHz^2'), Value(np.random.random(10), 'MHz/GHz')
+    assert A.units == 'GHz^2'
+    assert B.units == 'MHz/GHz'
+
+
+def test_base_unit() -> None:
+    A, B = Value(np.random.random(10), 'GHz^2'), Value(np.random.random(10), 'MHz/GHz')
+    assert A.base_unit == Value(1, 'Hz^2')
+    assert B.base_unit == Value(1, '')
+
+
+def test_sign() -> None:
+    for x in np.random.random((10, 3, 4)):
+        v = Value(x, 'ns')
+        np.testing.assert_equal(v.sign(), np.sign(x))

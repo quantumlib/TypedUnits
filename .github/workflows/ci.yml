@@ -25,7 +25,6 @@ on:
     types:
       - checks_requested
 
-  push:
   # Allow manual invocation.
   workflow_dispatch:
 
