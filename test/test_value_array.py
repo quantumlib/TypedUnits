@@ -82,6 +82,14 @@ def test_power() -> None:
     assert np.array_equal((s * [1, 2, 3]) ** 2, s * s * [1, 4, 9])
 
 
+def test_dimensionless_act_like_arrays() -> None:
+    x = ValueArray(1.5 * np.arange(5), '')
+    y = ValueArray(1.5 * np.arange(5), 'us/ns')
+
+    np.testing.assert_allclose(np.sqrt(x), np.sqrt(1.5 * np.arange(5)))
+    np.testing.assert_allclose(np.sin(y), np.sin(1.5 * np.arange(5) * 1000))
+
+
 def test_repr() -> None:
     from tunits.units import km, kg, s
 
@@ -206,18 +214,27 @@ def test_divison_with_dimensionless_preserves_ratios() -> None:
 
 
 def test_units() -> None:
-    A, B = Value(np.random.random(10), 'GHz^2'), Value(np.random.random(10), 'MHz/GHz')
+    A, B = ValueArray(np.random.random(10), 'GHz^2'), ValueArray(np.random.random(10), 'MHz/GHz')
     assert A.units == 'GHz^2'
     assert B.units == 'MHz/GHz'
 
 
 def test_base_unit() -> None:
-    A, B = Value(np.random.random(10), 'GHz^2'), Value(np.random.random(10), 'MHz/GHz')
+    A, B = ValueArray(np.random.random(10), 'GHz^2'), ValueArray(np.random.random(10), 'MHz/GHz')
     assert A.base_unit == Value(1, 'Hz^2')
     assert B.base_unit == Value(1, '')
 
 
 def test_sign() -> None:
     for x in np.random.random((10, 3, 4)):
-        v = Value(x, 'ns')
+        v = ValueArray(x, 'ns')
         np.testing.assert_equal(v.sign(), np.sign(x))
+
+
+def test_dimensionless() -> None:
+    A, B = ValueArray([1, 2, 3], 'GHz^2'), ValueArray(np.arange(5), 'MHz/GHz')
+
+    with pytest.raises(ValueError):
+        _ = A.dimensionless()
+
+    np.testing.assert_equal(B.dimensionless(), np.arange(5) / 1000)

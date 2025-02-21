@@ -29,7 +29,7 @@ def test_construction() -> None:
     assert isinstance(3j * x, Value)
 
 
-def test_dimensionless() -> None:
+def test_dimensionless_act_like_float() -> None:
     """Test that dimensionless values act like floats"""
     x = Value(1.5, '')
     y = Value(1.5, 'us/ns')
@@ -254,3 +254,12 @@ def test_sign() -> None:
     for x in np.linspace(-10, 10, 20):
         v = Value(x, 'ns')
         assert v.sign() == np.sign(x)
+
+
+def test_dimensionless() -> None:
+    A, B = Value(1, 'GHz^2'), Value(1200, 'MHz/GHz')
+
+    with pytest.raises(ValueError):
+        _ = A.dimensionless()
+
+    assert B.dimensionless() == 1.2

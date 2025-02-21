@@ -669,6 +669,11 @@ cdef class WithUnit:
     def sign(self) -> int | np.ndarray:
         return np.sign(self.value_in_base_units())
 
+    def dimensionless(self) -> float | np.ndarray:
+        if not self._is_dimensionless():
+            raise ValueError(f'{self} is not dimensionless')
+        return self.value_in_base_units()
+
 _try_interpret_as_with_unit = None
 _is_value_consistent_with_default_unit_database = None
 def init_base_unit_functions(
