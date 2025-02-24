@@ -22,13 +22,11 @@ import numpy as np
 
 import tunits
 from tunits import ValueWithDimension, ArrayWithDimension
-from tunits import units, units_with_dimension
+from tunits import units
 import tunits.core as core
 
 _ALL_VALUES_WITH_DIMENSION = [
-    obj
-    for name in dir(units_with_dimension)
-    if isinstance(obj := getattr(units_with_dimension, name), ValueWithDimension)
+    obj for name in dir(units) if isinstance(obj := getattr(units, name), ValueWithDimension)
 ]
 
 

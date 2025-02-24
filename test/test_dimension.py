@@ -21,7 +21,6 @@ import numpy as np
 
 import tunits
 import tunits.core as core
-import tunits.units_with_dimension
 
 
 def _all_dimensions() -> Iterator[type[core.ValueWithDimension]]:
@@ -83,10 +82,10 @@ def test_arithmetic_ops_preserve_type_array(
 
 
 def test_division_type() -> None:
-    t: tunits.Time = 3 * tunits.units_with_dimension.ns
+    t: tunits.Time = 3 * tunits.ns
 
     t = t / 2
-    assert t == 1.5 * tunits.units_with_dimension.ns
+    assert t == 1.5 * tunits.ns
 
     assert isinstance(1 / t, tunits.Value)
 
