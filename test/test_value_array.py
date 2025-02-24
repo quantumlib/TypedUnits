@@ -93,13 +93,13 @@ def test_dimensionless_act_like_arrays() -> None:
 def test_repr() -> None:
     from tunits.units import km, kg, s
 
-    assert repr(s * []) == "TimeArray(array([], dtype=float64), 's')"
-    assert repr(km * [2, 3]) == "LengthArray(array([2., 3.]), 'km')"
+    assert repr(s * []) == "ValueArray(array([], dtype=float64), 's')"
+    assert repr(km * [2, 3]) == "ValueArray(array([2., 3.]), 'km')"
     assert repr(km * kg * [3j]) == "ValueArray(array([0.+3.j]), 'kg*km')"
     assert repr(km**2 * [-1] / kg**3 * s) == "ValueArray(array([-1.]), 'km^2*s/kg^3')"
     assert repr(km ** (2 / 3.0) * [-1] / kg**3 * s) == "ValueArray(array([-1.]), 'km^(2/3)*s/kg^3')"
 
-    expected_repr = f"LengthArray({repr(np.array(range(50000), dtype=float))}, 'km')"
+    expected_repr = f"ValueArray({repr(np.array(range(50000), dtype=float))}, 'km')"
     assert repr(list(range(50000)) * km) == expected_repr
 
     # Fallback case.
