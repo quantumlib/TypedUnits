@@ -96,3 +96,4 @@ from tunits.core import (
 )
 
 from tunits.units import *
+import tunits.units_with_dimension
