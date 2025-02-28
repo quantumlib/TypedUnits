@@ -28,6 +28,10 @@ on:
   # Allow manual invocation.
   workflow_dispatch:
 
+# Set default permissions for jobs.
+permissions:
+  contents: read
+
 jobs:
   buid-and-test:
     runs-on: ubuntu-24.04
