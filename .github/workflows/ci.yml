@@ -79,10 +79,10 @@ jobs:
       - name: pytest
         run: ci/pytest_unit.sh
 
-      - name: compatibility with Cirq
-        run: |
-          pip install cirq
-          ci/pytest_unit.sh -m cirq
-
-      - name: perf
+      - name: test perf
         run: ci/pytest_perf.sh
+
+      - name: test compatibility with Cirq
+        run: |
+          pip install cirq-core
+          ci/pytest_unit.sh -m cirq
