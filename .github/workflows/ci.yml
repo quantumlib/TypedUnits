@@ -85,4 +85,4 @@ jobs:
       - name: test compatibility with Cirq
         run: |
           pip install cirq-core
-          ci/pytest_unit.sh -m cirq
+          pytest test/ -m cirq
