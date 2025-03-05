@@ -14,7 +14,7 @@
 
 import pytest
 import tunits as tu
-import cirq
+import cirq  # type: ignore
 
 
 @pytest.mark.cirq
