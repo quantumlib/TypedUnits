@@ -674,6 +674,17 @@ cdef class WithUnit:
             raise ValueError(f'{self} is not dimensionless')
         return self.value_in_base_units()
 
+    def _json_dict_(self) -> dict[str, Any]:
+        return {"value": self.value, "unit": self.units}
+
+    @classmethod
+    def _json_namespace_(cls) -> str:
+        return "tunits"
+
+    @classmethod
+    def _from_json_dict_(cls, **kwargs):
+        return cls(kwargs["value"], kwargs["unit"])
+
 _try_interpret_as_with_unit = None
 _is_value_consistent_with_default_unit_database = None
 def init_base_unit_functions(
