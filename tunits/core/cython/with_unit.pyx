@@ -481,6 +481,9 @@ cdef class WithUnit:
 
     def __str__(self):
         unit_str = str(self.display_units)
+        if not isinstance(self.value, np.ndarray) \
+                and self.value == 1 and unit_str != '':
+            return unit_str
         val_str = (repr if isinstance(self.value, float) else str)(self.value)
         return (val_str + " " + unit_str).strip()
 
