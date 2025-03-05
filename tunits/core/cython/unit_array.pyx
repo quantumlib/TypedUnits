@@ -237,4 +237,19 @@ cdef class UnitArray:
             raise ValueError("UnitArray power does not support third argument")
         return self.pow_frac(float_to_twelths_frac(exponent));
 
+    def __getstate__(self):
+        return {
+            'unit_count': self.unit_count,
+            'units': [*self],
+        }
+
+    def __setstate__(self, pickle_info: dict[str, Any]):
+        self.unit_count = pickle_info['unit_count']
+        self.units = <UnitTerm *>PyMem_Malloc(self.unit_count*sizeof(UnitTerm))
+        for i, (name, numer, denom) in enumerate(pickle_info['units']):
+            Py_INCREF(name)
+            self.units[i].name = <PyObject *>name
+            self.units[i].power.numer = numer
+            self.units[i].power.denom = denom
+
 _EmptyUnit = UnitArray()

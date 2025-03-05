@@ -14,10 +14,14 @@ import numbers
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
+import pickle
+
 import numpy as np
 import pytest
 
 from tunits import Value, UnitMismatchError
+import tunits as tu
 
 
 def test_construction() -> None:
@@ -263,3 +267,15 @@ def test_dimensionless() -> None:
         _ = A.dimensionless()
 
     assert B.dimensionless() == 1.2
+
+
+def test_pick_roundtrip() -> None:
+    units = itertools.product(
+        [tu.ns, tu.GHz, tu.dBm, tu.deg, 1, tu.GHz**0.5, tu.m**0.75, tu.s**0.25], repeat=3
+    )
+    for value in np.random.random(20):
+        for unit_list in units:
+            unit = np.prod(unit_list)  # type: ignore[arg-type]
+            x = value * unit
+            s = pickle.dumps(x)
+            assert x == pickle.loads(s)
