@@ -12,3 +12,7 @@ testpaths = [
     "test",
     "test_perf",
 ]
+markers = [
+    "cirq: mark a test as a compatibility test with Cirq.",
+]
+addopts = '-m "not cirq"'
