@@ -79,7 +79,7 @@ jobs:
       - name: pytest
         run: ci/pytest_unit.sh
 
-      - name: test perf
+      - name: test performance
         run: ci/pytest_perf.sh
 
       - name: test compatibility with Cirq
