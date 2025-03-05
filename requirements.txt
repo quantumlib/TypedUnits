@@ -1,5 +1,5 @@
 attrs
 cython>=3.0.0
 numpy>=1.23.0
-protobuf~=5.26
+protobuf>=4.25
 pyparsing
