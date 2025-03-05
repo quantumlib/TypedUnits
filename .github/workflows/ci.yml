@@ -80,7 +80,9 @@ jobs:
         run: ci/pytest_unit.sh
 
       - name: compatibility with Cirq
-        run: ci/pytest_unit.sh -m cirq
+        run: :
+          pip install cirq
+          ci/pytest_unit.sh -m cirq
 
       - name: perf
         run: ci/pytest_perf.sh
