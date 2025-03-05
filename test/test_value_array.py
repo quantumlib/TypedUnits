@@ -12,11 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import itertools
+import pickle
+
 import numpy as np
 import pytest
 from tunits.core import raw_WithUnit, raw_UnitArray
 
 from tunits import ValueArray, UnitMismatchError, Value
+import tunits as tu
 
 
 def test_construction() -> None:
@@ -238,3 +242,15 @@ def test_dimensionless() -> None:
         _ = A.dimensionless()
 
     np.testing.assert_equal(B.dimensionless(), np.arange(5) / 1000)
+
+
+def test_pick_roundtrip() -> None:
+    units = itertools.product(
+        [tu.ns, tu.GHz, tu.dBm, tu.deg, 1, tu.GHz**0.5, tu.m**0.75, tu.s**0.25], repeat=3
+    )
+    for value in np.random.random((5, 20)):
+        for unit_list in units:
+            unit = np.prod(unit_list)  # type: ignore[arg-type]
+            x = value * unit
+            s = pickle.dumps(x)
+            assert all(x == pickle.loads(s))

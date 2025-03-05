@@ -685,6 +685,22 @@ cdef class WithUnit:
     def _from_json_dict_(cls, **kwargs):
         return cls(kwargs["value"], kwargs["unit"])
 
+    def __getstate__(self):
+        return {
+            'value': self.value,
+            'conv': self.conv,
+            'display_units': self.display_units.__getstate__(),
+            'base_units': self.base_units.__getstate__(),
+        }
+
+    def __setstate__(self, pickle_info):
+        self.value = pickle_info['value']
+        self.conv = pickle_info['conv']
+        self.display_units = UnitArray()
+        self.base_units = UnitArray()
+        self.display_units.__setstate__(pickle_info['display_units'])
+        self.base_units.__setstate__(pickle_info['base_units'])
+
 _try_interpret_as_with_unit = None
 _is_value_consistent_with_default_unit_database = None
 def init_base_unit_functions(
