@@ -46,7 +46,10 @@ class ValueArray(WithUnit):
         the items.
         """
         if unit is not None:
-            unit = _try_interpret_as_with_unit(unit)
+            parsed_unit = _try_interpret_as_with_unit(unit)
+            if parsed_unit is None:
+                raise ValueError("Bad WithUnit scaling value: " + repr(unit))
+            unit = parsed_unit
 
         # If the items have units, we're supposed to extract a shared unit.
         data = np.asarray(data)

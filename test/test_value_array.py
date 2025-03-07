@@ -254,3 +254,12 @@ def test_pick_roundtrip() -> None:
             x = value * unit
             s = pickle.dumps(x)
             assert all(x == pickle.loads(s))
+
+
+class _InvalidUnit:
+    pass
+
+
+def test_invalid_unit_raises_error() -> None:
+    with pytest.raises(ValueError):
+        _ = tu.ValueArray([1, 2], _InvalidUnit())
