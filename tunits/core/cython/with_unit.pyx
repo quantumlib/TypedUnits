@@ -382,11 +382,11 @@ cdef class WithUnit:
     def imag(WithUnit self):
         return self.__with_value(self.value.imag)
 
-    def round(WithUnit self, unit):
-        try:
-            return self.in_units_of(unit, True)
-        except NotTUnitsLikeError:
-            return NotImplemented
+#    def round(WithUnit self, unit):
+#        try:
+#            return self.in_units_of(unit, True)
+#        except NotTUnitsLikeError:
+#            return NotImplemented
 
     def __int__(self):
         if self.base_units.unit_count != 0:
@@ -652,22 +652,22 @@ cdef class WithUnit:
 
     def conjugate(self) -> 'WithUnit':
         return self.__with_value(self.value.conjugate())
+
+#    def floor(self, u):
+#        cdef WithUnit converted
+#        try:
+#            converted = self.in_units_of(u, False)
+#            return converted.__with_value(floor(converted.value))
+#        except NotTUnitsLikeError:
+#            return NotImplemented
     
-    def floor(self, u):
-        cdef WithUnit converted
-        try:
-            converted = self.in_units_of(u, False)
-            return converted.__with_value(floor(converted.value))
-        except NotTUnitsLikeError:
-            return NotImplemented
-    
-    def ceil(self, u):
-        cdef WithUnit converted
-        try:
-            converted = self.in_units_of(u, False)
-            return converted.__with_value(ceil(converted.value))
-        except NotTUnitsLikeError:
-            return NotImplemented
+#    def ceil(self, u):
+#        cdef WithUnit converted
+#        try:
+#            converted = self.in_units_of(u, False)
+#            return converted.__with_value(ceil(converted.value))
+#        except NotTUnitsLikeError:
+#            return NotImplemented
 
     def sign(self) -> int | np.ndarray:
         return np.sign(self.value_in_base_units())
