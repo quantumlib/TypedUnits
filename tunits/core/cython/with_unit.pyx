@@ -704,6 +704,9 @@ cdef class WithUnit:
         self.display_units.__setstate__(pickle_info['display_units'])
         self.base_units.__setstate__(pickle_info['base_units'])
 
+    def __format__(self, spec: str) -> str:
+        return self.value.__format__(spec) + ' ' + str(self.unit)
+
 _try_interpret_as_with_unit = None
 _is_value_consistent_with_default_unit_database = None
 def init_base_unit_functions(
