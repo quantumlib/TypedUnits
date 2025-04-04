@@ -480,6 +480,7 @@ dsr = core.Angle(core.default_unit_database.known_units['dsr'])
 e = core.Charge(core.default_unit_database.known_units['e'])
 electron_mass = core.Mass(core.default_unit_database.known_units['electron_mass'])
 elementary_charge = core.Charge(core.default_unit_database.known_units['elementary_charge'])
+eV = core.Energy(core.default_unit_database.known_units['eV'])
 eps0 = core.default_unit_database.known_units['eps0']
 exaampere = core.ElectricCurrent(core.default_unit_database.known_units['exaampere'])
 exabecquerel = core.Frequency(core.default_unit_database.known_units['exabecquerel'])
@@ -1705,6 +1706,7 @@ __all__ = [
     "e",
     "electron_mass",
     "elementary_charge",
+    "eV",
     "eps0",
     "exaampere",
     "exabecquerel",

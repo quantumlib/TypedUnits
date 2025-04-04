@@ -480,6 +480,7 @@ dsr = core.default_unit_database.known_units['dsr']
 e = core.default_unit_database.known_units['e']
 electron_mass = core.default_unit_database.known_units['electron_mass']
 elementary_charge = core.default_unit_database.known_units['elementary_charge']
+eV = core.default_unit_database.known_units['eV']
 eps0 = core.default_unit_database.known_units['eps0']
 exaampere = core.default_unit_database.known_units['exaampere']
 exabecquerel = core.default_unit_database.known_units['exabecquerel']
@@ -1703,6 +1704,7 @@ __all__ = [
     "e",
     "electron_mass",
     "elementary_charge",
+    "eV",
     "eps0",
     "exaampere",
     "exabecquerel",
