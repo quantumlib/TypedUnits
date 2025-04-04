@@ -78,7 +78,8 @@ __SI_DERIVED_UNITS = [
     DerivedUnitData('lx', 'lux', 'lm/m^2', use_prefixes=True),
     DerivedUnitData('Bq', 'becquerel', 'Hz', use_prefixes=True),
     DerivedUnitData('l', 'liter', 'm^3', exp10=-3, use_prefixes=True),
-    DerivedUnitData('phi0', 'magnetic_flux_quantum', 'J*s/C', value=2.067833831170082e-15, use_prefixes=True)
+    DerivedUnitData('phi0', 'magnetic_flux_quantum', 'J*s/C', value=2.067833831170082e-15, use_prefixes=True),
+    DerivedUnitData('eV', 'electron_volt', 'N*m', value=1.602176634e-19, use_prefixes=False),
 ]
 
 __OTHER_UNITS = [
