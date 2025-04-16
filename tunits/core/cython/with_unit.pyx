@@ -67,7 +67,13 @@ def _in_WithUnit(obj) -> raw_WithUnit:
     """
     if isinstance(obj, WithUnit):
         return obj
-    return raw_WithUnit(obj, identity_conversion(), _EmptyUnit, _EmptyUnit, Value, ValueArray)
+    try:
+        return raw_WithUnit(obj, identity_conversion(), _EmptyUnit, _EmptyUnit, Value, ValueArray)
+    except NotTUnitsLikeError as e:
+        if isinstance(obj, str):
+            return _try_interpret_as_with_unit(obj)
+        raise e
+
 
 cdef _is_dimensionless_zero(WithUnit u):
     return (u._is_dimensionless() and
@@ -575,6 +581,20 @@ cdef class WithUnit:
             return self.__with_value(self.value[key])
         except NotTUnitsLikeError:
             return NotImplemented
+        except TypeError:
+            try:
+                unit_val = _try_interpret_as_with_unit(str(key), True)
+            except:
+                raise NotTUnitsLikeError("Bad unit key: " + repr(key))
+            if unit_val is None:
+                raise NotTUnitsLikeError("Bad unit key: " + repr(key))
+            if self.base_units != unit_val.base_units:
+                raise UnitMismatchError("'%s' doesn't match '%s'." %
+                    (self, key))
+            return (self.value
+                * conversion_to_double(conversion_div(self.conv, unit_val.conv))
+                / unit_val.value)
+
 
     def __iter__(self):
         # Hack: We want calls to 'iter' to see that __iter__ exists and try to
@@ -687,6 +707,10 @@ cdef class WithUnit:
     @classmethod
     def _from_json_dict_(cls, **kwargs):
         return cls(kwargs["value"], kwargs["unit"])
+
+    def _resolved_value_(self) -> WithUnit:
+        """Follows the cirq ResolvableValue protocol."""
+        return self
 
     def __getstate__(self):
         return {

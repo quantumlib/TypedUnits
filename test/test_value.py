@@ -177,10 +177,7 @@ def test_division() -> None:
 def test_get_item() -> None:
     from tunits.units import ns, s
 
-    with pytest.raises(TypeError):
-        _ = (ns / s)[2 * s / ns]
-    with pytest.raises(TypeError):
-        _ = (ns / s)[Value(3, '')]
+    assert (ns / s)[Value(3, '')] == pytest.approx(1 / 3 * 1e-9)
     assert Value(1, '')[Value(1, '')] == 1
     assert Value(1, '')[ns / s] == 10**9
 

@@ -18,7 +18,7 @@ import copy
 import numpy as np
 import pytest
 
-from tunits.core import raw_WithUnit, raw_UnitArray, WithUnit
+from tunits.core import raw_WithUnit, raw_UnitArray, WithUnit, NotTUnitsLikeError
 
 from tunits import UnitMismatchError, ValueArray, Value
 from test.test_utils import frac, conv, val
@@ -85,7 +85,6 @@ def test_abs() -> None:
 
 def test_equality() -> None:
     equivalence_groups: list[list[Any]] = [
-        [""],
         ["other types"],
         [list],
         [None],
@@ -488,21 +487,11 @@ def test_get_item() -> None:
     v = val(2, conv(numer=3, denom=5, exp10=7), mps, kph)
 
     # Wrong kinds of index (unit array, slice).
-    with pytest.raises(TypeError):
+    with pytest.raises(UnitMismatchError):
         _ = u[mps]
-    with pytest.raises(TypeError):
+    with pytest.raises(NotTUnitsLikeError):
         _ = u[1:2]
 
-    # Safety against dimensionless unit ambiguity.
-    _ = u[u]
-    with pytest.raises(TypeError):
-        _ = u[1.0]
-    with pytest.raises(TypeError):
-        _ = u[1.0]
-    with pytest.raises(TypeError):
-        _ = u[1]
-    with pytest.raises(TypeError):
-        _ = u[2 * v / v]
     assert u[v / v] == 10
 
     # Wrong unit.
