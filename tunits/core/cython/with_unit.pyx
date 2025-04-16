@@ -582,9 +582,12 @@ cdef class WithUnit:
         except NotTUnitsLikeError:
             return NotImplemented
         except TypeError:
-            unit_val = _try_interpret_as_with_unit(str(key), True)
+            try:
+                unit_val = _try_interpret_as_with_unit(str(key), True)
+            except:
+                raise NotTUnitsLikeError("Bad unit key: " + repr(key))
             if unit_val is None:
-                return NotImplemented
+                raise NotTUnitsLikeError("Bad unit key: " + repr(key))
             if self.base_units != unit_val.base_units:
                 raise UnitMismatchError("'%s' doesn't match '%s'." %
                     (self, key))
