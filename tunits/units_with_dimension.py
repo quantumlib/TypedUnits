@@ -173,6 +173,7 @@ Tlm = core.LuminousFlux(core.default_unit_database.known_units['Tlm'])
 Tlx = core.Illuminance(core.default_unit_database.known_units['Tlx'])
 Tm = core.Length(core.default_unit_database.known_units['Tm'])
 Tmol = core.Quantity(core.default_unit_database.known_units['Tmol'])
+torr = core.Pressure(core.default_unit_database.known_units['torr'])
 Trad = core.Angle(core.default_unit_database.known_units['Trad'])
 Ts = core.Time(core.default_unit_database.known_units['Ts'])
 Tsr = core.Angle(core.default_unit_database.known_units['Tsr'])
@@ -290,6 +291,7 @@ attotesla = core.MagneticFluxDensity(core.default_unit_database.known_units['att
 attovolt = core.ElectricPotential(core.default_unit_database.known_units['attovolt'])
 attowatt = core.Power(core.default_unit_database.known_units['attowatt'])
 attoweber = core.MagneticFlux(core.default_unit_database.known_units['attoweber'])
+atm = core.Pressure(core.default_unit_database.known_units['atm'])
 avogadro_constant = core.default_unit_database.known_units['avogadro_constant']
 b = core.Area(core.default_unit_database.known_units['b'])
 bar = core.Pressure(core.default_unit_database.known_units['bar'])
@@ -1399,6 +1401,7 @@ __all__ = [
     "Tlx",
     "Tm",
     "Tmol",
+    "torr",
     "Trad",
     "Ts",
     "Tsr",
@@ -1516,6 +1519,7 @@ __all__ = [
     "attovolt",
     "attowatt",
     "attoweber",
+    "atm",
     "avogadro_constant",
     "b",
     "bar",

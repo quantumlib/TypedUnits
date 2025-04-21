@@ -116,6 +116,8 @@ __OTHER_UNITS = [
     # Pressure.
     DerivedUnitData('psi', 'pounds_per_square_inch', 'Pa', 6894.75729317),
     DerivedUnitData('bar', 'barometric_pressure', 'Pa', 1e5),
+    DerivedUnitData('atm', 'atmospheric_pressure', 'Pa', 101325.0),
+    DerivedUnitData('torr', 'mm_of_mercury', 'Pa', 101325.0/760),
 ]
 
 # Units that aren't technically exact, but close enough for our purposes.

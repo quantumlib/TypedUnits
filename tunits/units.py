@@ -173,6 +173,7 @@ Tlm = core.default_unit_database.known_units['Tlm']
 Tlx = core.default_unit_database.known_units['Tlx']
 Tm = core.default_unit_database.known_units['Tm']
 Tmol = core.default_unit_database.known_units['Tmol']
+torr = core.default_unit_database.known_units['torr']
 Trad = core.default_unit_database.known_units['Trad']
 Ts = core.default_unit_database.known_units['Ts']
 Tsr = core.default_unit_database.known_units['Tsr']
@@ -290,6 +291,7 @@ attotesla = core.default_unit_database.known_units['attotesla']
 attovolt = core.default_unit_database.known_units['attovolt']
 attowatt = core.default_unit_database.known_units['attowatt']
 attoweber = core.default_unit_database.known_units['attoweber']
+atm = core.default_unit_database.known_units['atm']
 avogadro_constant = core.default_unit_database.known_units['avogadro_constant']
 b = core.default_unit_database.known_units['b']
 bar = core.default_unit_database.known_units['bar']
@@ -1397,6 +1399,7 @@ __all__ = [
     "Tlx",
     "Tm",
     "Tmol",
+    "torr",
     "Trad",
     "Ts",
     "Tsr",
@@ -1514,6 +1517,7 @@ __all__ = [
     "attovolt",
     "attowatt",
     "attoweber",
+    "atm",
     "avogadro_constant",
     "b",
     "bar",
