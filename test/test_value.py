@@ -286,3 +286,6 @@ def test_format() -> None:
     x = 42.235 * tu.GHz
     assert f'{x:0.2f}' == '42.23 GHz'
     assert f'{x:0.1e}' == '4.2e+01 GHz'
+
+    assert f'{tu.GHz}' == 'GHz'
+    assert f'{2*tu.GHz}' == '2 GHz'

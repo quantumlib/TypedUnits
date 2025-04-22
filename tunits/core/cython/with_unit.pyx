@@ -729,6 +729,7 @@ cdef class WithUnit:
         self.base_units.__setstate__(pickle_info['base_units'])
 
     def __format__(self, spec: str) -> str:
+        if spec == '' and self.value == 1: return str(self)
         return self.value.__format__(spec) + ' ' + str(self.unit)
 
 _try_interpret_as_with_unit = None
