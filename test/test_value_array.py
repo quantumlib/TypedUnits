@@ -267,4 +267,4 @@ def test_invalid_unit_raises_error() -> None:
 
 def test_format():
     u = tu.GHz * np.random.random(10)
-    assert f'{u=}' == str(u)
+    assert f'{u}' == str(u)
