@@ -265,6 +265,6 @@ def test_invalid_unit_raises_error() -> None:
         _ = tu.ValueArray([1, 2], _InvalidUnit())
 
 
-def test_format():
+def test_format() -> None:
     u = tu.GHz * np.random.random(10)
     assert f'{u}' == str(u)
