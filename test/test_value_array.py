@@ -270,7 +270,7 @@ def test_format() -> None:
     assert f'{u}' == str(u)
 
 
-def test_ufunc():
+def test_ufunc() -> None:
     x = np.float64(0.42)
     y = tu.GHz * np.arange(4)[1:]
 
