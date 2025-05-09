@@ -274,8 +274,8 @@ def test_ufunc() -> None:
     x = np.float64(0.42)
     y = tu.GHz * np.arange(4)[1:]
 
-    assert np.multiply(x, y).allclose(np.multiply(y, x))
-    assert np.divide(x, y).allclose(np.divide(np.int64(1), np.divide(y, x)))
+    assert np.multiply(x, y).allclose(np.multiply(y, x))  # type: ignore[union-attr]
+    assert np.divide(x, y).allclose(np.divide(np.int64(1), np.divide(y, x)))  # type: ignore[union-attr]
 
     with pytest.raises(UnitMismatchError):
         _ = np.add(x, y)
