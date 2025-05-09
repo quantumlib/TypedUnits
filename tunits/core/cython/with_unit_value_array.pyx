@@ -95,14 +95,15 @@ class ValueArray(WithUnit):
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         if method == "__call__":
+            is_value = isinstance(inputs[0], ValueArray)
             if ufunc == np.add:
-                return inputs[1].__radd__(inputs[0])
+                return inputs[0].__add__(inputs[1]) if is_value else inputs[1].__radd__(inputs[0])
             if ufunc == np.subtract:
-                return inputs[1].__rsub__(inputs[0])
+                return inputs[0].__sub__(inputs[1]) if is_value else inputs[1].__rsub__(inputs[0])
             if ufunc == np.multiply:
-                return inputs[1].__rmul__(inputs[0])
+                return inputs[0].__mul__(inputs[1]) if is_value else inputs[1].__rmul__(inputs[0])
             if ufunc == np.divide:
-                return inputs[1].__rtruediv__(inputs[0])
+                return inputs[0].__truediv__(inputs[1]) if is_value else inputs[1].__rtruediv__(inputs[0])
             if ufunc == np.power:
                 return inputs[0] ** inputs[1]
             if ufunc in [np.positive, np.negative, np.abs, np.fabs, np.conj]:
