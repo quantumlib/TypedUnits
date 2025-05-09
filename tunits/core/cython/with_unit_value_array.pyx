@@ -95,32 +95,15 @@ class ValueArray(WithUnit):
 
     def __array_ufunc__(self, ufunc, method, *inputs, **kwargs):
         if method == "__call__":
+            is_value = isinstance(inputs[0], ValueArray)
             if ufunc == np.add:
-                return inputs[0] + inputs[1]
+                return inputs[0].__add__(inputs[1]) if is_value else inputs[1].__radd__(inputs[0])
             if ufunc == np.subtract:
-                return inputs[0] - inputs[1]
+                return inputs[0].__sub__(inputs[1]) if is_value else inputs[1].__rsub__(inputs[0])
             if ufunc == np.multiply:
-                if not isinstance(inputs[0], np.ndarray) and not isinstance(inputs[1], np.ndarray):
-                    return inputs[0] * inputs[1]
-                elif isinstance(inputs[0], np.ndarray):
-                    return inputs[1] * inputs[0]
-                elif isinstance(inputs[1], np.ndarray):
-                    return inputs[0] * inputs[1]
-                else:
-                    raise NotImplementedError(
-                        f"multiply not implemented for types {type(inputs[0])}, {type(inputs[1])}"
-                    )
+                return inputs[0].__mul__(inputs[1]) if is_value else inputs[1].__rmul__(inputs[0])
             if ufunc == np.divide:
-                if not isinstance(inputs[0], np.ndarray) and not isinstance(inputs[1], np.ndarray):
-                    return inputs[0] / inputs[1]
-                elif isinstance(inputs[0], np.ndarray):
-                    return inputs[1].__rtruediv__(inputs[0])
-                elif isinstance(inputs[1], np.ndarray):
-                    return inputs[0] / inputs[1]
-                else:
-                    raise NotImplementedError(
-                        f"divide not implemented for types {type(inputs[0])}, {type(inputs[1])}"
-                    )
+                return inputs[0].__truediv__(inputs[1]) if is_value else inputs[1].__rtruediv__(inputs[0])
             if ufunc == np.power:
                 return inputs[0] ** inputs[1]
             if ufunc in [np.positive, np.negative, np.abs, np.fabs, np.conj]:
