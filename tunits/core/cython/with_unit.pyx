@@ -199,7 +199,7 @@ cdef class WithUnit:
             if unit_val is None:
                 raise ValueError("Bad WithUnit scaling value: " + repr(value))
 
-        if isinstance(value, (int, float, np.ndarray)):
+        if isinstance(value, (numbers.Number, np.ndarray)):
             self.value = unit_val.value * value
             self.conv = unit_val.conv
             self.base_units = unit_val.base_units
@@ -259,7 +259,7 @@ cdef class WithUnit:
     def __mul__(left, b) -> 'WithUnit':
         cdef WithUnit right
         try:
-            if isinstance(b, (int, float)):
+            if isinstance(b, numbers.Number):
                 return left.__with_value(left.value * b)
             right = _in_WithUnit(b)
             if left._is_dimensionless() and right._is_dimensionless():
@@ -279,7 +279,7 @@ cdef class WithUnit:
             return NotImplemented
     def __rmul__(self, b):
         try:
-            if isinstance(b, (int, float)):
+            if isinstance(b, numbers.Number):
                 return self.__with_value(self.value * b)
             return self * b
         except NotTUnitsLikeError:
@@ -288,7 +288,7 @@ cdef class WithUnit:
     def __truediv__(a, b):
         cdef WithUnit left, right
         try:
-            if isinstance(b, (int, float)):
+            if isinstance(b, numbers.Number):
                 return a.__with_value(a.value / b)
             left = _in_WithUnit(a)
             right = _in_WithUnit(b)
@@ -322,7 +322,7 @@ cdef class WithUnit:
         cdef WithUnit left, right
         cdef double c
         try:
-            if isinstance(b, (int, float)):
+            if isinstance(b, numbers.Number):
                 return a.value//b, _in_WithUnit(a.value % b)
             left = _in_WithUnit(a)
             right = _in_WithUnit(b)
@@ -387,12 +387,6 @@ cdef class WithUnit:
     @property
     def imag(WithUnit self):
         return self.__with_value(self.value.imag)
-
-#    def round(WithUnit self, unit):
-#        try:
-#            return self.in_units_of(unit, True)
-#        except NotTUnitsLikeError:
-#            return NotImplemented
 
     def __int__(self):
         if self.base_units.unit_count != 0:
@@ -672,22 +666,6 @@ cdef class WithUnit:
 
     def conjugate(self) -> 'WithUnit':
         return self.__with_value(self.value.conjugate())
-
-#    def floor(self, u):
-#        cdef WithUnit converted
-#        try:
-#            converted = self.in_units_of(u, False)
-#            return converted.__with_value(floor(converted.value))
-#        except NotTUnitsLikeError:
-#            return NotImplemented
-    
-#    def ceil(self, u):
-#        cdef WithUnit converted
-#        try:
-#            converted = self.in_units_of(u, False)
-#            return converted.__with_value(ceil(converted.value))
-#        except NotTUnitsLikeError:
-#            return NotImplemented
 
     def sign(self) -> int | np.ndarray:
         return np.sign(self.value_in_base_units())

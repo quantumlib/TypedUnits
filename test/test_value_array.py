@@ -268,3 +268,17 @@ def test_invalid_unit_raises_error() -> None:
 def test_format() -> None:
     u = tu.GHz * np.random.random(10)
     assert f'{u}' == str(u)
+
+
+def test_ufunc():
+    x = np.float64(0.42)
+    y = tu.GHz * np.arange(4)[1:]
+
+    assert (x * y).allclose(y * x)
+    assert (x / y).allclose(np.int64(1) / (y / x))
+
+    with pytest.raises(UnitMismatchError):
+        _ = x + y
+
+    with pytest.raises(UnitMismatchError):
+        _ = x - y
