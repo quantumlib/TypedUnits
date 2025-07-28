@@ -151,7 +151,7 @@ class ValueArray(WithUnit):
         return np.allclose(self.value, other[self.unit], *args, **kw)
 
     def unique(WithUnit self):
-        return np.unique(self[self.unit]) * self.unit
+        return self.__with_value(np.unique(self.value))
 
     @classmethod
     def from_proto(cls: type[T], msg: 'tunits_pb2.ValueArray') -> T:
