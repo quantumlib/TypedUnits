@@ -286,3 +286,10 @@ def test_ufunc() -> None:
         _ = np.subtract(x, y)
     with pytest.raises(UnitMismatchError):
         _ = np.subtract(y, x)
+
+
+def test_unique() -> None:
+    xs = np.array([3.7, 0.9, 0.9, 4.3, 3.7])
+    unit = tu.MHz
+    v_arr = xs * unit
+    assert np.array_equal(v_arr.unique(), np.unique(xs) * unit) 
