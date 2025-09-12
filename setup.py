@@ -56,4 +56,5 @@ setuptools.setup(
     license="Apache 2",
     url='https://github.com/quantumlib/TypedUnits',
     author='The TUnits Authors',
+    description='A fast units and dimensions library with support for static dimensionality checking and protobuffer serialization.',
 )
