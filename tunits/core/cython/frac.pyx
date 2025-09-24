@@ -13,7 +13,7 @@
 # limitations under the License.
 
 cimport cython
-from libc.math cimport floor as c_floor, pow as c_pow, fabs as c_fabs
+from libc.math cimport floor as c_floor, pow as c_pow
 
 # A ratio that should always be canonicalized into least terms with the sign
 # on the numerator.
@@ -85,7 +85,9 @@ cpdef frac float_to_twelths_frac(a) except *:
 
     cdef double d = float(a)
     cdef long long x = <long long>c_floor(12*d + 0.5)
-    if c_fabs(12*d - x) > 1e-5:
+    cdef double diff = 12*d - x
+    if max(diff, -diff) > 1e-5:
+        print(f'%.20f'%diff)
         raise ValueError("Not a twelfth.")
 
     return frac_least_terms(x, 12)
