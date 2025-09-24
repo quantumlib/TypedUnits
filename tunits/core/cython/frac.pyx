@@ -87,9 +87,6 @@ cpdef frac float_to_twelths_frac(a) except *:
     cdef double raised_d = 12.0*d
     cdef long long x = <long long>c_floor(raised_d + 0.5)
     if not (-1e-5 < raised_d - x < 1e-5):
-        print(raised_d)
-        print(raised_d - <long long>(raised_d))
-        print(<long long>(raised_d), x)
         raise ValueError("Not a twelfth.")
 
     return frac_least_terms(x, 12)
