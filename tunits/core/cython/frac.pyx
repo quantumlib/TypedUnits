@@ -90,6 +90,7 @@ cpdef frac float_to_twelths_frac(a) except *:
         print('spit')
         print('%.20f'%a)
         print('%.20f'%d)
+        print('%.20f'%(12*d))
         print(x)
         print('%.20f'%diff)
         raise ValueError("Not a twelfth.")
