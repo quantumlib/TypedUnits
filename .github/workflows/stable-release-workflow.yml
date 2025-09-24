@@ -14,7 +14,7 @@ jobs:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
       - uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
       - name: Create version
         run: |
           mkdir version
@@ -34,7 +34,7 @@ jobs:
         include:
           - os: ubuntu-24.04
             arch: x86_64
-          - os: ubuntu-24.04
+          - os: ubuntu-24.04-arm
             arch: aarch64
           - os: windows-2022
             arch: auto
@@ -48,7 +48,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5
       with:
-        python-version: '3.10'
+        python-version: '3.12'
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
