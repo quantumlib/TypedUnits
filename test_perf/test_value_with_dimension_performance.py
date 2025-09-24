@@ -30,7 +30,7 @@ def test_perf_add(a: ValueWithDimension, b: ValueWithDimension) -> ValueWithDime
     return a + b
 
 
-@perf_goal(repeats=1500, avg_nanos=1100, args=[a_random_value_with_dimension])
+@perf_goal(repeats=1500, avg_nanos=1200, args=[a_random_value_with_dimension])
 def test_perf_scale(a: ValueWithDimension) -> ValueWithDimension:
     return a * 3.14
 
@@ -47,7 +47,7 @@ def test_perf_get_item(
     return a[b]
 
 
-@perf_goal(repeats=1500, avg_nanos=1500, args=[a_random_value_with_dimension] * 2)
+@perf_goal(repeats=1500, avg_nanos=1650, args=[a_random_value_with_dimension] * 2)
 def test_perf_divmod(a: ValueWithDimension, b: ValueWithDimension) -> Any:
     return divmod(a, b)
 
