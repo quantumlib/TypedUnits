@@ -85,7 +85,7 @@ cpdef frac float_to_twelths_frac(a) except *:
 
     cdef double d = float(a)
     cdef long long x = <long long>c_floor(12*d + 0.5)
-    cdef double diff = 12*d - <double>(x)
+    cdef double diff = x - 12*d
     if max(diff, -diff) > 1e-5:
         print('spit')
         print('%.20f'%a)
