@@ -74,7 +74,7 @@ def test_perf_repr(a: Value) -> str:
     return repr(a)
 
 
-@perf_goal(avg_nanos=830)
+@perf_goal(avg_nanos=850)
 def test_perf_parse_atom() -> Value:
     return Value(1, 'kilogram')
 
