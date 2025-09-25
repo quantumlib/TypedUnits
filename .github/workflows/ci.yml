@@ -91,6 +91,9 @@ jobs:
         run: |
           pip install . --user
 
+      - name: pytest
+        run: ci/pytest_unit.sh
+
       - name: test compatibility with Cirq
         run: |
           pip install cirq-core
