@@ -33,12 +33,8 @@ permissions:
   contents: read
 
 jobs:
-  buid-and-test:
-    runs-on: ubuntu-24.04
-
-    strategy:
-      fail-fast: false
-
+  code-health:
+    runs-on:  ubuntu-24.04
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
 
@@ -66,6 +62,26 @@ jobs:
 
       - name: Check modified protos
         run: ci/build_changed_protos.sh origin/main
+  
+  buid-and-test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ["ubuntu-24.04", "ubuntu-24.04-arm", "macos-13", "macos-14"]
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@3542bca2639a428e1796aaa6a2ffef0c0f575566 # v3
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r dev_tools/dev.env.txt
 
         #
         # Install
@@ -75,14 +91,40 @@ jobs:
         run: |
           pip install . --user
 
-
       - name: pytest
         run: ci/pytest_unit.sh
-
-      - name: test performance
-        run: ci/pytest_perf.sh
 
       - name: test compatibility with Cirq
         run: |
           pip install cirq-core
           pytest test/* -m cirq
+
+
+  build-and-test-performance:
+    strategy:
+      fail-fast: false
+
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@3542bca2639a428e1796aaa6a2ffef0c0f575566 # v3
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          pip install -r dev_tools/dev.env.txt
+
+        #
+        # Install
+        #
+
+      - name: install
+        run: |
+          pip install . --user
+
+      - name: test performance
+        run: ci/pytest_perf.sh
