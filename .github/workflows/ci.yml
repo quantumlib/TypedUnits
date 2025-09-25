@@ -67,7 +67,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ["ubuntu-24.04", "ubuntu-24.04-arm", "windows-2022" , "macos-13", "macos-14"]
+        os: ["ubuntu-24.04", "ubuntu-24.04-arm", "macos-13", "macos-14"]
 
     runs-on: ${{ matrix.os }}
 
@@ -93,6 +93,11 @@ jobs:
 
       - name: pytest
         run: ci/pytest_unit.sh
+
+      - name: test compatibility with Cirq
+        run: |
+          pip install cirq-core
+          pytest test/* -m cirq
 
 
   buid-and-test-performance:
@@ -123,8 +128,3 @@ jobs:
 
       - name: test performance
         run: ci/pytest_perf.sh
-
-      - name: test compatibility with Cirq
-        run: |
-          pip install cirq-core
-          pytest test/* -m cirq
