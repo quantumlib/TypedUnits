@@ -94,10 +94,6 @@ jobs:
       - name: pytest
         run: ci/pytest_unit.sh
 
-      - name: test compatibility with Cirq
-        run: |
-          pip install cirq-core
-          pytest test/* -m cirq
 
   buid-and-test-performance:
     strategy:
@@ -127,3 +123,8 @@ jobs:
 
       - name: test performance
         run: ci/pytest_perf.sh
+
+      - name: test compatibility with Cirq
+        run: |
+          pip install cirq-core
+          pytest test/* -m cirq
