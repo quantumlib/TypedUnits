@@ -63,7 +63,7 @@ jobs:
       - name: Check modified protos
         run: ci/build_changed_protos.sh origin/main
   
-  build-and-test-correctness:
+  buid-and-test:
     strategy:
       fail-fast: false
       matrix:
