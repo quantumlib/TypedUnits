@@ -63,7 +63,7 @@ jobs:
       - name: Check modified protos
         run: ci/build_changed_protos.sh origin/main
   
-  buid-and-test-correctness:
+  build-and-test-correctness:
     strategy:
       fail-fast: false
       matrix:
@@ -100,7 +100,7 @@ jobs:
           pytest test/* -m cirq
 
 
-  buid-and-test-performance:
+  build-and-test-performance:
     strategy:
       fail-fast: false
 
