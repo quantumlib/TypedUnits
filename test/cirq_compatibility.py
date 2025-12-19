@@ -22,7 +22,7 @@ def test_to_json() -> None:
     assert (
         cirq.to_json(tu.ns * 3)
         == """{
-  "cirq_type": "tunits.Value",
+  "cirq_type": "tunits.Time",
   "value": 3,
   "unit": "ns"
 }"""
