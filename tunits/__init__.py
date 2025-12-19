@@ -98,4 +98,4 @@ from tunits.core import (
 from tunits import units as units
 from tunits import units_with_dimension as units_with_dimension
 
-from tunits.units import *
+from tunits.units_with_dimension import *
