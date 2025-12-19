@@ -31,7 +31,7 @@ def test_to_json() -> None:
     assert (
         cirq.to_json(tu.GHz * [1, 2, 3, -1])
         == """{
-  "cirq_type": "tunits.ValueArray",
+  "cirq_type": "tunits.FrequencyArray",
   "value": [
     1.0,
     2.0,
