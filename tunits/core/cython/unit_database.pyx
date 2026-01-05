@@ -62,7 +62,7 @@ class UnitDatabase:
         """
         if formula in self.known_units:
             return self.known_units[formula]
-        parsed = unit_regex.parseString(formula)
+        parsed = unit_regex.parse_string(formula)
         result = Value(parsed.factor or 1)
         for item in parsed.posexp:
             result *= self._parse_unit_item(item, +1, auto_create)

@@ -41,18 +41,18 @@ scalar_combine = Combine(
     + Optional('.' + Optional(Word(nums)))
     + Optional('e' + Word('+-' + nums, nums))
 )
-scalar = scalar_combine.setParseAction(lambda s, l, t: [float(t[0])])('factor')
+scalar = scalar_combine.set_parse_action(lambda s, l, t: [float(t[0])])('factor')
 
-number = Word(nums).setParseAction(lambda s, l, t: [int(t[0])])
+number = Word(nums).set_parse_action(lambda s, l, t: [int(t[0])])
 name = Word(alphas, alphanums)
 
 negatable = Optional(Literal('-'))('neg')
 exponent = _maybe_parens(negatable + _maybe_parens(number('num') + Optional('/' + number('denom'))))
 
 single_unit = name('name') + Optional('^' + exponent)
-head = Group(single_unit).setResultsName('posexp', True)
-times_unit = Group('*' + single_unit).setResultsName('posexp', True)
-over_unit = Group('/' + single_unit).setResultsName('negexp', True)
+head = Group(single_unit).set_results_name('posexp', True)
+times_unit = Group('*' + single_unit).set_results_name('posexp', True)
+over_unit = Group('/' + single_unit).set_results_name('negexp', True)
 
 unit_regex = (
     stringStart
