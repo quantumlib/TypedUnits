@@ -293,3 +293,12 @@ def test_unique() -> None:
     unit = tu.MHz
     v_arr = xs * unit
     assert np.array_equal(v_arr.unique(), np.unique(xs) * unit)
+
+
+def test_matmul() -> None:
+    a = np.random.random((3, 4))
+    b = np.random.random((4, 3)) * tu.ns
+    c: tu.TimeArray = a @ b  # type: ignore[assignment]
+    d: tu.TimeArray = b @ a  # type: ignore[assignment]
+    assert c.allclose((a @ b[tu.us]) * tu.us)
+    assert d.allclose((b[tu.s] @ a) * tu.s)

@@ -116,6 +116,10 @@ class ValueArray(WithUnit):
                 return self ** 2
             if ufunc == np.reciprocal:
                 return self.__rtruediv__(1)
+            if ufunc == np.matmul:
+                if isinstance(inputs[0], ValueArray):
+                    return inputs[0].__matmul__(inputs[1])
+                return inputs[1].__rmatmul__(inputs[0])
 
         if ufunc in [
             np.greater,
@@ -133,7 +137,7 @@ class ValueArray(WithUnit):
         if self._is_dimensionless():
             return getattr(ufunc, method)(*(np.asarray(x) for x in inputs), **kwargs)
 
-        raise NotImplemented
+        return NotImplemented
 
     @property
     def dtype(WithUnit self) -> np.dtype:
@@ -161,3 +165,10 @@ class ValueArray(WithUnit):
         ret = _ndarray_to_proto(self.value, msg)
         ret.units.extend(_units_to_proto(self.display_units))
         return ret
+
+    def __matmul__(WithUnit self, other: np.ndarray):
+        return self.__with_value(self.value @ other)
+
+
+    def __rmatmul__(WithUnit self, other: np.ndarray):
+        return self.__with_value(other @ self.value)
