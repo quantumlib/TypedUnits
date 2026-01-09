@@ -133,7 +133,7 @@ class ValueArray(WithUnit):
         if self._is_dimensionless():
             return getattr(ufunc, method)(*(np.asarray(x) for x in inputs), **kwargs)
 
-        raise NotImplemented
+        return NotImplemented
 
     @property
     def dtype(WithUnit self) -> np.dtype:
