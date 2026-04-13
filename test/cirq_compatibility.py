@@ -19,18 +19,13 @@ import cirq  # type: ignore
 
 @pytest.mark.cirq
 def test_to_json() -> None:
-    assert (
-        cirq.to_json(tu.ns * 3)
-        == """{
+    assert cirq.to_json(tu.ns * 3) == """{
   "cirq_type": "tunits.Time",
   "value": 3,
   "unit": "ns"
 }"""
-    )
 
-    assert (
-        cirq.to_json(tu.GHz * [1, 2, 3, -1])
-        == """{
+    assert cirq.to_json(tu.GHz * [1, 2, 3, -1]) == """{
   "cirq_type": "tunits.FrequencyArray",
   "value": [
     1.0,
@@ -40,4 +35,3 @@ def test_to_json() -> None:
   ],
   "unit": "GHz"
 }"""
-    )
