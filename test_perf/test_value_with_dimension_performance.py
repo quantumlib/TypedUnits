@@ -19,7 +19,6 @@ from tunits.units import kilometer, inch
 from tunits import ValueWithDimension, Value
 from .perf_testing_util import a_random_value_with_dimension, perf_goal
 
-
 if TYPE_CHECKING:
     import numpy
 
