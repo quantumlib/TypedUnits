@@ -442,248 +442,318 @@ class _Acceleration(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Acceleration(_Acceleration, ValueWithDimension): ...
-class AccelerationArray(_Acceleration, ArrayWithDimension[Acceleration]): ...
+class Acceleration(_Acceleration, ValueWithDimension):
+    """A scalar value representing acceleration. Standard unit: meters per second squared (m/s²)."""
+class AccelerationArray(_Acceleration, ArrayWithDimension[Acceleration]):
+    """An array of acceleration values. Standard unit: meters per second squared (m/s²)."""
 
 class _Angle(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Angle(_Angle, ValueWithDimension): ...
-class AngleArray(_Angle, ArrayWithDimension[Angle]): ...
+class Angle(_Angle, ValueWithDimension):
+    """A scalar value representing a planar or solid angle. Base units: radian (rad), steradian (sr)."""
+class AngleArray(_Angle, ArrayWithDimension[Angle]):
+    """An array of angle values. Base units: radian (rad), steradian (sr)."""
 
 class _AngularFrequency(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class AngularFrequency(_AngularFrequency, ValueWithDimension): ...
-class AngularFrequencyArray(_AngularFrequency, ArrayWithDimension[AngularFrequency]): ...
+class AngularFrequency(_AngularFrequency, ValueWithDimension):
+    """A scalar value representing angular frequency. Standard unit: radians per second (rad/s)."""
+class AngularFrequencyArray(_AngularFrequency, ArrayWithDimension[AngularFrequency]):
+    """An array of angular frequency values. Standard unit: radians per second (rad/s)."""
 
 class _Area(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Area(_Area, ValueWithDimension): ...
-class AreaArray(_Area, ArrayWithDimension[Area]): ...
+class Area(_Area, ValueWithDimension):
+    """A scalar value representing area. Standard unit: square meter (m²)."""
+class AreaArray(_Area, ArrayWithDimension[Area]):
+    """An array of area values. Standard unit: square meter (m²)."""
 
 class _Capacitance(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Capacitance(_Capacitance, ValueWithDimension): ...
-class CapacitanceArray(_Capacitance, ArrayWithDimension[Capacitance]): ...
+class Capacitance(_Capacitance, ValueWithDimension):
+    """A scalar value representing electrical capacitance. Standard unit: farad (F)."""
+class CapacitanceArray(_Capacitance, ArrayWithDimension[Capacitance]):
+    """An array of capacitance values. Standard unit: farad (F)."""
 
 class _Charge(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Charge(_Charge, ValueWithDimension): ...
-class ChargeArray(_Charge, ArrayWithDimension[Charge]): ...
+class Charge(_Charge, ValueWithDimension):
+    """A scalar value representing electrical charge. Standard unit: coulomb (C)."""
+class ChargeArray(_Charge, ArrayWithDimension[Charge]):
+    """An array of charge values. Standard unit: coulomb (C)."""
 
 class _CurrentDensity(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class CurrentDensity(_CurrentDensity, ValueWithDimension): ...
-class CurrentDensityArray(_CurrentDensity, ArrayWithDimension[CurrentDensity]): ...
+class CurrentDensity(_CurrentDensity, ValueWithDimension):
+    """A scalar value representing electrical current density. Standard unit: amperes per square meter (A/m²)."""
+class CurrentDensityArray(_CurrentDensity, ArrayWithDimension[CurrentDensity]):
+    """An array of current density values. Standard unit: amperes per square meter (A/m²)."""
 
 class _Density(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Density(_Density, ValueWithDimension): ...
-class DensityArray(_Density, ArrayWithDimension[Density]): ...
+class Density(_Density, ValueWithDimension):
+    """A scalar value representing mass density. Standard unit: kilograms per cubic meter (kg/m³)."""
+class DensityArray(_Density, ArrayWithDimension[Density]):
+    """An array of density values. Standard unit: kilograms per cubic meter (kg/m³)."""
 
 class _ElectricCurrent(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class ElectricCurrent(_ElectricCurrent, ValueWithDimension): ...
-class ElectricCurrentArray(_ElectricCurrent, ArrayWithDimension[ElectricCurrent]): ...
+class ElectricCurrent(_ElectricCurrent, ValueWithDimension):
+    """A scalar value representing electrical current. Standard unit: ampere (A)."""
+class ElectricCurrentArray(_ElectricCurrent, ArrayWithDimension[ElectricCurrent]):
+    """An array of electrical current values. Standard unit: ampere (A)."""
 
 class _ElectricPotential(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class ElectricPotential(_ElectricPotential, ValueWithDimension): ...
-class ElectricPotentialArray(_ElectricPotential, ArrayWithDimension[ElectricPotential]): ...
+class ElectricPotential(_ElectricPotential, ValueWithDimension):
+    """A scalar value representing electrical potential (voltage). Standard unit: volt (V)."""
+class ElectricPotentialArray(_ElectricPotential, ArrayWithDimension[ElectricPotential]):
+    """An array of electrical potential values. Standard unit: volt (V)."""
 
 class _ElectricalConductance(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class ElectricalConductance(_ElectricalConductance, ValueWithDimension): ...
+class ElectricalConductance(_ElectricalConductance, ValueWithDimension):
+    """A scalar value representing electrical conductance. Standard unit: siemens (S)."""
 class ElectricalConductanceArray(
     _ElectricalConductance, ArrayWithDimension[ElectricalConductance]
-): ...
+):
+    """An array of electrical conductance values. Standard unit: siemens (S)."""
 
 class _Energy(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Energy(_Energy, ValueWithDimension): ...
-class EnergyArray(_Energy, ArrayWithDimension[Energy]): ...
+class Energy(_Energy, ValueWithDimension):
+    """A scalar value representing energy. Standard unit: joule (J)."""
+class EnergyArray(_Energy, ArrayWithDimension[Energy]):
+    """An array of energy values. Standard unit: joule (J)."""
 
 class _Force(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Force(_Force, ValueWithDimension): ...
-class ForceArray(_Force, ArrayWithDimension[Force]): ...
+class Force(_Force, ValueWithDimension):
+    """A scalar value representing force. Standard unit: newton (N)."""
+class ForceArray(_Force, ArrayWithDimension[Force]):
+    """An array of force values. Standard unit: newton (N)."""
 
 class _Frequency(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Frequency(_Frequency, ValueWithDimension): ...
-class FrequencyArray(_Frequency, ArrayWithDimension[Frequency]): ...
+class Frequency(_Frequency, ValueWithDimension):
+    """A scalar value representing frequency. Standard unit: hertz (Hz)."""
+class FrequencyArray(_Frequency, ArrayWithDimension[Frequency]):
+    """An array of frequency values. Standard unit: hertz (Hz)."""
 
 class _Illuminance(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Illuminance(_Illuminance, ValueWithDimension): ...
-class IlluminanceArray(_Illuminance, ArrayWithDimension[Illuminance]): ...
+class Illuminance(_Illuminance, ValueWithDimension):
+    """A scalar value representing illuminance. Standard unit: lux (lx)."""
+class IlluminanceArray(_Illuminance, ArrayWithDimension[Illuminance]):
+    """An array of illuminance values. Standard unit: lux (lx)."""
 
 class _Inductance(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Inductance(_Inductance, ValueWithDimension): ...
-class InductanceArray(_Inductance, ArrayWithDimension[Inductance]): ...
+class Inductance(_Inductance, ValueWithDimension):
+    """A scalar value representing electrical inductance. Standard unit: henry (H)."""
+class InductanceArray(_Inductance, ArrayWithDimension[Inductance]):
+    """An array of inductance values. Standard unit: henry (H)."""
 
 class _Length(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Length(_Length, ValueWithDimension): ...
-class LengthArray(_Length, ArrayWithDimension[Length]): ...
+class Length(_Length, ValueWithDimension):
+    """A scalar value representing length or distance. Standard unit: meter (m)."""
+class LengthArray(_Length, ArrayWithDimension[Length]):
+    """An array of length values. Standard unit: meter (m)."""
 
 class _LogPower(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class LogPower(_LogPower, ValueWithDimension): ...
-class LogPowerArray(_LogPower, ArrayWithDimension[LogPower]): ...
+class LogPower(_LogPower, ValueWithDimension):
+    """A scalar value representing logarithmic power or power ratio. Supported units: decibel-milliwatts (dBm), decibel (dB)."""
+class LogPowerArray(_LogPower, ArrayWithDimension[LogPower]):
+    """An array of logarithmic power values. Supported units: decibel-milliwatts (dBm), decibel (dB)."""
 
 class _LuminousFlux(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class LuminousFlux(_LuminousFlux, ValueWithDimension): ...
-class LuminousFluxArray(_LuminousFlux, ArrayWithDimension[LuminousFlux]): ...
+class LuminousFlux(_LuminousFlux, ValueWithDimension):
+    """A scalar value representing luminous flux. Standard unit: lumen (lm)."""
+class LuminousFluxArray(_LuminousFlux, ArrayWithDimension[LuminousFlux]):
+    """An array of luminous flux values. Standard unit: lumen (lm)."""
 
 class _LuminousIntensity(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class LuminousIntensity(_LuminousIntensity, ValueWithDimension): ...
-class LuminousIntensityArray(_LuminousIntensity, ArrayWithDimension[LuminousIntensity]): ...
+class LuminousIntensity(_LuminousIntensity, ValueWithDimension):
+    """A scalar value representing luminous intensity. Standard unit: candela (cd)."""
+class LuminousIntensityArray(_LuminousIntensity, ArrayWithDimension[LuminousIntensity]):
+    """An array of luminous intensity values. Standard unit: candela (cd)."""
 
 class _MagneticFlux(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class MagneticFlux(_MagneticFlux, ValueWithDimension): ...
-class MagneticFluxArray(_MagneticFlux, ArrayWithDimension[MagneticFlux]): ...
+class MagneticFlux(_MagneticFlux, ValueWithDimension):
+    """A scalar value representing magnetic flux. Standard unit: weber (Wb)."""
+class MagneticFluxArray(_MagneticFlux, ArrayWithDimension[MagneticFlux]):
+    """An array of magnetic flux values. Standard unit: weber (Wb)."""
 
 class _MagneticFluxDensity(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class MagneticFluxDensity(_MagneticFluxDensity, ValueWithDimension): ...
-class MagneticFluxDensityArray(_MagneticFluxDensity, ArrayWithDimension[MagneticFluxDensity]): ...
+class MagneticFluxDensity(_MagneticFluxDensity, ValueWithDimension):
+    """A scalar value representing magnetic flux density. Standard unit: tesla (T)."""
+class MagneticFluxDensityArray(_MagneticFluxDensity, ArrayWithDimension[MagneticFluxDensity]):
+    """An array of magnetic flux density values. Standard unit: tesla (T)."""
 
 class _Mass(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Mass(_Mass, ValueWithDimension): ...
-class MassArray(_Mass, ArrayWithDimension[Mass]): ...
+class Mass(_Mass, ValueWithDimension):
+    """A scalar value representing mass. Standard unit: kilogram (kg)."""
+class MassArray(_Mass, ArrayWithDimension[Mass]):
+    """An array of mass values. Standard unit: kilogram (kg)."""
 
 class _Noise(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Noise(_Noise, ValueWithDimension): ...
-class NoiseArray(_Noise, ArrayWithDimension[Noise]): ...
+class Noise(_Noise, ValueWithDimension):
+    """A scalar value representing spectral noise density. Base units: V/√Hz, W/Hz."""
+class NoiseArray(_Noise, ArrayWithDimension[Noise]):
+    """An array of spectral noise density values. Base units: V/√Hz, W/Hz."""
 
 class _Power(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Power(_Power, ValueWithDimension): ...
-class PowerArray(_Power, ArrayWithDimension[Power]): ...
+class Power(_Power, ValueWithDimension):
+    """A scalar value representing power. Standard unit: watt (W)."""
+class PowerArray(_Power, ArrayWithDimension[Power]):
+    """An array of power values. Standard unit: watt (W)."""
 
 class _Pressure(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Pressure(_Pressure, ValueWithDimension): ...
-class PressureArray(_Pressure, ArrayWithDimension[Pressure]): ...
+class Pressure(_Pressure, ValueWithDimension):
+    """A scalar value representing pressure. Standard unit: pascal (Pa)."""
+class PressureArray(_Pressure, ArrayWithDimension[Pressure]):
+    """An array of pressure values. Standard unit: pascal (Pa)."""
 
 class _Quantity(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Quantity(_Quantity, ValueWithDimension): ...
-class QuantityArray(_Quantity, ArrayWithDimension[Quantity]): ...
+class Quantity(_Quantity, ValueWithDimension):
+    """A scalar value representing amount of substance. Standard unit: mole (mol)."""
+class QuantityArray(_Quantity, ArrayWithDimension[Quantity]):
+    """An array of quantity values. Standard unit: mole (mol)."""
 
 class _Resistance(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Resistance(_Resistance, ValueWithDimension): ...
-class ResistanceArray(_Resistance, ArrayWithDimension[Resistance]): ...
+class Resistance(_Resistance, ValueWithDimension):
+    """A scalar value representing electrical resistance. Standard unit: ohm (Ω)."""
+class ResistanceArray(_Resistance, ArrayWithDimension[Resistance]):
+    """An array of resistance values. Standard unit: ohm (Ω)."""
 
 class _Speed(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Speed(_Speed, ValueWithDimension): ...
-class SpeedArray(_Speed, ArrayWithDimension[Speed]): ...
+class Speed(_Speed, ValueWithDimension):
+    """A scalar value representing speed or velocity. Standard unit: meters per second (m/s)."""
+class SpeedArray(_Speed, ArrayWithDimension[Speed]):
+    """An array of speed values. Standard unit: meters per second (m/s)."""
 
 class _SurfaceDensity(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class SurfaceDensity(_SurfaceDensity, ValueWithDimension): ...
-class SurfaceDensityArray(_SurfaceDensity, ArrayWithDimension[SurfaceDensity]): ...
+class SurfaceDensity(_SurfaceDensity, ValueWithDimension):
+    """A scalar value representing surface density. Standard unit: kilograms per square meter (kg/m²)."""
+class SurfaceDensityArray(_SurfaceDensity, ArrayWithDimension[SurfaceDensity]):
+    """An array of surface density values. Standard unit: kilograms per square meter (kg/m²)."""
 
 class _Temperature(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Temperature(_Temperature, ValueWithDimension): ...
-class TemperatureArray(_Temperature, ArrayWithDimension[Temperature]): ...
+class Temperature(_Temperature, ValueWithDimension):
+    """A scalar value representing temperature. Supported units: Kelvin (K), Celsius (°C), Fahrenheit (°F)."""
+class TemperatureArray(_Temperature, ArrayWithDimension[Temperature]):
+    """An array of temperature values. Supported units: Kelvin (K), Celsius (°C), Fahrenheit (°F)."""
 
 class _Time(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Time(_Time, ValueWithDimension): ...
-class TimeArray(_Time, ArrayWithDimension[Time]): ...
+class Time(_Time, ValueWithDimension):
+    """A scalar value representing time duration. Standard unit: second (s)."""
+class TimeArray(_Time, ArrayWithDimension[Time]):
+    """An array of time duration values. Standard unit: second (s)."""
 
 class _Torque(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Torque(_Torque, ValueWithDimension): ...
-class TorqueArray(_Torque, ArrayWithDimension[Torque]): ...
+class Torque(_Torque, ValueWithDimension):
+    """A scalar value representing torque. Standard unit: newton-meter (N·m)."""
+class TorqueArray(_Torque, ArrayWithDimension[Torque]):
+    """An array of torque values. Standard unit: newton-meter (N·m)."""
 
 class _Volume(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class Volume(_Volume, ValueWithDimension): ...
-class VolumeArray(_Volume, ArrayWithDimension[Volume]): ...
+class Volume(_Volume, ValueWithDimension):
+    """A scalar value representing volume. Standard unit: cubic meter (m³)."""
+class VolumeArray(_Volume, ArrayWithDimension[Volume]):
+    """An array of volume values. Standard unit: cubic meter (m³)."""
 
 class _WaveNumber(Dimension):
     @staticmethod
     def valid_base_units() -> tuple[Value, ...]: ...
 
-class WaveNumber(_WaveNumber, ValueWithDimension): ...
-class WaveNumberArray(_WaveNumber, ArrayWithDimension[WaveNumber]): ...
+class WaveNumber(_WaveNumber, ValueWithDimension):
+    """A scalar value representing wavenumber. Standard unit: reciprocal meter (m⁻¹)."""
+class WaveNumberArray(_WaveNumber, ArrayWithDimension[WaveNumber]):
+    """An array of wavenumber values. Standard unit: reciprocal meter (m⁻¹)."""
 
 @frozen
 class BaseUnitData:
