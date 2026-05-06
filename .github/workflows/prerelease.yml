@@ -4,6 +4,7 @@ on:
   push:
     branches:
     - main
+  pull_request:
 
 permissions:
   contents: read
@@ -40,6 +41,8 @@ jobs:
           - os: windows-2022
             arch: auto
           - os: macos-14
+            arch: auto
+          - os: windows-11-arm
             arch: auto
 
     steps:
