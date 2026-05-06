@@ -129,7 +129,7 @@ class UnitArray:
 
 NumericalT = TypeVar('NumericalT', default=float, bound=float | int)
 ValueType = TypeVar('ValueType', bound='Value')
-ValueType2 = TypeVar('ValueType2', default='Value', bound='Value')
+ValueType2 = TypeVar('ValueType2', default='Value', bound='Value', covariant=True)
 ArrayType = TypeVar('ArrayType', bound='ValueArray')
 
 @overload
