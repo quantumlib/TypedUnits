@@ -444,6 +444,7 @@ class _Acceleration(Dimension):
 
 class Acceleration(_Acceleration, ValueWithDimension):
     """A scalar value representing acceleration. Standard unit: meters per second squared (m/s²)."""
+
 class AccelerationArray(_Acceleration, ArrayWithDimension[Acceleration]):
     """An array of acceleration values. Standard unit: meters per second squared (m/s²)."""
 
@@ -453,6 +454,7 @@ class _Angle(Dimension):
 
 class Angle(_Angle, ValueWithDimension):
     """A scalar value representing a planar or solid angle. Base units: radian (rad), steradian (sr)."""
+
 class AngleArray(_Angle, ArrayWithDimension[Angle]):
     """An array of angle values. Base units: radian (rad), steradian (sr)."""
 
@@ -462,6 +464,7 @@ class _AngularFrequency(Dimension):
 
 class AngularFrequency(_AngularFrequency, ValueWithDimension):
     """A scalar value representing angular frequency. Standard unit: radians per second (rad/s)."""
+
 class AngularFrequencyArray(_AngularFrequency, ArrayWithDimension[AngularFrequency]):
     """An array of angular frequency values. Standard unit: radians per second (rad/s)."""
 
@@ -471,6 +474,7 @@ class _Area(Dimension):
 
 class Area(_Area, ValueWithDimension):
     """A scalar value representing area. Standard unit: square meter (m²)."""
+
 class AreaArray(_Area, ArrayWithDimension[Area]):
     """An array of area values. Standard unit: square meter (m²)."""
 
@@ -480,6 +484,7 @@ class _Capacitance(Dimension):
 
 class Capacitance(_Capacitance, ValueWithDimension):
     """A scalar value representing electrical capacitance. Standard unit: farad (F)."""
+
 class CapacitanceArray(_Capacitance, ArrayWithDimension[Capacitance]):
     """An array of capacitance values. Standard unit: farad (F)."""
 
@@ -489,6 +494,7 @@ class _Charge(Dimension):
 
 class Charge(_Charge, ValueWithDimension):
     """A scalar value representing electrical charge. Standard unit: coulomb (C)."""
+
 class ChargeArray(_Charge, ArrayWithDimension[Charge]):
     """An array of charge values. Standard unit: coulomb (C)."""
 
@@ -498,6 +504,7 @@ class _CurrentDensity(Dimension):
 
 class CurrentDensity(_CurrentDensity, ValueWithDimension):
     """A scalar value representing electrical current density. Standard unit: amperes per square meter (A/m²)."""
+
 class CurrentDensityArray(_CurrentDensity, ArrayWithDimension[CurrentDensity]):
     """An array of current density values. Standard unit: amperes per square meter (A/m²)."""
 
@@ -507,6 +514,7 @@ class _Density(Dimension):
 
 class Density(_Density, ValueWithDimension):
     """A scalar value representing mass density. Standard unit: kilograms per cubic meter (kg/m³)."""
+
 class DensityArray(_Density, ArrayWithDimension[Density]):
     """An array of density values. Standard unit: kilograms per cubic meter (kg/m³)."""
 
@@ -516,6 +524,7 @@ class _ElectricCurrent(Dimension):
 
 class ElectricCurrent(_ElectricCurrent, ValueWithDimension):
     """A scalar value representing electrical current. Standard unit: ampere (A)."""
+
 class ElectricCurrentArray(_ElectricCurrent, ArrayWithDimension[ElectricCurrent]):
     """An array of electrical current values. Standard unit: ampere (A)."""
 
@@ -525,6 +534,7 @@ class _ElectricPotential(Dimension):
 
 class ElectricPotential(_ElectricPotential, ValueWithDimension):
     """A scalar value representing electrical potential (voltage). Standard unit: volt (V)."""
+
 class ElectricPotentialArray(_ElectricPotential, ArrayWithDimension[ElectricPotential]):
     """An array of electrical potential values. Standard unit: volt (V)."""
 
@@ -534,9 +544,8 @@ class _ElectricalConductance(Dimension):
 
 class ElectricalConductance(_ElectricalConductance, ValueWithDimension):
     """A scalar value representing electrical conductance. Standard unit: siemens (S)."""
-class ElectricalConductanceArray(
-    _ElectricalConductance, ArrayWithDimension[ElectricalConductance]
-):
+
+class ElectricalConductanceArray(_ElectricalConductance, ArrayWithDimension[ElectricalConductance]):
     """An array of electrical conductance values. Standard unit: siemens (S)."""
 
 class _Energy(Dimension):
@@ -545,6 +554,7 @@ class _Energy(Dimension):
 
 class Energy(_Energy, ValueWithDimension):
     """A scalar value representing energy. Standard unit: joule (J)."""
+
 class EnergyArray(_Energy, ArrayWithDimension[Energy]):
     """An array of energy values. Standard unit: joule (J)."""
 
@@ -554,6 +564,7 @@ class _Force(Dimension):
 
 class Force(_Force, ValueWithDimension):
     """A scalar value representing force. Standard unit: newton (N)."""
+
 class ForceArray(_Force, ArrayWithDimension[Force]):
     """An array of force values. Standard unit: newton (N)."""
 
@@ -563,6 +574,7 @@ class _Frequency(Dimension):
 
 class Frequency(_Frequency, ValueWithDimension):
     """A scalar value representing frequency. Standard unit: hertz (Hz)."""
+
 class FrequencyArray(_Frequency, ArrayWithDimension[Frequency]):
     """An array of frequency values. Standard unit: hertz (Hz)."""
 
@@ -572,6 +584,7 @@ class _Illuminance(Dimension):
 
 class Illuminance(_Illuminance, ValueWithDimension):
     """A scalar value representing illuminance. Standard unit: lux (lx)."""
+
 class IlluminanceArray(_Illuminance, ArrayWithDimension[Illuminance]):
     """An array of illuminance values. Standard unit: lux (lx)."""
 
@@ -581,6 +594,7 @@ class _Inductance(Dimension):
 
 class Inductance(_Inductance, ValueWithDimension):
     """A scalar value representing electrical inductance. Standard unit: henry (H)."""
+
 class InductanceArray(_Inductance, ArrayWithDimension[Inductance]):
     """An array of inductance values. Standard unit: henry (H)."""
 
@@ -590,6 +604,7 @@ class _Length(Dimension):
 
 class Length(_Length, ValueWithDimension):
     """A scalar value representing length or distance. Standard unit: meter (m)."""
+
 class LengthArray(_Length, ArrayWithDimension[Length]):
     """An array of length values. Standard unit: meter (m)."""
 
@@ -599,6 +614,7 @@ class _LogPower(Dimension):
 
 class LogPower(_LogPower, ValueWithDimension):
     """A scalar value representing logarithmic power or power ratio. Supported units: decibel-milliwatts (dBm), decibel (dB)."""
+
 class LogPowerArray(_LogPower, ArrayWithDimension[LogPower]):
     """An array of logarithmic power values. Supported units: decibel-milliwatts (dBm), decibel (dB)."""
 
@@ -608,6 +624,7 @@ class _LuminousFlux(Dimension):
 
 class LuminousFlux(_LuminousFlux, ValueWithDimension):
     """A scalar value representing luminous flux. Standard unit: lumen (lm)."""
+
 class LuminousFluxArray(_LuminousFlux, ArrayWithDimension[LuminousFlux]):
     """An array of luminous flux values. Standard unit: lumen (lm)."""
 
@@ -617,6 +634,7 @@ class _LuminousIntensity(Dimension):
 
 class LuminousIntensity(_LuminousIntensity, ValueWithDimension):
     """A scalar value representing luminous intensity. Standard unit: candela (cd)."""
+
 class LuminousIntensityArray(_LuminousIntensity, ArrayWithDimension[LuminousIntensity]):
     """An array of luminous intensity values. Standard unit: candela (cd)."""
 
@@ -626,6 +644,7 @@ class _MagneticFlux(Dimension):
 
 class MagneticFlux(_MagneticFlux, ValueWithDimension):
     """A scalar value representing magnetic flux. Standard unit: weber (Wb)."""
+
 class MagneticFluxArray(_MagneticFlux, ArrayWithDimension[MagneticFlux]):
     """An array of magnetic flux values. Standard unit: weber (Wb)."""
 
@@ -635,6 +654,7 @@ class _MagneticFluxDensity(Dimension):
 
 class MagneticFluxDensity(_MagneticFluxDensity, ValueWithDimension):
     """A scalar value representing magnetic flux density. Standard unit: tesla (T)."""
+
 class MagneticFluxDensityArray(_MagneticFluxDensity, ArrayWithDimension[MagneticFluxDensity]):
     """An array of magnetic flux density values. Standard unit: tesla (T)."""
 
@@ -644,6 +664,7 @@ class _Mass(Dimension):
 
 class Mass(_Mass, ValueWithDimension):
     """A scalar value representing mass. Standard unit: kilogram (kg)."""
+
 class MassArray(_Mass, ArrayWithDimension[Mass]):
     """An array of mass values. Standard unit: kilogram (kg)."""
 
@@ -653,6 +674,7 @@ class _Noise(Dimension):
 
 class Noise(_Noise, ValueWithDimension):
     """A scalar value representing spectral noise density. Base units: V/√Hz, W/Hz."""
+
 class NoiseArray(_Noise, ArrayWithDimension[Noise]):
     """An array of spectral noise density values. Base units: V/√Hz, W/Hz."""
 
@@ -662,6 +684,7 @@ class _Power(Dimension):
 
 class Power(_Power, ValueWithDimension):
     """A scalar value representing power. Standard unit: watt (W)."""
+
 class PowerArray(_Power, ArrayWithDimension[Power]):
     """An array of power values. Standard unit: watt (W)."""
 
@@ -671,6 +694,7 @@ class _Pressure(Dimension):
 
 class Pressure(_Pressure, ValueWithDimension):
     """A scalar value representing pressure. Standard unit: pascal (Pa)."""
+
 class PressureArray(_Pressure, ArrayWithDimension[Pressure]):
     """An array of pressure values. Standard unit: pascal (Pa)."""
 
@@ -680,6 +704,7 @@ class _Quantity(Dimension):
 
 class Quantity(_Quantity, ValueWithDimension):
     """A scalar value representing amount of substance. Standard unit: mole (mol)."""
+
 class QuantityArray(_Quantity, ArrayWithDimension[Quantity]):
     """An array of quantity values. Standard unit: mole (mol)."""
 
@@ -689,6 +714,7 @@ class _Resistance(Dimension):
 
 class Resistance(_Resistance, ValueWithDimension):
     """A scalar value representing electrical resistance. Standard unit: ohm (Ω)."""
+
 class ResistanceArray(_Resistance, ArrayWithDimension[Resistance]):
     """An array of resistance values. Standard unit: ohm (Ω)."""
 
@@ -698,6 +724,7 @@ class _Speed(Dimension):
 
 class Speed(_Speed, ValueWithDimension):
     """A scalar value representing speed or velocity. Standard unit: meters per second (m/s)."""
+
 class SpeedArray(_Speed, ArrayWithDimension[Speed]):
     """An array of speed values. Standard unit: meters per second (m/s)."""
 
@@ -707,6 +734,7 @@ class _SurfaceDensity(Dimension):
 
 class SurfaceDensity(_SurfaceDensity, ValueWithDimension):
     """A scalar value representing surface density. Standard unit: kilograms per square meter (kg/m²)."""
+
 class SurfaceDensityArray(_SurfaceDensity, ArrayWithDimension[SurfaceDensity]):
     """An array of surface density values. Standard unit: kilograms per square meter (kg/m²)."""
 
@@ -716,6 +744,7 @@ class _Temperature(Dimension):
 
 class Temperature(_Temperature, ValueWithDimension):
     """A scalar value representing temperature. Supported units: Kelvin (K), Celsius (°C), Fahrenheit (°F)."""
+
 class TemperatureArray(_Temperature, ArrayWithDimension[Temperature]):
     """An array of temperature values. Supported units: Kelvin (K), Celsius (°C), Fahrenheit (°F)."""
 
@@ -725,6 +754,7 @@ class _Time(Dimension):
 
 class Time(_Time, ValueWithDimension):
     """A scalar value representing time duration. Standard unit: second (s)."""
+
 class TimeArray(_Time, ArrayWithDimension[Time]):
     """An array of time duration values. Standard unit: second (s)."""
 
@@ -734,6 +764,7 @@ class _Torque(Dimension):
 
 class Torque(_Torque, ValueWithDimension):
     """A scalar value representing torque. Standard unit: newton-meter (N·m)."""
+
 class TorqueArray(_Torque, ArrayWithDimension[Torque]):
     """An array of torque values. Standard unit: newton-meter (N·m)."""
 
@@ -743,6 +774,7 @@ class _Volume(Dimension):
 
 class Volume(_Volume, ValueWithDimension):
     """A scalar value representing volume. Standard unit: cubic meter (m³)."""
+
 class VolumeArray(_Volume, ArrayWithDimension[Volume]):
     """An array of volume values. Standard unit: cubic meter (m³)."""
 
@@ -752,6 +784,7 @@ class _WaveNumber(Dimension):
 
 class WaveNumber(_WaveNumber, ValueWithDimension):
     """A scalar value representing wavenumber. Standard unit: reciprocal meter (m⁻¹)."""
+
 class WaveNumberArray(_WaveNumber, ArrayWithDimension[WaveNumber]):
     """An array of wavenumber values. Standard unit: reciprocal meter (m⁻¹)."""
 
