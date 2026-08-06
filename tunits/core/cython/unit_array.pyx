@@ -244,6 +244,8 @@ cdef class UnitArray:
         }
 
     def __setstate__(self, pickle_info: dict[str, Any]):
+        if len(pickle_info['units']) != pickle_info['unit_count']:
+            raise ValueError("invalid pickle dictionary")
         self.unit_count = pickle_info['unit_count']
         self.units = <UnitTerm *>PyMem_Malloc(self.unit_count*sizeof(UnitTerm))
         for i, (name, numer, denom) in enumerate(pickle_info['units']):
