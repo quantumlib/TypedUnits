@@ -255,12 +255,14 @@ def test_pick_roundtrip() -> None:
             s = pickle.dumps(x)
             assert all(x == pickle.loads(s))
 
+
 def test_pickle_issafe() -> None:
     x = (tu.ns * tu.GHz * [1, 2, 3]).display_units
     s = x.__getstate__()
     s['unit_count'] = 0
-    with pytest.raises(ValueError):
-        _ = ValueArray("")
+    with pytest.raises(ValueError, match="invalid pickle"):
+        y = ValueArray("")
+        y.display_units.__setstate__(s)
 
 
 class _InvalidUnit:
