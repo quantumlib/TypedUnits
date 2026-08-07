@@ -16,28 +16,28 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import builtins
-import collections.abc
-import google.protobuf.descriptor
-import google.protobuf.internal.containers
-import google.protobuf.internal.enum_type_wrapper
-import google.protobuf.message
+from collections import abc as _abc
+from google.protobuf import descriptor as _descriptor
+from google.protobuf import message as _message
+from google.protobuf.internal import containers as _containers
+from google.protobuf.internal import enum_type_wrapper as _enum_type_wrapper
+import builtins as _builtins
 import sys
-import typing
+import typing as _typing
 
-if sys.version_info >= (3, 10):
-    import typing as typing_extensions
+if sys.version_info >= (3, 11):
+    from typing import TypeAlias as _TypeAlias, Never as _Never
 else:
-    import typing_extensions
+    from typing_extensions import TypeAlias as _TypeAlias, Never as _Never
 
-DESCRIPTOR: google.protobuf.descriptor.FileDescriptor
+DESCRIPTOR: _descriptor.FileDescriptor
 
 class _UnitEnum:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
+    ValueType = _typing.NewType("ValueType", _builtins.int)
+    V: _TypeAlias = ValueType  # noqa: Y015
 
-class _UnitEnumEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_UnitEnum.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+class _UnitEnumEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_UnitEnum.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
     DECIBEL: _UnitEnum.ValueType  # 1
     """Power unit (dB)."""
     DECIBEL_MILLIWATTS: _UnitEnum.ValueType  # 2
@@ -66,14 +66,14 @@ VOLT: UnitEnum.ValueType  # 5
 """Electric potential Unit (V)."""
 SECOND: UnitEnum.ValueType  # 6
 """Time unit (s)."""
-global___UnitEnum = UnitEnum
+Global___UnitEnum: _TypeAlias = UnitEnum  # noqa: Y015
 
 class _Scale:
-    ValueType = typing.NewType("ValueType", builtins.int)
-    V: typing_extensions.TypeAlias = ValueType
+    ValueType = _typing.NewType("ValueType", _builtins.int)
+    V: _TypeAlias = ValueType  # noqa: Y015
 
-class _ScaleEnumTypeWrapper(google.protobuf.internal.enum_type_wrapper._EnumTypeWrapper[_Scale.ValueType], builtins.type):
-    DESCRIPTOR: google.protobuf.descriptor.EnumDescriptor
+class _ScaleEnumTypeWrapper(_enum_type_wrapper._EnumTypeWrapper[_Scale.ValueType], _builtins.type):
+    DESCRIPTOR: _descriptor.EnumDescriptor
     YOTTA: _Scale.ValueType  # 24
     """Enum value should be the associated exponent.
     10^24
@@ -165,178 +165,203 @@ ZEPTO: Scale.ValueType  # -21
 """10^-21"""
 YOCTO: Scale.ValueType  # -24
 """10^-24"""
-global___Scale = Scale
+Global___Scale: _TypeAlias = Scale  # noqa: Y015
 
-@typing.final
-class Fraction(google.protobuf.message.Message):
+@_typing.final
+class Fraction(_message.Message):
     """The exponent of a unit e.g.
     m^3 gives numerator=3, denominator=1.
     sqrt(Hz) gives numerator=1, denominator=2.
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    NUMERATOR_FIELD_NUMBER: builtins.int
-    DENOMINATOR_FIELD_NUMBER: builtins.int
-    numerator: builtins.int
-    denominator: builtins.int
+    NUMERATOR_FIELD_NUMBER: _builtins.int
+    DENOMINATOR_FIELD_NUMBER: _builtins.int
+    numerator: _builtins.int
+    denominator: _builtins.int
     def __init__(
         self,
         *,
-        numerator: builtins.int | None = ...,
-        denominator: builtins.int | None = ...,
+        numerator: _builtins.int | None = ...,
+        denominator: _builtins.int | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["denominator", b"denominator", "numerator", b"numerator"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["denominator", b"denominator", "numerator", b"numerator"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["denominator", b"denominator", "numerator", b"numerator"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["denominator", b"denominator", "numerator", b"numerator"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___Fraction = Fraction
+Global___Fraction: _TypeAlias = Fraction  # noqa: Y015
 
-@typing.final
-class Unit(google.protobuf.message.Message):
+@_typing.final
+class Unit(_message.Message):
     """Unit message has a base unit, a scale and an exponent, e.g. 1/sqrt(ns)
     becomes unit=SECOND, scale=NANO, exponent.numerator=-1,
     exponent.denominator=2
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    UNIT_FIELD_NUMBER: builtins.int
-    SCALE_FIELD_NUMBER: builtins.int
-    EXPONENT_FIELD_NUMBER: builtins.int
-    unit: global___UnitEnum.ValueType
-    scale: global___Scale.ValueType
-    @property
-    def exponent(self) -> global___Fraction: ...
+    UNIT_FIELD_NUMBER: _builtins.int
+    SCALE_FIELD_NUMBER: _builtins.int
+    EXPONENT_FIELD_NUMBER: _builtins.int
+    unit: Global___UnitEnum.ValueType
+    scale: Global___Scale.ValueType
+    @_builtins.property
+    def exponent(self) -> Global___Fraction: ...
     def __init__(
         self,
         *,
-        unit: global___UnitEnum.ValueType | None = ...,
-        scale: global___Scale.ValueType | None = ...,
-        exponent: global___Fraction | None = ...,
+        unit: Global___UnitEnum.ValueType | None = ...,
+        scale: Global___Scale.ValueType | None = ...,
+        exponent: Global___Fraction | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["exponent", b"exponent", "scale", b"scale", "unit", b"unit"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["exponent", b"exponent", "scale", b"scale", "unit", b"unit"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["exponent", b"exponent", "scale", b"scale", "unit", b"unit"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["exponent", b"exponent", "scale", b"scale", "unit", b"unit"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___Unit = Unit
+Global___Unit: _TypeAlias = Unit  # noqa: Y015
 
-@typing.final
-class Complex(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+@_typing.final
+class Complex(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
 
-    REAL_FIELD_NUMBER: builtins.int
-    IMAGINARY_FIELD_NUMBER: builtins.int
-    real: builtins.float
-    imaginary: builtins.float
+    REAL_FIELD_NUMBER: _builtins.int
+    IMAGINARY_FIELD_NUMBER: _builtins.int
+    real: _builtins.float
+    imaginary: _builtins.float
     def __init__(
         self,
         *,
-        real: builtins.float | None = ...,
-        imaginary: builtins.float | None = ...,
+        real: _builtins.float | None = ...,
+        imaginary: _builtins.float | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["imaginary", b"imaginary", "real", b"real"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["imaginary", b"imaginary", "real", b"real"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["imaginary", b"imaginary", "real", b"real"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["imaginary", b"imaginary", "real", b"real"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___Complex = Complex
+Global___Complex: _TypeAlias = Complex  # noqa: Y015
 
-@typing.final
-class Value(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+@_typing.final
+class Value(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
 
-    UNITS_FIELD_NUMBER: builtins.int
-    REAL_VALUE_FIELD_NUMBER: builtins.int
-    COMPLEX_VALUE_FIELD_NUMBER: builtins.int
-    real_value: builtins.float
-    @property
-    def units(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Unit]:
+    UNITS_FIELD_NUMBER: _builtins.int
+    REAL_VALUE_FIELD_NUMBER: _builtins.int
+    COMPLEX_VALUE_FIELD_NUMBER: _builtins.int
+    real_value: _builtins.float
+    @_builtins.property
+    def units(self) -> _containers.RepeatedCompositeFieldContainer[Global___Unit]:
         """Units are repeated to represent combinations of units (e.g. V*s and mV/us).
         Units are combined through multiplication.
         """
 
-    @property
-    def complex_value(self) -> global___Complex: ...
+    @_builtins.property
+    def complex_value(self) -> Global___Complex: ...
     def __init__(
         self,
         *,
-        units: collections.abc.Iterable[global___Unit] | None = ...,
-        real_value: builtins.float | None = ...,
-        complex_value: global___Complex | None = ...,
+        units: _abc.Iterable[Global___Unit] | None = ...,
+        real_value: _builtins.float | None = ...,
+        complex_value: Global___Complex | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["complex_value", b"complex_value", "real_value", b"real_value", "value", b"value"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["complex_value", b"complex_value", "real_value", b"real_value", "units", b"units", "value", b"value"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["value", b"value"]) -> typing.Literal["real_value", "complex_value"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["complex_value", b"complex_value", "real_value", b"real_value", "value", b"value"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["complex_value", b"complex_value", "real_value", b"real_value", "units", b"units", "value", b"value"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType_value: _TypeAlias = _typing.Literal["real_value", "complex_value"]  # noqa: Y015
+    _WhichOneofArgType_value: _TypeAlias = _typing.Literal["value", b"value"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_value) -> _WhichOneofReturnType_value | None: ...
 
-global___Value = Value
+Global___Value: _TypeAlias = Value  # noqa: Y015
 
-@typing.final
-class DoubleArray(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+@_typing.final
+class DoubleArray(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
 
-    VALUES_FIELD_NUMBER: builtins.int
-    @property
-    def values(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.float]: ...
+    VALUES_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def values(self) -> _containers.RepeatedScalarFieldContainer[_builtins.float]: ...
     def __init__(
         self,
         *,
-        values: collections.abc.Iterable[builtins.float] | None = ...,
+        values: _abc.Iterable[_builtins.float] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["values", b"values"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["values", b"values"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___DoubleArray = DoubleArray
+Global___DoubleArray: _TypeAlias = DoubleArray  # noqa: Y015
 
-@typing.final
-class ComplexArray(google.protobuf.message.Message):
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+@_typing.final
+class ComplexArray(_message.Message):
+    DESCRIPTOR: _descriptor.Descriptor
 
-    VALUES_FIELD_NUMBER: builtins.int
-    @property
-    def values(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Complex]: ...
+    VALUES_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def values(self) -> _containers.RepeatedCompositeFieldContainer[Global___Complex]: ...
     def __init__(
         self,
         *,
-        values: collections.abc.Iterable[global___Complex] | None = ...,
+        values: _abc.Iterable[Global___Complex] | None = ...,
     ) -> None: ...
-    def ClearField(self, field_name: typing.Literal["values", b"values"]) -> None: ...
+    _HasFieldArgType: _TypeAlias = _Never  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["values", b"values"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    def WhichOneof(self, oneof_group: _Never) -> None: ...
 
-global___ComplexArray = ComplexArray
+Global___ComplexArray: _TypeAlias = ComplexArray  # noqa: Y015
 
-@typing.final
-class ValueArray(google.protobuf.message.Message):
+@_typing.final
+class ValueArray(_message.Message):
     """Represents an array with associated units (a collection of values that share
     the same units).
     """
 
-    DESCRIPTOR: google.protobuf.descriptor.Descriptor
+    DESCRIPTOR: _descriptor.Descriptor
 
-    UNITS_FIELD_NUMBER: builtins.int
-    REALS_FIELD_NUMBER: builtins.int
-    COMPLEXES_FIELD_NUMBER: builtins.int
-    SHAPE_FIELD_NUMBER: builtins.int
-    @property
-    def units(self) -> google.protobuf.internal.containers.RepeatedCompositeFieldContainer[global___Unit]:
+    UNITS_FIELD_NUMBER: _builtins.int
+    REALS_FIELD_NUMBER: _builtins.int
+    COMPLEXES_FIELD_NUMBER: _builtins.int
+    SHAPE_FIELD_NUMBER: _builtins.int
+    @_builtins.property
+    def units(self) -> _containers.RepeatedCompositeFieldContainer[Global___Unit]:
         """Units are repeated to represent combinations of units (e.g. V*s and mV/us).
         Units are combined through multiplication.
         """
 
-    @property
-    def reals(self) -> global___DoubleArray:
+    @_builtins.property
+    def reals(self) -> Global___DoubleArray:
         """The flattened array."""
 
-    @property
-    def complexes(self) -> global___ComplexArray: ...
-    @property
-    def shape(self) -> google.protobuf.internal.containers.RepeatedScalarFieldContainer[builtins.int]:
+    @_builtins.property
+    def complexes(self) -> Global___ComplexArray: ...
+    @_builtins.property
+    def shape(self) -> _containers.RepeatedScalarFieldContainer[_builtins.int]:
         """The shape of the array."""
 
     def __init__(
         self,
         *,
-        units: collections.abc.Iterable[global___Unit] | None = ...,
-        reals: global___DoubleArray | None = ...,
-        complexes: global___ComplexArray | None = ...,
-        shape: collections.abc.Iterable[builtins.int] | None = ...,
+        units: _abc.Iterable[Global___Unit] | None = ...,
+        reals: Global___DoubleArray | None = ...,
+        complexes: Global___ComplexArray | None = ...,
+        shape: _abc.Iterable[_builtins.int] | None = ...,
     ) -> None: ...
-    def HasField(self, field_name: typing.Literal["complexes", b"complexes", "reals", b"reals", "values", b"values"]) -> builtins.bool: ...
-    def ClearField(self, field_name: typing.Literal["complexes", b"complexes", "reals", b"reals", "shape", b"shape", "units", b"units", "values", b"values"]) -> None: ...
-    def WhichOneof(self, oneof_group: typing.Literal["values", b"values"]) -> typing.Literal["reals", "complexes"] | None: ...
+    _HasFieldArgType: _TypeAlias = _typing.Literal["complexes", b"complexes", "reals", b"reals", "values", b"values"]  # noqa: Y015
+    def HasField(self, field_name: _HasFieldArgType) -> _builtins.bool: ...
+    _ClearFieldArgType: _TypeAlias = _typing.Literal["complexes", b"complexes", "reals", b"reals", "shape", b"shape", "units", b"units", "values", b"values"]  # noqa: Y015
+    def ClearField(self, field_name: _ClearFieldArgType) -> None: ...
+    _WhichOneofReturnType_values: _TypeAlias = _typing.Literal["reals", "complexes"]  # noqa: Y015
+    _WhichOneofArgType_values: _TypeAlias = _typing.Literal["values", b"values"]  # noqa: Y015
+    def WhichOneof(self, oneof_group: _WhichOneofArgType_values) -> _WhichOneofReturnType_values | None: ...
 
-global___ValueArray = ValueArray
+Global___ValueArray: _TypeAlias = ValueArray  # noqa: Y015
