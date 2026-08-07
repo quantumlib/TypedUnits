@@ -576,6 +576,8 @@ cdef class WithUnit:
         except NotTUnitsLikeError:
             return NotImplemented
         except TypeError:
+            if (key is Ellipsis or isinstance(key, tuple)) and not isinstance(self.value, np.ndarray):
+                return self.__with_value(np.float64(self.value)[key])
             try:
                 unit_val = _try_interpret_as_with_unit(str(key), True)
             except:

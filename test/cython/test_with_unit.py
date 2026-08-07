@@ -488,9 +488,9 @@ def test_get_item() -> None:
 
     # Wrong kinds of index (unit array, slice).
     with pytest.raises(UnitMismatchError):
-        _ = u[mps]
+        _ = u[mps]  # type: ignore[call-overload]
     with pytest.raises(NotTUnitsLikeError):
-        _ = u[1:2]
+        _ = u[1:2]  # type: ignore[call-overload]
 
     assert u[v / v] == 10
 
