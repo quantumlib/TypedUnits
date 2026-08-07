@@ -347,7 +347,7 @@ class Value(Generic[NumericalT], WithUnit, np.generic, SupportsIndex):
     def __getitem__(self: ValueType, other: ValueType | str) -> NumericalT: ...
     @overload
     def __getitem__(
-        self, other: Any
+        self, other: tuple[None, ...]
     ) -> np.ndarray[tuple[Any, ...], np.dtype[Value[NumericalT]]]: ...
 
 class ValueArray(Generic[ValueType2], WithUnit):
