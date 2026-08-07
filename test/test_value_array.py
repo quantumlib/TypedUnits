@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from typing import Any
 import itertools
 import pickle
 
@@ -254,6 +255,15 @@ def test_pick_roundtrip() -> None:
             x = value * unit
             s = pickle.dumps(x)
             assert all(x == pickle.loads(s))
+
+
+def test_pickle_issafe() -> None:
+    x = (tu.ns * tu.GHz * [1, 2, 3]).display_units
+    s: dict[str, Any] = x.__getstate__()  # type: ignore[assignment]
+    s['unit_count'] = 0
+    with pytest.raises(ValueError, match="invalid pickle"):
+        y = ValueArray("")
+        y.display_units.__setstate__(s)  # type: ignore[attr-defined]
 
 
 class _InvalidUnit:
