@@ -181,6 +181,11 @@ def test_get_item() -> None:
     assert Value(1, '')[Value(1, '')] == 1
     assert Value(1, '')[ns / s] == 10**9
 
+    x = np.float64(3)
+    unit = ns
+    for key in ..., (), (None,), (None, None), (None, None, None):
+        assert Value(x, unit)[key] == (unit * x[key])
+
 
 def test_cycles() -> None:
     from tunits.units import cyc, rad
