@@ -727,6 +727,50 @@ class SpeedArray(_Speed, ArrayWithDimension):
     """An array of speed values. Standard unit: meters per second (m/s)."""
 
 
+class _SqrtFlux(Dimension):
+
+    @staticmethod
+    @cache
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['Hz'] ** 0.5,)
+
+    def _value_class(self) -> type[Value]:
+        return SqrtFlux
+
+    def _array_class(self) -> type[ValueArray]:
+        return SqrtFluxArray
+
+
+class SqrtFlux(_SqrtFlux, ValueWithDimension):
+    """A scalar value representing square root of flux. Standard unit: sqrt(1/s)."""
+
+
+class SqrtFluxArray(_SqrtFlux, ArrayWithDimension):
+    """An array of square root of flux. Standard unit: sqrt(1/s)."""
+
+
+class _SqrtPower(Dimension):
+
+    @staticmethod
+    @cache
+    def valid_base_units() -> tuple[Value, ...]:
+        return (default_unit_database.known_units['W'] ** 0.5,)
+
+    def _value_class(self) -> type[Value]:
+        return SqrtPower
+
+    def _array_class(self) -> type[ValueArray]:
+        return SqrtPowerArray
+
+
+class SqrtPower(_SqrtPower, ValueWithDimension):
+    """A scalar value representing square root of power. Standard unit: sqrt(W)."""
+
+
+class SqrtPowerArray(_SqrtPower, ArrayWithDimension):
+    """An array of square root of power. Standard unit: sqrt(W)."""
+
+
 class _SurfaceDensity(Dimension):
 
     @staticmethod

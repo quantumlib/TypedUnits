@@ -80,6 +80,8 @@ from tunits_core import (
     Resistance,
     SpeedArray,
     Speed,
+    SqrtFlux,
+    SqrtPower,
     SurfaceDensityArray,
     SurfaceDensity,
     TemperatureArray,
