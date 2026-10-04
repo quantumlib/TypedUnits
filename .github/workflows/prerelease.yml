@@ -39,7 +39,7 @@ jobs:
             arch: aarch64
           - os: windows-2022
             arch: auto
-          - os: macos-14
+          - os: macos-15
             arch: auto
 
     steps:
